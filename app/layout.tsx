@@ -126,7 +126,7 @@ export default function RootLayout({
       <body>
 
  
-      <GifLoader />
+      {/* <GifLoader />
 
         
         <BooleanProvider>
@@ -136,7 +136,17 @@ export default function RootLayout({
           {children} 
           <Footer />
         </CartProvider>
-        </BooleanProvider>
+        </BooleanProvider> */}
+
+<main className="flex min-h-screen flex-col items-center justify-center bg-gray-100 text-center">
+      <img
+        src="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1740569515/hwradvwzkboymjfkms7y.png"
+        alt="Logo"
+        className="w-48 h-auto mb-6"
+      />
+      <h1 className="text-3xl font-bold text-gray-800">Coming Soon</h1>
+      <p className="text-gray-600 mt-2">We are working on something amazing. Stay tuned!</p>
+    </main>
         
       </body>
     </html>

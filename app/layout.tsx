@@ -10,6 +10,7 @@ import { CartProvider } from './context/CartContext';
 import { BooleanProvider } from './context/CartBoolContext'; 
 import GifLoader from '../components/GifLoader'
 import WhatsAppIcon from '../components/WhatsAppIcon'; 
+import Appoint from '../components/Appoint'; 
 
  
 
@@ -116,7 +117,7 @@ export default function RootLayout({
 <link href="https://fonts.cdnfonts.com/css/lato" rel="stylesheet"/> 
  
 <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?display=swap&amp;family=Poiret+One%3A300%2C400" media="all"/>
-                
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Lexend:wght@100..900&family=Shadows+Into+Light&family=Sofia+Sans+Condensed:ital,wght@0,1..1000;1,1..1000&display=swap" rel="stylesheet"/>              
                 
 
  
@@ -126,27 +127,20 @@ export default function RootLayout({
       <body>
 
  
-      {/* <GifLoader />
+      <GifLoader />
 
         
         <BooleanProvider>
         <CartProvider>
           <Navbar2 />
           <WhatsAppIcon />
+          <Appoint />
           {children} 
           <Footer />
         </CartProvider>
-        </BooleanProvider> */}
+        </BooleanProvider>
 
-<main className="flex min-h-screen flex-col items-center justify-center bg-gray-100 text-center">
-      <img
-        src="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1740569515/hwradvwzkboymjfkms7y.png"
-        alt="Logo"
-        className="w-48 h-auto mb-6"
-      />
-      <h1 className="text-3xl font-bold text-gray-800">Coming Soon</h1>
-      <p className="text-gray-600 mt-2">We are working on something amazing. Stay tuned!</p>
-    </main>
+ 
         
       </body>
     </html>

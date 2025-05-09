@@ -94,7 +94,7 @@ export default function Home() {
                 <style
                     dangerouslySetInnerHTML={{
                         __html:
-                            "\n  .u-section-1 .u-image-1 {\n    border-color: #222222 !important;\n    width: 170px;\n    height: 170px;\n    margin: 0 auto;\n}\n"
+                            "\n  .u-section-1 .u-image-1 {\n    border-color: #100501 !important;\n    width: 170px;\n    height: 170px;\n    margin: 0 auto;\n}\n"
                     }}
                 />
 

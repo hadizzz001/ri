@@ -13,6 +13,7 @@ export interface TempProps{
     title:string;
     category:string;
     price:string;
+    discount:string;
     img: string;
 }
 

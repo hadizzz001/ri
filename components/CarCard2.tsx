@@ -53,7 +53,7 @@ const CarCard = ({ temp }: CarCardProps) => {
                                         href={`/product?id=${_id}`}
                                         className="br_text-current br_no-underline"
                                     >
-                                        {title}<br />
+                                        🔥{title} 1 Box 📦<br />
 
 
 

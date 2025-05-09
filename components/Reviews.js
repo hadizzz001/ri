@@ -3,8 +3,8 @@ import React from 'react'
 const Reviews = () => {
   return (
     <>
- 
- <iframe src='https://widgets.sociablekit.com/google-reviews/iframe/25528422' frameborder='0' width='100%' height='1000'></iframe>
+   <h1 className="text-center uppercase mypar1122" style={{fontSize:'40px'}}>Reviews</h1>
+ <iframe src='https://widgets.sociablekit.com/google-reviews/iframe/25554848' frameborder='0' width='100%' height='300'></iframe>
  </>
   )
 }

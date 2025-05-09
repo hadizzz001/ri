@@ -4649,7 +4649,7 @@ ol.wp-block-latest-comments li {
     transform: none;
     position: relative;
     font-size: 15px;
-    color: #212529;
+    color: #100501;
     margin-bottom: 12px;
 }
 
@@ -6811,7 +6811,7 @@ html.disable-scroll {
     display: block;
     border-radius: 6px;
     overflow: hidden;
-    background-color: #222;
+    background-color: #100501;
 }
 
 .widget.widget_instagram .instagram-wrap .instagram_badge_image a:after,
@@ -6973,7 +6973,7 @@ html.disable-scroll {
 /* Widget: Media Gallery */
 
 .widget.widget_media_gallery .gallery-icon {
-    background-color: #222;
+    background-color: #100501;
     overflow: hidden;
 }
 
@@ -9681,7 +9681,7 @@ form.register .input-submit~span.lost_password a {
 }
 
 .woocommerce-MyAccount-navigation ul li li a:hover {
-    color: #222222;
+    color: #100501;
 }
 
 .woocommerce-MyAccount-navigation ul li.is-active {

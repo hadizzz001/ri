@@ -18,8 +18,8 @@ export default function Features() {
                 <div className="relative flex py-5 items-center">
                     <div className="flex-grow " />
                     <span className="flex-shrink mx-4  ">
-                        <h1 className="uppercase mypar1122" style={{fontSize:'40px'}}>Rafi Daham</h1>
-                        <h1 className="uppercase mypar1122" style={{fontSize:'40px'}}>Hair Repair Studio</h1>
+                        <h5 className="uppercase mypar11223 mb-3">Rafi Daham</h5>
+                        <h1 className="uppercase mypar11224">Hair Repair Studio</h1>
                         </span>
                     <div className="flex-grow" />
                 </div>

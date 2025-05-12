@@ -19,6 +19,7 @@
     "react-calendar": "^5.1.0",
     "react-datepicker": "^8.1.0",
     "react-dom": "^18",
+    "react-fast-marquee": "^1.6.5",
     "react-responsive-carousel": "^3.2.23",
     "react-slick": "^0.30.3",
     "resend": "^4.1.2",

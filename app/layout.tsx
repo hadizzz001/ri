@@ -49,7 +49,7 @@ export default function RootLayout({
     property="og:title"
   />
   <meta
-    content="https://abbasbaba.com/"
+    content="https://rafidaham.com/"
     name=""
     property="og:url"
   />
@@ -60,23 +60,23 @@ export default function RootLayout({
     property="og:description"
   />
   <meta
-    content="/logo.png"
+    content="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1747076728/vzuolw8ebi6acoynqyy6.webp"
     name=""
     property="og:image"
   />
    
   <link
-    href="/favicon.ico"
+    href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1747076728/vzuolw8ebi6acoynqyy6.webp"
     rel="apple-touch-icon"
     sizes="180x180"
   />
   <link
-    href="/favicon.ico"
+    href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1747076728/vzuolw8ebi6acoynqyy6.webp"
     rel="icon"
     sizes="32x32" 
   />
   <link
-    href="/favicon.ico"
+    href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1747076728/vzuolw8ebi6acoynqyy6.webp"
     rel="icon"
     sizes="16x16" 
   /> 
@@ -113,12 +113,9 @@ export default function RootLayout({
     rel="stylesheet"
     href="css/style-4109db2b.css"
   />
-
-<link href="https://fonts.cdnfonts.com/css/lato" rel="stylesheet"/> 
+  
  
-<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?display=swap&amp;family=Poiret+One%3A300%2C400" media="all"/>
-<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Lexend:wght@100..900&family=Shadows+Into+Light&family=Sofia+Sans+Condensed:ital,wght@0,1..1000;1,1..1000&display=swap" rel="stylesheet"/>              
-                
+<link href="https://db.onlinewebfonts.com/c/fc650de7c3b3af62825a0e743b69425f?family=Helvetica+Neue+LT+W05+55+Roman" rel="stylesheet" type="text/css"/>             
 
  
   

@@ -11,15 +11,15 @@ const slides = [
     id: 1,
     video: "https://res.cloudinary.com/www-eliesaab-com/video/upload/c_scale,f_auto,h_1200,q_auto/v1744893489/trial_rpxj2w.mp4",
     topLine: "BRIDE HAIR EXPERT",
-    bottomLine: "The Ultimate Design for Your Fashion",
-    link: "/shop",
+    bottomLine: "Bridal hair elegance",
+    link: "/book",
   },
   {
     id: 2,
     video: "https://res.cloudinary.com/www-eliesaab-com/video/upload/c_scale,f_auto,h_1200,q_auto/v1737360408/marina_banner2_w7vbhe.mp4",
     topLine: "HAIR COLORING STYLE",
-    bottomLine: "How to make your own clothes",
-    link: "/shop",
+    bottomLine: "Vibrant color touch",
+    link: "/book",
   },
 ];
 
@@ -46,17 +46,20 @@ const MyCarousel = () => {
                 playsInline
               />
               <div className="absolute inset-0 flex flex-col items-center justify-center text-black text-center">
-                <h1 className="text-white text-5xl uppercase animate-slideInLeft">
+                <h5 className="mb-3 text-white  uppercase animate-slideInLeft">
+                  {slide.bottomLine}
+                </h5>
+                <h1 className="text-white uppercase animate-slideInLeft">
                   {slide.topLine}
                 </h1>
 
                 {/* Uncomment this if you want to show a CTA button */}
-                {/* <a
+                <a
                   href={slide.link}
-                  className="mt-20 px-6 py-2 bg-[#100501] hover:bg-[#444444] text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105"
+                  className="text-[12px] uppercase mt-20 px-7 py-3 bg-[#7c7974] hover:bg-[#444444] text-white transition-all duration-300 transform hover:scale-105"
                 >
-                  Read More
-                </a> */}
+                  Book Now
+                </a>
               </div>
             </div>
           </SwiperSlide>

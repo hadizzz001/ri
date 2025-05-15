@@ -41,7 +41,7 @@ const Page = () => {
       )}
       <h1 className="text-2xl font-bold mb-2">{allTemp1.title}</h1>
       <p
-        className="mb-4 text-gray-700"
+        className="mb-4 text-white"
         dangerouslySetInnerHTML={{ __html: allTemp1.description }}
       />
 

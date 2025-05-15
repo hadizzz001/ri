@@ -11,8 +11,8 @@ const WhatsAppIcon = () => {
         position: 'fixed',
         bottom: '15px',
         right: '10px',
-        backgroundColor: '#fff',
-        color: '#fff',
+        backgroundColor: '#100501',
+        color: '#100501',
         borderRadius: '50%',
         width: '50px',
         height: '50px',
@@ -40,7 +40,7 @@ const WhatsAppIcon = () => {
       <g
         id="Color-"
         transform="translate(-700.000000, -360.000000)"
-        fill="#7c7974"
+        fill="#cab8ac"
       >
         {" "}
         <path

@@ -5,10 +5,10 @@ import Link from 'next/link';
 const BookFloatingButton = () => {
   return (
     <Link href="/appointment">
-      <div className="fixed bottom-4 left-4 bg-[#7c7974] w-16 h-16 rounded-full flex items-center justify-center shadow-lg z-50 cursor-pointer transition duration-300">
+      <div className="fixed bottom-4 left-4 bg-[#cab8ac] w-16 h-16 rounded-full flex items-center justify-center shadow-lg z-50 cursor-pointer transition duration-300">
       <svg
       style={{width: "50%", height: "50%"}}
-  fill="#fff"
+  fill="#100501"
   viewBox="0 0 100.353 100.353"
   id="Layer_1"
   version="1.1"

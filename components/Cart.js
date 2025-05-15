@@ -157,8 +157,7 @@ const Cart = () => {
                                                         <span className="myNewC">Qty:</span>
 
                                                         <input
-                                                            type="number"
-                                                            className="myNewC"
+                                                            type="number" 
                                                             value={localQuantities[obj._id] || 1}
                                                             onChange={(e) => handleQuantityChange(obj._id, e.target.value)}
                                                             min="1"

@@ -12,14 +12,14 @@ const slides = [
     video: "https://res.cloudinary.com/www-eliesaab-com/video/upload/c_scale,f_auto,h_1200,q_auto/v1744893489/trial_rpxj2w.mp4",
     topLine: "BRIDE HAIR EXPERT",
     bottomLine: "Bridal hair elegance",
-    link: "/book",
+    link: "/appointment",
   },
   {
     id: 2,
     video: "https://res.cloudinary.com/www-eliesaab-com/video/upload/c_scale,f_auto,h_1200,q_auto/v1737360408/marina_banner2_w7vbhe.mp4",
     topLine: "HAIR COLORING STYLE",
     bottomLine: "Vibrant color touch",
-    link: "/book",
+    link: "/appointment",
   },
 ];
 
@@ -56,7 +56,7 @@ const MyCarousel = () => {
                 {/* Uncomment this if you want to show a CTA button */}
                 <a
                   href={slide.link}
-                  className="text-[12px] uppercase mt-20 px-7 py-3 bg-[#7c7974] hover:bg-[#444444] text-white transition-all duration-300 transform hover:scale-105"
+                  className="text-[12px] uppercase mt-20 px-7 py-3 bg-[#cab8ac]  text-[#100501] transition-all duration-300 transform hover:scale-105"
                 >
                   Book Now
                 </a>

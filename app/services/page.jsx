@@ -19,30 +19,26 @@ const ServicesGrid = () => {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-10 mb-10">
-      <h1 className="text-center uppercase mypar1122" style={{ fontSize: '40px' }}>Hair Services</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className=" mx-auto py-10 mb-20">
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {services.map((service, index) => (
-          <div key={service.id || index} className="p-6 rounded-3xl text-center">
-            <div className="w-60 h-60 mx-auto mb-4">
+          <div key={service.id || index} className="text-center">
+            <div className="w-full h-[350px] mb-4">
               <img
-                src={service.img?.[0] || '/fallback.jpg'} // fallback if image missing
-                width={240}
-                height={240}
+                src={service.img?.[0] || '/fallback.jpg'}
                 className="object-cover w-full h-full transition-all duration-500 grayscale hover:grayscale-0"
-                style={{ clipPath: 'circle(50%)' }}
                 alt={service.title || 'Service Image'}
               />
             </div>
-            <h3 className="text-xl font-semibold">{service.title}</h3>
-            <p className="text-gray-600 my-2">{service.description}</p>
+            <h5 className=" mx-2 uppercase mypar11223 mb-3">{service.title}</h5>
+            <p className="mx-2 my-2">{service.description}</p>
             <button
-              className="mt-4 px-4 py-2 bg-[#7c7974] text-white rounded-full hover:bg-black"
+              className="text-[12px] uppercase mt-4 mb-10 px-6 py-3 bg-[#cab8ac]  text-[#100501] transition-all duration-300 transform hover:scale-105"
               onClick={() => window.location.href = `service?id=${service._id}`}
             >
-              Learn More
+              Discover More
             </button>
-
           </div>
         ))}
       </div>

@@ -257,7 +257,7 @@ const Page = () => {
                   <div className="bagsFeaturesGrid__gridWrapper">
                     {isInCart ? (
                       <>
-                        <p style={{ color: "#222", textAlign: "center", fontSize: "2em", fontWeight: "bolder" }}>It's In Bag!</p>
+                        <p style={{ color: "#cab8ac", textAlign: "center", fontSize: "2em", fontWeight: "bolder" }}>It's In Bag!</p>
                         <div className="">
                           <div className=""></div>
                           <div className="">

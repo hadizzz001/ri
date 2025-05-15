@@ -82,7 +82,7 @@ export default function AppointmentPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-10 p-4 border rounded-md shadow">
+    <div className="max-w-xl mx-auto mt-10 p-4 rounded-md shadow">
       <h1 className="text-2xl font-bold mb-4">Book an Appointment</h1>
 
       <label className="block mb-2 font-semibold">Select Country</label>
@@ -129,17 +129,14 @@ export default function AppointmentPage() {
           <h2 className="font-semibold mb-2">Select a Time</h2>
           <div className="grid grid-cols-3 gap-2">
             {availableHours.map(hour => (
-              <button
-                key={hour}
-                onClick={() => setSelectedHour(hour)}
-                className={`p-2 rounded border text-center text-sm ${
-                  selectedHour === hour
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-green-100 hover:bg-green-200'
-                }`}
-              >
-                {hour}
-              </button>
+<button
+  key={hour}
+  onClick={() => setSelectedHour(hour)}
+  className={`p-2 rounded border text-center text-sm myGray ${selectedHour === hour ? 'selected-hour' : ''}`}
+>
+  {hour}
+</button>
+
             ))}
           </div>
         </div>

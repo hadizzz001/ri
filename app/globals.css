@@ -13,7 +13,7 @@
 }
 
 body {
-  background-color: #cab8ac !important;
+  background-color: #141412 !important;
 }
 
 /* START: General styles */
@@ -93,30 +93,30 @@ body {
 
 
 .sywVideo {
-  color: #100501 !important;
+  color: #fff !important;
   background-color: transparent !important;
 }
 
 .sywCarousel {
-  color: #100501 !important;
+  color: #fff !important;
 }
 
 .sywProductTabs-title {
-  color: #100501 !important;
+  color: #fff !important;
   background-color: transparent !important;
 }
 
 .sywPaymentOptions {
-  color: #100501 !important;
+  color: #fff !important;
 }
 
 .SiteFooter__wrapper {
-  background: #100501 !important;
+  background: #fff !important;
 }
 
 
 a:hover {
-  color: #100501 !important;
+  color: #fff !important;
   text-decoration: none;
 }
 
@@ -127,7 +127,7 @@ a:hover {
 
 .syw-cta-desktop:hover,
 .syw-cta-desktop:focus {
-  color: #100501 !important;
+  color: #fff !important;
   text-decoration: none;
 }
 
@@ -142,7 +142,7 @@ a:hover {
   font-family: "Lato", sans-serif;
   font-size: 12px;
   font-weight: 700;
-  background: #100501;
+  background: #fff;
   text-align: center;
   padding: 0 5px;
   min-width: 100%;
@@ -167,7 +167,7 @@ a:hover {
   }
 
   #PageMenuPreHeader {
-    background-color: #fff
+    background-color: #100501
   }
 }
 
@@ -240,7 +240,7 @@ a:hover {
 
 
 #anchorNew:hover {
-  color: #100501 !important;
+  color: #fff !important;
 }
 
 .form-control {
@@ -269,7 +269,7 @@ a:hover {
 
 
 .HtmlProductAddToCart {
-  background-color: #100501 !important;
+  background-color: #fff !important;
 }
 
 button:focus {
@@ -456,19 +456,20 @@ h1,h2,h3{
 }
 
 .mypar11223{
-  color:#100501 !important;
+  color:#fff !important;
   letter-spacing: 3px !important;
+  font-weight: 600 !important;
 }
 
 .mypar11224{
-  color:#100501 !important;
+  color:#fff !important;
   letter-spacing: 3px !important;
   font-size: 25px !important;
 }
 
 
 .mypar1122{
-  color:#100501 !important; 
+  color:#fff !important; 
 }
 
 @media (max-width: 720px) {
@@ -486,7 +487,7 @@ h1,h2,h3{
 
 @media (max-width: 1199px), (pointer: coarse) {
   .pageHeaderContainer.br-dark-bg {
-    background: #100501 !important;
+    background: #fff !important;
   }
 }
 
@@ -509,4 +510,130 @@ main {
 
 .MiniCart_Cart_Heading{
   background-color: transparent !important;
+}
+
+
+
+.SiteFooter__wrapper {
+    background: #141412 !important; 
+}
+
+
+@media (max-width: 768px) {
+    .SiteFooterSitemap .column { 
+        background: #141412 !important; 
+    }
+}
+
+
+ 
+
+@media (max-width: 1199px), (pointer: coarse) {
+    .pageHeaderContainer.br-dark-bg {
+        background: #100501 !important;
+    }
+}
+
+
+
+
+.pageHeaderMenuOverlay__close { 
+    background-color: #100501 !important; 
+}
+
+
+
+.MiniCart_Cart .MiniCart_Cart_CtaButton {  
+    background-color: #cab8ac !important;
+}
+.MiniCart_Cart .MiniCart_Cart_CtaButton span{ 
+    color: #100501 !important;  
+}
+
+
+.NewsletterSignupFooter { 
+    background: #141412 !important; 
+}
+
+
+.NewsletterSignupFooter_Component .klaviyo_submit_button { 
+    background: #cab8ac !important; 
+    color: #100501 !important; 
+}
+
+
+input, select, textarea {
+  color: #100501 !important; 
+}
+
+
+.react-calendar { 
+    background: #7c7974 !important;
+    border: 1px solid #7c7974 !important; 
+    color:#100501 !important ;
+}
+
+
+.react-calendar__tile--active {
+    background: #100501 !important;
+    color: #fff !important;
+}
+
+
+.react-calendar__tile:disabled { 
+    color: #100501 !important; 
+}
+
+
+
+.selected-hour {
+  background-color: #7c7974;
+  color: white; /* Optional: for contrast */
+}
+
+
+.br_text-current {
+    color: #fff !important;
+}
+
+
+.myBB{
+      color: #fff !important;
+}
+.myNewC{
+      color: #fff !important;
+}
+
+
+header {
+    background-color: transparent !important
+}
+
+
+.HtmlProductAddToCart {
+    background-color: #cab8ac !important;
+}
+
+.ProductTile-SliderContainer--YMAL.ProductTile-SliderContainer { 
+    background-color: transparent !important; 
+}
+
+
+.MiniCart_Cart{
+  background: #100501 !important;
+  color:white !important;
+}
+
+.Checkout_Cart_LineItems_LineItem_Price .Currency { 
+    color: #fff !important;
+}
+
+.Currency_Monetary, .Currency_Code{
+    color: #fff !important;
+}
+
+ 
+.klaviyo_submit_button {
+  background: #cab8ac !important;
+  color: #100501 !important;
 }

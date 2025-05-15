@@ -47,7 +47,7 @@ const Page = () => {
       </div>
 
       <button
-        className="mt-6 px-4 py-2 bg-[#7c7974] text-white rounded-none hover:bg-black block mx-auto"
+        className="mt-6 px-4 py-2 bg-[#cab8ac] text-[#100501] rounded-none hover:bg-black block mx-auto"
         onClick={() => window.location.href = whatsappLink}
       >
         Contact Us

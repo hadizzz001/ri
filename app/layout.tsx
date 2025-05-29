@@ -146,6 +146,21 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const metadata = {
   title: 'Coming Soon',
 };
@@ -153,35 +168,42 @@ export const metadata = {
 export default function RootLayout() {
   return (
     <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
       <body
         style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
           margin: 0,
-          fontFamily: 'sans-serif',
-          backgroundColor: '#000',
-          color: '#fff',
+          padding: 0,
+          height: '100vh',
+          width: '100vw',
+          overflow: 'hidden',
+          backgroundColor: '#282121',
         }}
       >
-        <div
-          style={{
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '1rem',
-          }}
-        >
-          <img
-            src="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1747076728/slztpmrvu18sgc5sar7w.webp"
-            width={150}
-            alt="Coming Soon"
+        <picture>
+          <source
+            media="(max-width: 768px)"
+            srcSet="/mobile.webp"
           />
-          <span style={{ fontSize: '2rem' }}>Coming Soon</span>
-        </div>
+          <source
+            media="(min-width: 769px)"
+            srcSet="/pc.webp"
+          />
+          <img
+            src="/pc.webp"
+            alt="Coming Soon"
+            style={{
+              width: '100vw',
+              height: '100vh',
+              objectFit: 'contain',
+              display: 'block',
+              margin: '0 auto',
+            }}
+          />
+        </picture>
       </body>
     </html>
   );
 }
+

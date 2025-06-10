@@ -68,7 +68,7 @@ const page = () => {
     }; 
 
     return (
-        <div className="container-xl"> 
+        <div className="container-xl mt-10"> 
             <div className="aside-page"> 
                  
                 <div className="body">

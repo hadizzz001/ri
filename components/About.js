@@ -26,7 +26,23 @@ export default function Features() {
 
 
                 <p className="text-lg  text-center mypar1122">Rafi Daham embarked on his hairstyling journey in 1994, transforming his passion for artistry and precision into a lifelong career. With each snip and stroke, he honed his craft, blending creativity with technique to shape stunning looks that reflect both individuality and style.</p>
-
+  <div
+    className="absolute bottom-0 right-0 z-1"
+    style={{
+      width: '550px', // set a fixed width
+      height: '550px', // set a fixed height
+      backgroundImage:
+        "url('https://res.cloudinary.com/dtjcqfoxc/image/upload/v1748939438/Untitled-1_okvugt.webp')",
+      backgroundSize: 'contain',
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'bottom right',
+      opacity: 0.05,
+      pointerEvents: 'none',
+      position: 'absolute',
+      top: "76em",
+      right: "5em",
+    }}
+  />
             </div>
 
         </>

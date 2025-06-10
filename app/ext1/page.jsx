@@ -29,7 +29,7 @@ const Page = () => {
   const whatsappLink = `https://wa.me/96178808100?text=Hello, I am interested in this extensions: ${encodeURIComponent(allTemp1.title)}`;
 
   return (
-    <div className="p-4 max-w-md mx-auto">
+    <div className="p-4 max-w-md mx-auto mt-10">
       <h1 className="text-2xl font-bold mb-4 text-center">{allTemp1.title}</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

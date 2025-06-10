@@ -86,7 +86,7 @@ body {
     }
 
     .secondaryLevel {
-      top: 65px !important;
+      top: 30px !important;
     }
   }
 }
@@ -165,36 +165,18 @@ a:hover {
   .syw-cta-desktop {
     bottom: 30%;
   }
-
-  #PageMenuPreHeader {
-    background-color: #100501
-  }
-}
-
-
-@media (max-width: 2300px) and (max-height: 900px) {
-  #PageMenuPreHeader {
-    background-color: #100501
-  }
 }
 
 
 
 
-@media (min-width: 1300px) {
-
-}
 
 
+@media (min-width: 1300px) {}
 
 
-@media (max-width: 1199px) {
 
 
-  #PageMenuPreHeader {
-    background-color: #fff
-  }
-}
 
 @media (max-width: 720px) {
   #newB1 {
@@ -203,10 +185,6 @@ a:hover {
 
   #newB2 {
     left: 5em
-  }
-
-  #PageMenuPreHeader {
-    background-color: #fff
   }
 
   .syw-cta-desktop {
@@ -230,12 +208,6 @@ a:hover {
 
 }
 
-
-@media (min-height: 1100px) and (min-width: 1300px) {
-  #PageMenuPreHeader {
-    background-color: #fff
-  }
-}
 
 
 
@@ -371,31 +343,31 @@ button:focus {
   display: block;
 }
 
-#logotoedit{
+#logotoedit {
   width: 7%;
   position: absolute;
   top: 3em;
   left: 2em;
 }
 
-#logotoedits{
-  margin-top:2em;
-}
+
 
 @media (max-width: 768px) {
-  #logotoedits{
-    margin-top:initial;
+  #logotoedits {
+    margin-top: initial;
   }
+
   .wallet-image.desktop {
     display: none;
   }
+
   .wallet-image.mobile {
     display: block;
   }
 
- 
 
-  #logotoedit{
+
+  #logotoedit {
     width: 80px;
     margin-top: initial;
   }
@@ -403,9 +375,9 @@ button:focus {
 
 
 
-.SiteFooter__footNote{
-  margin-bottom: 4em;
-}
+  .SiteFooter__footNote {
+    margin-bottom: 4em;
+  }
 
 
 
@@ -422,70 +394,77 @@ a:hover {
 }
 
 
-
+.pageHeaderMenuPreHeader {
+  background: transparent !important;
+}
 
 
 @media (max-width: 720px) {
   #PageMenuPreHeader {
-      background-color: #fff !important;
+    background-color: transparent !important;
   }
 
   .pageHeaderMenuPreHeader .hamburger span {
     background: #fff !important;
+  }
+
+  .menuicon svg {
+    stroke: #fff !important;
+  }
 }
 
-.menuicon svg {
-  stroke: #fff !important;
+
+
+
+h4,
+h5,
+h6,
+p,
+a,
+div {
+
+  font-family: "Helvetica Neue LT W05 55 Roman" !important;
+  font-weight: 100 !important;
 }
-}
 
-
-
-
-h4,h5,h6, p ,a ,div{
-  
-font-family: "Helvetica Neue LT W05 55 Roman" !important;
-font-weight: 100 !important;
-}
-
-h1,h2,h3{ 
+h1,
+h2,
+h3 {
   font-family: "Helvetica Neue LT W05 55 Roman" !important;
   font-weight: 100 !important;
   letter-spacing: 5px !important;
   font-size: 25px !important;
 }
 
-.mypar11223{
-  color:#fff !important;
+.mypar11223 {
+  color: #fff !important;
   letter-spacing: 3px !important;
   font-weight: 600 !important;
 }
 
-.mypar11224{
-  color:#fff !important;
+.mypar11224 {
+  color: #fff !important;
   letter-spacing: 3px !important;
   font-size: 25px !important;
 }
 
 
-.mypar1122{
-  color:#fff !important; 
-}
-
-@media (max-width: 720px) {
-  #PageMenuPreHeader {
-      background-color: transparent !important;
-  }
+.mypar1122 {
+  color: #fff !important;
 }
 
 
-@media (max-width: 1199px), (pointer: coarse) {
-  .pageHeaderContainer {
-    background: linear-gradient(180deg, #000000bf, transparent); 
-  }
+
+
+.pageHeaderContainer {
+  background: linear-gradient(180deg, #000000bf, transparent);
+  position: fixed !important;
+  z-index: 999 !important;
+  top: 0em !important;
 }
 
-@media (max-width: 1199px), (pointer: coarse) {
+@media (max-width: 1199px),
+(pointer: coarse) {
   .pageHeaderContainer.br-dark-bg {
     background: #fff !important;
   }
@@ -498,7 +477,7 @@ main {
 }
 
 
- 
+
 
 
 .react-calendar__tile:disabled {
@@ -508,132 +487,245 @@ main {
 }
 
 
-.MiniCart_Cart_Heading{
+.MiniCart_Cart_Heading {
   background-color: transparent !important;
 }
 
 
 
 .SiteFooter__wrapper {
-    background: #141412 !important; 
+  background: #141412 !important;
 }
 
+#listnavstyle {
+  margin-left: 5em;
+  margin-top: -1em
+}
+
+.gradient-top-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 120px;
+  /* adjust height as needed */
+  pointer-events: none;
+  /* allows clicks to pass through */
+  background: linear-gradient(180deg, #000000bf, transparent);
+  /* z-index: 9999; */
+}
+
+
+.myssss {
+  background-color: #100501 !important
+}
 
 @media (max-width: 768px) {
-    .SiteFooterSitemap .column { 
-        background: #141412 !important; 
-    }
+  .SiteFooterSitemap .column {
+    background: #141412 !important;
+  }
+
+  #listnavstyle {
+    margin-left: 0em;
+  }
+  .gradient-top-overlay { 
+  height: 30px; 
 }
-
-
- 
-
-@media (max-width: 1199px), (pointer: coarse) {
-    .pageHeaderContainer.br-dark-bg {
-        background: #100501 !important;
-    }
-}
-
-
-
-
-.pageHeaderMenuOverlay__close { 
-    background-color: #100501 !important; 
 }
 
 
 
-.MiniCart_Cart .MiniCart_Cart_CtaButton {  
-    background-color: #cab8ac !important;
-}
-.MiniCart_Cart .MiniCart_Cart_CtaButton span{ 
-    color: #100501 !important;  
-}
 
-
-.NewsletterSignupFooter { 
-    background: #141412 !important; 
+@media (max-width: 1199px),
+(pointer: coarse) {
+  .pageHeaderContainer.br-dark-bg {
+    background: #100501 !important;
+  }
 }
 
 
-.NewsletterSignupFooter_Component .klaviyo_submit_button { 
-    background: #cab8ac !important; 
-    color: #100501 !important; 
+
+
+.pageHeaderMenuOverlay__close {
+  background-color: #100501 !important;
 }
 
 
-input, select, textarea {
-  color: #100501 !important; 
+
+.MiniCart_Cart .MiniCart_Cart_CtaButton {
+  background-color: #cab8ac !important;
+}
+
+.MiniCart_Cart .MiniCart_Cart_CtaButton span {
+  color: #100501 !important;
 }
 
 
-.react-calendar { 
-    background: #7c7974 !important;
-    border: 1px solid #7c7974 !important; 
-    color:#100501 !important ;
+.NewsletterSignupFooter {
+  background: #141412 !important;
+}
+
+
+.NewsletterSignupFooter_Component .klaviyo_submit_button {
+  background: #cab8ac !important;
+  color: #100501 !important;
+}
+
+
+input,
+select,
+textarea {
+  color: #100501 !important;
+}
+
+
+.react-calendar {
+  background: #cab8ac !important;
+  border: 1px solid #cab8ac !important;
+  color: #100501 !important;
 }
 
 
 .react-calendar__tile--active {
-    background: #100501 !important;
-    color: #fff !important;
+  background: #100501 !important;
+  color: #fff !important;
 }
 
 
-.react-calendar__tile:disabled { 
-    color: #100501 !important; 
+.react-calendar__tile:disabled {
+  color: #100501 !important;
 }
 
 
 
 .selected-hour {
-  background-color: #7c7974;
-  color: white; /* Optional: for contrast */
+  background-color: #cab8ac !important;
+  color: black !important;
+  /* Optional: for contrast */
 }
 
 
 .br_text-current {
-    color: #fff !important;
+  color: #fff !important;
 }
 
 
-.myBB{
-      color: #fff !important;
+.myBB {
+  color: #fff !important;
 }
-.myNewC{
-      color: #fff !important;
+
+.myNewC {
+  color: #fff !important;
 }
 
 
 header {
-    background-color: transparent !important
+  background-color: transparent !important
 }
 
 
 .HtmlProductAddToCart {
-    background-color: #cab8ac !important;
+  background-color: #cab8ac !important;
 }
 
-.ProductTile-SliderContainer--YMAL.ProductTile-SliderContainer { 
-    background-color: transparent !important; 
+.ProductTile-SliderContainer--YMAL.ProductTile-SliderContainer {
+  background-color: transparent !important;
 }
 
 
-.MiniCart_Cart{
+.MiniCart_Cart {
   background: #100501 !important;
-  color:white !important;
+  color: white !important;
 }
 
-.Checkout_Cart_LineItems_LineItem_Price .Currency { 
-    color: #fff !important;
+.Checkout_Cart_LineItems_LineItem_Price .Currency {
+  color: #fff !important;
 }
 
-.Currency_Monetary, .Currency_Code{
-    color: #fff !important;
+.Currency_Monetary,
+.Currency_Code {
+  color: #fff !important;
 }
 
- 
+
 .klaviyo_submit_button {
   background: #cab8ac !important;
   color: #100501 !important;
 }
+
+#mynewCol {
+  background: transparent !important;
+}
+
+
+
+
+@media (min-width: 1200px) and (pointer: fine) {
+  .pageHeaderMenuPreHeader {
+    height: 0px !important;
+    position: relative;
+    background-color: transparent !important;
+  }
+}
+
+
+
+.Checkout_Empty {
+    background-color: transparent !important; 
+}
+
+
+
+.elementor-20120 .elementor-element.elementor-element-f1c046e:not(.elementor-motion-effects-element-type-background) > .elementor-widget-wrap, .elementor-20120 .elementor-element.elementor-element-f1c046e > .elementor-widget-wrap > .elementor-motion-effects-container > .elementor-motion-effects-layer {
+    background-color: transparent !important;
+}
+
+.elementor-20120 .elementor-element.elementor-element-b92d2c:not(.elementor-motion-effects-element-type-background), .elementor-20120 .elementor-element.elementor-element-b92d2c > .elementor-motion-effects-container > .elementor-motion-effects-layer {
+    background-color: transparent !important; 
+    background-image: none !important; 
+}
+
+.elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form .wfacp_main_form.woocommerce .wfacp_section_title { 
+    color: #fff !important; 
+}
+
+.elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form table.shop_table tbody tr td span:not(.wfacp-pro-count) { 
+    color: #fff !important;
+}
+
+.elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form table.shop_table tbody .cart_item .product-total span.amount bdi {
+    color: #fff !important;
+}
+
+.elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form table.shop_table tfoot tr.order-total th span {
+    color: #fff !important;
+}
+.elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form table.shop_table tfoot tr.order-total td span.woocommerce-Price-amount.amount bdi {
+    color: #fff !important;
+}
+.elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form table.shop_table tfoot tr.order-total td span {
+    color: #fff !important;
+}
+.elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form table.shop_table tfoot tr:not(.order-total):not(.cart-discount) th span {
+    color: #fff !important;
+}
+.elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form table.shop_table tfoot tr:not(.order-total):not(.cart-discount) td bdi {
+    color: #fff !important;
+}
+.elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form table.shop_table tfoot tr:not(.order-total):not(.cart-discount) td span {
+    color: #fff !important;
+}
+
+.u-section-1 {
+    background-image: none !important; 
+}
+
+.u-overlap.u-overlap-transparent:not(.u-overlap-contrast) .u-header :not(.u-nav-item) > a, .u-gradient > .u-container-layout > a, .u-image:not(.u-shading) > .u-container-layout > a, a {
+    color: #fff !important;
+}
+
+/* img {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+} */

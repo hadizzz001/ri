@@ -29,7 +29,7 @@ const Page = () => {
 
 
   return (
-    <div className="p-4 max-w-md mx-auto">
+    <div className="p-4 max-w-md mx-auto mt-10">
       {allTemp1.img && allTemp1.img[0] && (
         <img
           src={allTemp1.img[0]}

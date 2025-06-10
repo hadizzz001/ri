@@ -164,7 +164,7 @@ const Page = () => {
         }}
       />
 
-      <div className="ProductDetailWrapper  md:mt-[100px]">
+      <div className="ProductDetailWrapper  md:mt-[100px] mt-10">
         <div className="BreadcrumbsWrapper">
           <div className="br_flex br_px-6 xl:br_px-0 br_text-xs-sans-bold-stretched br_text-[12px] br_text-grey-400 br_h-12 br_items-center">
           </div>
@@ -262,7 +262,7 @@ const Page = () => {
                           <div className=""></div>
                           <div className="">
                             <span className="ProvidersSingleProduct--selected">
-                              <button type="button" className="AddToCart HtmlProductAddToCart" style={{ borderRadius: "0" }} onClick={gotocart} >
+                              <button type="button" className="AddToCart HtmlProductAddToCart selected-hour" style={{ borderRadius: "0" }} onClick={gotocart} >
                                 <span>CHECKOUT NOW</span>
                               </button>
                             </span>
@@ -281,7 +281,7 @@ const Page = () => {
                             <div className="">
                               <span className="ProvidersSingleProduct--selected">
                                 {stock > 0 ? (
-                                  <button type="submit" className="AddToCart HtmlProductAddToCart" style={{ borderRadius: "0" }}>
+                                  <button type="submit" className="AddToCart HtmlProductAddToCart selected-hour" style={{ borderRadius: "0" }}>
                                     <span>ADD TO BAG</span>
                                   </button>
                                 ) : (

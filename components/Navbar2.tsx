@@ -10,39 +10,38 @@ function NavBar() {
   const { isBooleanValue, setBooleanValue } = useBooleanValue();
   const [isActive2, setIsActive2] = useState(true);
   const { cart } = useCart();
-  const [isHovered, setIsHovered] = useState(true);
 
 
   const useBrOpenWatcher = () => {
     useEffect(() => {
       const triggerDiv = document.getElementById("myUniD");
       const targetDiv = document.querySelector(".pageHeaderContainer");
-  
+
       if (!triggerDiv || !targetDiv) return;
-  
+
       const updateBackground = () => {
         if (triggerDiv.classList.contains("br_open")) {
-          targetDiv.classList.add("br-dark-bg"); 
+          targetDiv.classList.add("br-dark-bg");
         } else {
-          targetDiv.classList.remove("br-dark-bg"); 
+          targetDiv.classList.remove("br-dark-bg");
         }
       };
-  
+
       updateBackground(); // Run on mount
-  
+
       const observer = new MutationObserver(updateBackground);
       observer.observe(triggerDiv, {
         attributes: true,
         attributeFilter: ["class"],
       });
-  
+
       return () => observer.disconnect();
     }, []);
   };
- 
+
   useBrOpenWatcher();
 
- 
+
 
   const handleClick = () => {
     var d = document.getElementById("myUniD");
@@ -50,14 +49,14 @@ function NavBar() {
     setIsActive(!isActive);
     if (d && d1) {
       if (isActive) {
-        d.className += " drawer-active br_open";
+        d.className += " drawer-active br_open myssss";
         d1.className += " open";
-        d.classList.remove("hidden"); 
+        d.classList.remove("hidden");
       }
       else {
         d.classList.remove("drawer-active");
         d.classList.remove("br_open");
-        d1.classList.remove("open"); 
+        d1.classList.remove("open");
         d.className += " hidden";
       }
     }
@@ -132,7 +131,7 @@ function NavBar() {
             "\n                .MiniCart_Slider_Overlay {\n                    width: 100vw;\n                    height: 100vh;\n                    position: fixed;\n                    top: 0;\n                    bottom: 0;\n                    left: 0;\n                    right: 0;\n                    z-index: 1000000000;\n                    background-color: #000;\n                    opacity: 0;\n                    pointer-events: none;\n                }\n                .MiniCart_Slider_Overlay-visible {\n                    opacity: 0.4;\n                    pointer-events: all;\n                    transition: opacity 200ms ease-in;\n                }\n                .MiniCart_Slider {\n                    position: fixed;\n                    right: 0;\n                    bottom: 0;\n                    top: 0;\n                    width: 435px;\n                    max-width: 90vw;\n                    z-index: 1000000000;\n                    opacity: 0;\n                    pointer-events: none;\n                    transform: translateX(100%);\n                    transition: all 200ms linear;\n                }\n                .MiniCart_Slider-visible {\n                    transform: translateX(0);\n                    transition: all 500ms linear;\n                    opacity: 1;\n                    pointer-events: all;\n                }\n                .MiniCart_Slider_CloseButton {\n                    position: absolute;\n                    right: 0;\n                    top: 0;\n                    z-index: 200;\n                }\n            "
         }}
       />
- 
+
       <Cart />
       <div className="pageHeaderContainer">
         <div className="pageHeaderMenuOverlays">
@@ -167,7 +166,7 @@ function NavBar() {
             data-auto-id="true"
             id="page-header-homepage-1"
           >
-            <img id="logotoedits" src="https://res.cloudinary.com/dqzzfskhw/image/upload/v1745237455/white_eoqawn.png" alt="" width={75} />
+            <img id="logotoedits" src="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1748938427/RAFI_WHITE_NAME_ddwts7.webp" alt="" width={150} />
           </a>
           <button id='hamburger' className="hamburger xl:pointer-fine:br_invisible" onClick={handleClick}>
             <span />
@@ -222,7 +221,21 @@ function NavBar() {
                   onClick={handleClickc}
                 >
                   <span className="menuicon">
-                    <svg width="64px" height="64px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#fff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M6.29977 5H21L19 12H7.37671M20 16H8L6 3H3M9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20C7 19.4477 7.44772 19 8 19C8.55228 19 9 19.4477 9 20ZM20 20C20 20.5523 19.5523 21 19 21C18.4477 21 18 20.5523 18 20C18 19.4477 18.4477 19 19 19C19.5523 19 20 19.4477 20 20Z" stroke="#00055" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+
+                    <svg
+                      width={24}
+                      height={24}
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M17.4061 7.35962C16.4121 5.32492 14.3273 4 12 4C9.67273 4 7.56364 5.30126 6.59394 7.35962H4V19H20V7.35962H17.4061ZM12 4.70978C13.9394 4.70978 15.6848 5.72713 16.6061 7.35962H7.39394C8.31515 5.72713 10.0606 4.70978 12 4.70978ZM19.2727 18.2902H4.72727V8.0694H6.27879H17.7455H19.297V18.2902H19.2727Z"
+                        fill="#2D2D2D"
+                      />
+                    </svg>
+
+
                     {cart && cart.length > 0 ? (
                       <span className="MiniCart_CartIndicator_Badge1"></span>
                     ) :
@@ -250,13 +263,16 @@ function NavBar() {
           </nav>
         </div>
 
-        <div id='myUniD' style={{ background: "transparent" }} className='pageHeaderMenu br_group/menu br_z-50  br_relative br_w-screen    xl:pointer-fine:br_overflow-visible xl:pointer-fine:br_opacity-100 xl:pointer-fine:br_bg-transparent xl:pointer-fine:br_pointer-events-auto hidden'>
-          <div className="topLevel__close br_absolute br_inset-0"></div>
+        <div id='myUniD' style={{ background: "transparent" }} className='pageHeaderMenu br_group/menu br_z-50  br_relative br_w-screen    xl:pointer-fine:br_overflow-visible xl:pointer-fine:br_opacity-100 xl:pointer-fine:br_bg-transparent xl:pointer-fine:br_pointer-events-auto hidden sm:block '>
+          <div className="topLevel__close br_absolute br_inset-0"  ></div>
+          <div className="gradient-top-overlay "></div>
+
           <nav
             className="topLevel  br_h-screen br_overflow-y-auto br_max-w-[420px] br_h-screen br_pb-36 br_-translate-x-full br_transition-transform br_ease-in-out br_duration-300 group-open/menu:br_translate-x-0 xl:pointer-fine:br_translate-x-0 xl:pointer-fine:br_overflow-visible xl:pointer-fine:br_z-10 xl:pointer-fine:br_h-auto xl:pointer-fine:br_max-w-none xl:pointer-fine:br_absolute xl:pointer-fine:br_left-0 xl:pointer-fine:br_top-[9px] xl:pointer-fine:br_pb-0"
             data-location="Menu"
             data-roybell=""
-            style={{ background: "#100501" }}
+            id="listnavstyle"
+            style={{ background: "transparent" }}
           >
             <ul className="xl:pointer-fine:br_flex xl:pointer-fine:br_pl-[155px]">
               <li className="br_group/item">

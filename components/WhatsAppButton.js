@@ -98,7 +98,7 @@ const WhatsAppButton = ({ inputs, items, total, delivery, code }) => {
         <div className='container'>
             {error && <div style={{ color: 'red' }}>{error}</div>}
             <span className="ProvidersSingleProduct--selected">
-                <button onClick={handleClick} type="button" className="AddToCart HtmlProductAddToCart" style={{ borderRadius: "0" }}  >
+                <button onClick={handleClick} type="button" className="AddToCart HtmlProductAddToCart selected-hour" style={{ borderRadius: "0" }}  >
                     <span>Order Now!</span>
                 </button>
             </span> 

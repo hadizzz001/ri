@@ -1,40 +1,12 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { sendEmail } from '../app/api/sendEmail/sendEmail'
-import { TempProps1 } from "../types";
-
-interface CarCardProps {
-    temp: TempProps1;
-}
 
 
 const Footer = () => {
 
     const [isFoot1, setIsFoot1] = useState(true);
-    const [isFoot2, setIsFoot2] = useState(true);
-    const [isFoot3, setIsFoot3] = useState(true);
-    const [allTemp, setTemp] = useState<any>()
 
-
-
-
-
-
-
-
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await fetch("/api/category");
-                const data = await response.json();
-                setTemp(data);
-            } catch (error) {
-                console.error("Error fetching categories:", error);
-            }
-        };
-
-        fetchCategories();
-    }, []);
 
 
     const handleFoot = () => {
@@ -50,31 +22,9 @@ const Footer = () => {
         }
     };
 
-    const handleFoot2 = () => {
-        var d2 = document.getElementById("footId2");
-        setIsFoot2(!isFoot2);
-        if (d2) {
-            if (isFoot2) {
-                d2.className += " open";
-            }
-            else {
-                d2.classList.remove("open");
-            }
-        }
-    };
 
-    const handleFoot3 = () => {
-        var d2 = document.getElementById("footId3");
-        setIsFoot3(!isFoot3);
-        if (d2) {
-            if (isFoot3) {
-                d2.className += " open";
-            }
-            else {
-                d2.classList.remove("open");
-            }
-        }
-    };
+
+
 
     return (
         <footer
@@ -142,226 +92,261 @@ const Footer = () => {
                     but you can opt out at any time.
                 </p>
             </div>
-            <section className="SiteFooter__wrapper" id="footer">
+            <section className="SiteFooter__wrapper  " id="footer">
                 <section className="SiteFooter__footNote">
                     <div className="SiteFooter__footNote__inner">
-                        <div className="logo">
 
-                            <a
-                                href="https://greatplacetowork.com.au/gptwcertified/bellroy/"
-                                data-auto-id="true"
-                                id="page-footer-https-greatplacetowork-com-au-gptwcertified-bellroy-1"
-                            >
+<div className="text flex flex-wrap justify-between gap-4 sm:gap-0">
+  {/* Column 1 */}
+  <div className="w-full sm:w-1/3 flex justify-center items-center mb-5">
+    <p className="question text-center sm:text-left">
+      Got a question?{" "}
+      <span>
+        Contact{" "}
+        <a
+          href="mailto:info@rafidaham.com"
+          data-auto-id="true"
+          id="page-footer-mailto-support-bellroy-com-1"
+        >
+          info@rafidaham.com
+        </a>
+      </span>
+    </p>
+  </div>
 
-                            </a>
-                        </div>
-                        <div className="text">
-                            <div className="column mb-5"  >
-                                <p className="question">
-                                    Got a question?{" "}
-                                    <span>
-                                        Contact{" "}
-                                        <a
-                                            href="mailto:info@rafidaham.com"
-                                            data-auto-id="true"
-                                            id="page-footer-mailto-support-bellroy-com-1"
-                                        >
-                                            info@rafidaham.com
-                                        </a>
-                                    </span>
-                                </p>
-                            </div>
-                            <div className="column">
-                                <span className="copyright">
-                                    All rights reserved © {(new Date().getFullYear())} Rafi Daham - Hair Repair Studio
-                                </span>
-                            </div>
-                        </div>
+  {/* Column 2 */}
+  <div className="w-full sm:w-1/3 flex justify-center items-center mb-5">
+    <div className="relative flex items-center justify-center h-[200px] w-[200px]">
+      <img
+        src="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1748939438/Untitled-1_okvugt.webp"
+        alt="Background Design"
+        className="absolute top-0 left-0 w-full h-full object-cover opacity-5 pointer-events-none"
+      />
+      <div className="z-10">
+        <img
+          src="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1748938427/RAFI_WHITE_NAME_ddwts7.webp"
+          width={200}
+          height={10}
+          alt="Logo"
+        />
+      </div>
+    </div>
+  </div>
+
+  {/* Column 3 */}
+  <div className="w-full sm:w-1/3 flex justify-center items-center mb-5">
+    <span className="copyright text-center sm:text-right">
+      All rights reserved © {new Date().getFullYear()} Rafi Daham - Hair Repair Studio
+    </span>
+  </div>
+</div>
+
+
                     </div>
                 </section>
-                <nav className="SiteFooterSitemap">
 
-                    <div className="column collapsable-section" id='footId1' onClick={handleFoot}>
-                        <h4 >
-                            HELP
-                            <svg
-                                version="1.1"
-                                id="Layer_1"
-                                xmlns="http://www.w3.org/2000/svg"
-                                xmlnsXlink="http://www.w3.org/1999/xlink"
-                                x="0px"
-                                y="0px"
-                                viewBox="0 0 11 6"
-                                xmlSpace="preserve"
-                            >
-                                <path
-                                    className="st0"
-                                    d="M5.4,4.4l4.5-4.2c0.2-0.3,0.7-0.3,0.9,0c0,0,0,0,0,0c0.3,0.3,0.3,0.7,0,1c0,0,0,0,0,0L5.9,5.8 C5.6,6.1,5.2,6.1,5,5.8L0.2,1.1c-0.3-0.3-0.3-0.7,0-0.9C0.4,0,0.8,0,1.1,0.2c0,0,0,0,0,0L5.4,4.4z"
-                                />
-                            </svg>
-                        </h4>
-                        <ul>
-                            <li>
-                                <a
-                                    href="/contact"
-                                    data-auto-id="true"
-                                    id="page-footer-customer-care-contact-us-1"
+
+
+
+
+
+
+
+
+                <section className="SiteFooter__footNote  ">
+                    <div className="SiteFooter__footNote__inner">
+
+                        <div className="text">
+                            <div className="column collapsable-section" id='footId1' onClick={handleFoot}>
+                                <h4 >
+                                    HELP
+                                </h4>
+                                <ul>
+                                    <li>
+                                        <a
+                                            href="/contact"
+                                            data-auto-id="true"
+                                            id="page-footer-customer-care-contact-us-1"
+                                        >
+                                            Contact Us
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="/term"
+                                            data-auto-id="true"
+                                            id="page-footer-customer-care-terms-conditions-1"
+                                        >
+                                            Terms &amp; Conditions
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="/privacy"
+                                            data-auto-id="true"
+                                            id="page-footer-customer-care-privacy-policy-2"
+                                        >
+                                            Privacy Policy
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+
+                            <div className="column">
+
+                            </div>
+
+
+
+                            <div className="column mb-[5em]">
+                                <div
+                                    data-roybell=""
+                                    data-location="footerSocial"
+                                    className="SiteFooterSitemap__social column mt-20"
                                 >
-                                    Contact Us
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="/term"
-                                    data-auto-id="true"
-                                    id="page-footer-customer-care-terms-conditions-1"
-                                >
-                                    Terms &amp; Conditions
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="/privacy"
-                                    data-auto-id="true"
-                                    id="page-footer-customer-care-privacy-policy-2"
-                                >
-                                    Privacy Policy
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                                    <ul>
+                                        <li>
+                                            <a
+                                                target="_blank"
+                                                href="https://lb.linkedin.com/in/rafi-daham-aa74a492https://www.tiktok.com/@rafidaham_hairdressing"
+                                                data-auto-id="true"
+                                                id="page-footer-http-www-instagram-com-bellroy-1"
+                                            >
 
 
 
-                    <div className="flex items-center justify-center  ">
-                        <div className="column">
-                            <img
-                                src="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1747076728/slztpmrvu18sgc5sar7w.webp"
-                                width={100}
-                                height={100}
-                                alt=""
-                            />
-                        </div>
-                    </div>
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 2500 2500"
+                                                    fillRule="evenodd"
+                                                    clipRule="evenodd"
+                                                    xmlSpace="preserve"
+                                                    height="20px"
+                                                >
+                                                    <title>TikTok</title>
+                                                    <path d="M2202.4 0H297.6C133.5 0 0 133.5 0 297.6v1904.8C0 2366.5 133.5 2500 297.6 2500h1904.8c164.1 0 297.6-133.5 297.6-297.6V297.6C2500 133.5 2366.5 0 2202.4 0m-237.8 1090.7c-13.7 1.3-27.4 2-41.1 2.1-150.4 0-290.7-75.8-373.2-201.7v686.7c0 280.3-227.2 507.6-507.6 507.6s-507.6-227.2-507.6-507.6 227.2-507.6 507.6-507.6c10.6 0 21 1 31.4 1.6V1322c-10.4-1.2-20.7-3.2-31.4-3.2-143.1 0-259 116-259 259s116 259 259 259c143.1 0 269.5-112.7 269.5-255.8l2.5-1166.3H1554c22.6 214.6 195.6 382.2 410.8 397.9v278" />
+                                                </svg>
 
 
 
-
-                    <div
-                        data-roybell=""
-                        data-location="footerSocial"
-                        className="SiteFooterSitemap__social column mt-20"
-                    >
-                        <ul>
-                            <li>
-                                <a
-                                    target="_blank"
-                                    href="https://lb.linkedin.com/in/rafi-daham-aa74a492https://www.tiktok.com/@rafidaham_hairdressing"
-                                    data-auto-id="true"
-                                    id="page-footer-http-www-instagram-com-bellroy-1"
-                                >
-
-
-
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 2500 2500"
-                                        fillRule="evenodd"
-                                        clipRule="evenodd"
-                                        xmlSpace="preserve"
-                                        height="20px"
-                                    >
-                                        <title>TikTok</title>
-                                        <path d="M2202.4 0H297.6C133.5 0 0 133.5 0 297.6v1904.8C0 2366.5 133.5 2500 297.6 2500h1904.8c164.1 0 297.6-133.5 297.6-297.6V297.6C2500 133.5 2366.5 0 2202.4 0m-237.8 1090.7c-13.7 1.3-27.4 2-41.1 2.1-150.4 0-290.7-75.8-373.2-201.7v686.7c0 280.3-227.2 507.6-507.6 507.6s-507.6-227.2-507.6-507.6 227.2-507.6 507.6-507.6c10.6 0 21 1 31.4 1.6V1322c-10.4-1.2-20.7-3.2-31.4-3.2-143.1 0-259 116-259 259s116 259 259 259c143.1 0 269.5-112.7 269.5-255.8l2.5-1166.3H1554c22.6 214.6 195.6 382.2 410.8 397.9v278" />
-                                    </svg>
-
-
-
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    target="_blank"
-                                    href="https://www.instagram.com/rafidaham_hairdressing"
-                                    data-auto-id="true"
-                                    id="page-footer-http-www-instagram-com-bellroy-1"
-                                >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 44 44"
-                                        height="20px"
-                                    >
-                                        <title>Instagram</title>
-                                        <path
-                                            className="st0"
-                                            d="M21.3,14.4c-3.8,0-6.9,3.1-6.9,6.9c0,3.8,3.1,6.9,6.9,6.9c3.8,0,6.9-3.1,6.9-6.9c0,0,0,0,0,0 C28.3,17.5,25.2,14.4,21.3,14.4C21.3,14.4,21.3,14.4,21.3,14.4z"
-                                        />
-                                        <path
-                                            className="st0"
-                                            d="M43.9,12.9c0-1.8-0.4-3.6-1-5.3c-0.6-1.5-1.4-2.8-2.5-3.9c-1.1-1.1-2.4-2-3.9-2.5c-1.7-0.6-3.5-1-5.3-1
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a
+                                                target="_blank"
+                                                href="https://www.instagram.com/rafidaham_hairdressing"
+                                                data-auto-id="true"
+                                                id="page-footer-http-www-instagram-com-bellroy-1"
+                                            >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 44 44"
+                                                    height="20px"
+                                                >
+                                                    <title>Instagram</title>
+                                                    <path
+                                                        className="st0"
+                                                        d="M21.3,14.4c-3.8,0-6.9,3.1-6.9,6.9c0,3.8,3.1,6.9,6.9,6.9c3.8,0,6.9-3.1,6.9-6.9c0,0,0,0,0,0 C28.3,17.5,25.2,14.4,21.3,14.4C21.3,14.4,21.3,14.4,21.3,14.4z"
+                                                    />
+                                                    <path
+                                                        className="st0"
+                                                        d="M43.9,12.9c0-1.8-0.4-3.6-1-5.3c-0.6-1.5-1.4-2.8-2.5-3.9c-1.1-1.1-2.4-2-3.9-2.5c-1.7-0.6-3.5-1-5.3-1
               C28.7,0,28,0,22,0s-6.7,0-9.1,0.1c-1.8,0-3.6,0.4-5.3,1C6.1,1.7,4.8,2.6,3.7,3.7c-1.1,1.1-2,2.4-2.5,3.9c-0.6,1.7-1,3.5-1,5.3
               C0,15.3,0,16,0,22s0,6.7,0.1,9.1c0,1.8,0.4,3.6,1,5.3c0.6,1.5,1.4,2.8,2.5,3.9c1.1,1.1,2.4,2,3.9,2.5c1.7,0.6,3.5,1,5.3,1
               C15.3,44,16,44,22,44s6.7,0,9.1-0.1c1.8,0,3.6-0.4,5.3-1c1.5-0.6,2.8-1.4,3.9-2.5c1.1-1.1,2-2.4,2.5-3.9c0.6-1.7,1-3.5,1-5.3
               C44,28.7,44,28,44,22S44,15.3,43.9,12.9z M21.3,32c-5.9,0-10.7-4.8-10.7-10.7s4.8-10.7,10.7-10.7S32,15.4,32,21.3S27.2,32,21.3,32
               L21.3,32z M35.3,13.3c-1.8,0-3.3-1.5-3.3-3.3s1.5-3.3,3.3-3.3c1.8,0,3.3,1.5,3.3,3.3C38.7,11.8,37.2,13.3,35.3,13.3
               C35.3,13.3,35.3,13.3,35.3,13.3z"
-                                        />
-                                    </svg>
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    target="_blank"
-                                    href="https://www.facebook.com/1raffidahamhairdressing/"
-                                    data-auto-id="true"
-                                    id="page-footer-https-www-facebook-com-bellroy-official-1"
-                                >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 44 44"
-                                        height="20px"
-                                        style={{ marginRight: "-10px" }}
-                                    >
-                                        <title>Facebook</title>
-                                        <path
-                                            className="st0"
-                                            d="M14.3,44V23.9h6.5l1-7.8h-7.5v-5c0-2.3,0.6-3.8,3.7-3.8h4v-7C20.1,0.1,18.1,0,16.2,0c-5.8,0-9.7,3.7-9.7,10.3 v5.8H0v7.8h6.5V44H14.3z"
-                                        />
-                                    </svg>
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    target="_blank"
-                                    href="https://wa.me/96178808100"
-                                    data-auto-id="true"
-                                    id="page-footer-https-www-youtube-com-channel-ucy6vodc_wyzj4rlslixgp1q-1"
-                                >
-                                    <svg
-                                        id="Layer_1"
-                                        data-name="Layer 1"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 176 124"
-                                        height="22px"
-                                    >
-                                        <title>WhatsApp</title>
-                                        <svg fill="#000000" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                                            <g id="SVGRepo_iconCarrier"><path d="M11.42 9.49c-.19-.09-1.1-.54-1.27-.61s-.29-.09-.42.1-.48.6-.59.73-.21.14-.4 0a5.13 5.13 0 0 1-1.49-.92 5.25 5.25 0 0 1-1-1.29c-.11-.18 0-.28.08-.38s.18-.21.28-.32a1.39 1.39 0 0 0 .18-.31.38.38 0 0 0 0-.33c0-.09-.42-1-.58-1.37s-.3-.32-.41-.32h-.4a.72.72 0 0 0-.5.23 2.1 2.1 0 0 0-.65 1.55A3.59 3.59 0 0 0 5 8.2 8.32 8.32 0 0 0 8.19 11c.44.19.78.3 1.05.39a2.53 2.53 0 0 0 1.17.07 1.93 1.93 0 0 0 1.26-.88 1.67 1.67 0 0 0 .11-.88c-.05-.07-.17-.12-.36-.21z"></path>
-                                                <path d="M13.29 2.68A7.36 7.36 0 0 0 8 .5a7.44 7.44 0 0 0-6.41 11.15l-1 3.85 3.94-1a7.4 7.4 0 0 0 3.55.9H8a7.44 7.44 0 0 0 5.29-12.72zM8 14.12a6.12 6.12 0 0 1-3.15-.87l-.22-.13-2.34.61.62-2.28-.14-.23a6.18 6.18 0 0 1 9.6-7.65 6.12 6.12 0 0 1 1.81 4.37A6.19 6.19 0 0 1 8 14.12z"></path></g></svg>
+                                                    />
+                                                </svg>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a
+                                                target="_blank"
+                                                href="https://www.facebook.com/1raffidahamhairdressing/"
+                                                data-auto-id="true"
+                                                id="page-footer-https-www-facebook-com-bellroy-official-1"
+                                            >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 44 44"
+                                                    height="20px"
+                                                    style={{ marginRight: "-10px" }}
+                                                >
+                                                    <title>Facebook</title>
+                                                    <path
+                                                        className="st0"
+                                                        d="M14.3,44V23.9h6.5l1-7.8h-7.5v-5c0-2.3,0.6-3.8,3.7-3.8h4v-7C20.1,0.1,18.1,0,16.2,0c-5.8,0-9.7,3.7-9.7,10.3 v5.8H0v7.8h6.5V44H14.3z"
+                                                    />
+                                                </svg>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a
+                                                target="_blank"
+                                                href="https://wa.me/96178808100"
+                                                data-auto-id="true"
+                                                id="page-footer-https-www-youtube-com-channel-ucy6vodc_wyzj4rlslixgp1q-1"
+                                            >
+                                                <svg
+                                                    id="Layer_1"
+                                                    data-name="Layer 1"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 176 124"
+                                                    height="22px"
+                                                >
+                                                    <title>WhatsApp</title>
+                                                    <svg fill="#000000" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                                                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                                        <g id="SVGRepo_iconCarrier"><path d="M11.42 9.49c-.19-.09-1.1-.54-1.27-.61s-.29-.09-.42.1-.48.6-.59.73-.21.14-.4 0a5.13 5.13 0 0 1-1.49-.92 5.25 5.25 0 0 1-1-1.29c-.11-.18 0-.28.08-.38s.18-.21.28-.32a1.39 1.39 0 0 0 .18-.31.38.38 0 0 0 0-.33c0-.09-.42-1-.58-1.37s-.3-.32-.41-.32h-.4a.72.72 0 0 0-.5.23 2.1 2.1 0 0 0-.65 1.55A3.59 3.59 0 0 0 5 8.2 8.32 8.32 0 0 0 8.19 11c.44.19.78.3 1.05.39a2.53 2.53 0 0 0 1.17.07 1.93 1.93 0 0 0 1.26-.88 1.67 1.67 0 0 0 .11-.88c-.05-.07-.17-.12-.36-.21z"></path>
+                                                            <path d="M13.29 2.68A7.36 7.36 0 0 0 8 .5a7.44 7.44 0 0 0-6.41 11.15l-1 3.85 3.94-1a7.4 7.4 0 0 0 3.55.9H8a7.44 7.44 0 0 0 5.29-12.72zM8 14.12a6.12 6.12 0 0 1-3.15-.87l-.22-.13-2.34.61.62-2.28-.14-.23a6.18 6.18 0 0 1 9.6-7.65 6.12 6.12 0 0 1 1.81 4.37A6.19 6.19 0 0 1 8 14.12z"></path></g></svg>
 
-                                    </svg>
+                                                </svg>
 
-                                </a>
-                            </li>
+                                            </a>
+                                        </li>
 
-                        </ul>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     </div>
+                </section>
 
 
-                    <div className="column mb-20">  </div>
-                </nav>
+
+
+
+
 
             </section>
         </footer>

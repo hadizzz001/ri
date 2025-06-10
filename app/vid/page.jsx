@@ -28,7 +28,7 @@ const ExtensionsGrid = () => {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-10 mb-10">
+    <div className="container mx-auto px-4 py-10 mb-10 mt-10">
       <h1 className="text-center uppercase text-4xl mb-8">Our Videos</h1>
       <div className="grid grid-cols-1 gap-10">
         {extensions.map((extension) => (

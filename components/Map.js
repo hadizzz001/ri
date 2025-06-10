@@ -17,9 +17,9 @@ const locations = [
 
 const MapsSection = () => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+    <div className="container grid grid-cols-1  p-4">
       {locations.map((location, index) => (
-        <div key={index} className="w-full mb-10 mt-10"> 
+        <div key={index} className="w-full  mb-10 mt-10"> 
           <iframe
             src={location.src}
             width="100%"

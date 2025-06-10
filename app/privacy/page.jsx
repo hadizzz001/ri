@@ -14,7 +14,7 @@ export default function Home() {
                 <meta property="og:title" content="Page 5" />
                 <meta property="og:type" content="website" />
                 <section
-                    className="u-align-center u-clearfix u-image u-section-1"
+                    className="u-align-center u-clearfix u-image u-section-1 mt-10"
                     id="sec-9a83"
                     data-image-width={1980}
                     data-image-height={1214}
@@ -23,8 +23,8 @@ export default function Home() {
                         <div className="u-align-center u-container-style u-group u-group-1">
                             <div className="u-container-layout u-valign-middle">
 
-                                <h2 className="u-text u-text-1" style={{ fontFamily: '"Manrope", sans-serif', fontWeight: "bolder", marginBottom: "1em", fontSize: "3em" }}>Privacy Policy</h2>
-                                <p className="u-text u-text-2" style={{ fontFamily: 'Frank Ruhl Libre, "PT Serif", "Noto Serif", "Noto Serif JP", "Noto Serif KR", "Noto Serif SC", "Noto Serif TC", ui-serif, Georgia, Cambria, Times New Roman, Times, serif', fontSize: "1.2rem", lineHeight: "2rem", fontWeight: "400" }}>
+                                <h2 className="u-text u-text-1 myBB" style={{ fontFamily: '"Manrope", sans-serif', fontWeight: "bolder", marginBottom: "1em", fontSize: "3em" }}>Privacy Policy</h2>
+                                <p className="u-text u-text-2 myBB" style={{ fontFamily: 'Frank Ruhl Libre, "PT Serif", "Noto Serif", "Noto Serif JP", "Noto Serif KR", "Noto Serif SC", "Noto Serif TC", ui-serif, Georgia, Cambria, Times New Roman, Times, serif', fontSize: "1.2rem", lineHeight: "2rem", fontWeight: "400" }}>
                                     {" "}
 
 
@@ -72,52 +72,7 @@ export default function Home() {
                         </div>
                     </div>
                 </section>
-                <style
-                    dangerouslySetInnerHTML={{
-                        __html:
-                            '\n  h2:not(.u-subtitle) {\n      font-family: Frank Ruhl Libre, "PT Serif", "Noto Serif", "Noto Serif JP", "Noto Serif KR", "Noto Serif SC", "Noto Serif TC", ui-serif, Georgia, Cambria, Times New Roman, Times, serif;\n    font-size: 1.5rem;\n    line-height: 2rem;\n    font-weight: 400;\n    -webkit-font-smoothing: antialiased;\n    -moz-osx-font-smoothing: grayscale;\n  }\n'
-                    }}
-                />
-                <style
-                    dangerouslySetInnerHTML={{
-                        __html:
-                            '\n  p:not(.u-text-variant) {\n    font-family: Lato, Noto Sans, Noto Sans JP, Noto Sans KR, Noto Sans SC, Noto Sans TC, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";\n    font-size: .7857142857142857rem;\n    line-height: 1.15rem;\n    font-weight: 400;\n    letter-spacing: .025em;\n    -webkit-font-smoothing: antialiased;\n  }\n'
-                    }}
-                />
-
-                <style
-                    dangerouslySetInnerHTML={{
-                        __html:
-                            ".u-disable-duration * {transition-duration: 0s !important;}.u-section-1 {\n    background-image: url(https://res.cloudinary.com/duppvjinz/image/upload/v1715626760/gp7ivqfzlaeav793jvmh.png);\n    background-position: 50% 50%;\n}"
-                    }}
-                />
-                <style
-                    dangerouslySetInnerHTML={{
-                        __html:
-                            "\n  .u-section-1 .u-image-1 {\n    border-color: #fff !important;\n    width: 170px;\n    height: 170px;\n    margin: 0 auto;\n}\n"
-                    }}
-                />
-
-                <style
-                    dangerouslySetInnerHTML={{
-                        __html: "\n  .u-section-1 .u-btn-3 { \n    margin: auto;\n}\n"
-                    }}
-                />
-
-
-                <style
-                    dangerouslySetInnerHTML={{
-                        __html: '\n  h4 { \n    font-family: "Manrope", sans-serif;\n}\n'
-                    }}
-                />
-
-                <style
-                    dangerouslySetInnerHTML={{
-                        __html: "\n.u-section-1 .u-btn-2 {\n margin: auto;\n}\n<style/>\n"
-                    }}
-                />
-
-
+             
             </>
 
 

@@ -37,6 +37,7 @@ const MyCarousel = () => {
         {slides.map((slide) => (
           <SwiperSlide key={slide.id}>
             <div className="relative overflow-hidden">
+              {/* Video */}
               <video
                 src={slide.video}
                 className="w-full h-screen object-cover transition-transform duration-[4000ms] ease-in-out scale-110"
@@ -45,23 +46,47 @@ const MyCarousel = () => {
                 loop
                 playsInline
               />
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-black text-center">
-                <h5 className="mb-3 text-white  uppercase animate-slideInLeft">
+
+              {/* Pattern overlay at bottom-right, fully visible */}
+              <div
+                className="absolute bottom-0 right-0 z-10"
+                style={{
+                  width: '550px', // set a fixed width
+                  height: '550px', // set a fixed height
+                  backgroundImage:
+                    "url('https://res.cloudinary.com/dtjcqfoxc/image/upload/v1748939438/Untitled-1_okvugt.webp')",
+                  backgroundSize: 'contain',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'bottom right',
+                  opacity: 0.05,
+                  pointerEvents: 'none',
+                  position: 'absolute',
+                  top: "31em",
+                  left: "3em",
+                }}
+              />
+
+              {/* Text + Button Layer */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-black text-center z-20">
+                <h5 className="mb-3 text-white uppercase animate-slideInLeft">
                   {slide.bottomLine}
                 </h5>
                 <h1 className="text-white uppercase animate-slideInLeft">
                   {slide.topLine}
                 </h1>
 
-                {/* Uncomment this if you want to show a CTA button */}
+                {/* CTA Button */}
                 <a
                   href={slide.link}
-                  className="text-[12px] uppercase mt-20 px-7 py-3 bg-[#cab8ac]  text-[#100501] transition-all duration-300 transform hover:scale-105"
+                  className="text-[12px] uppercase mt-20 px-7 py-3 bg-[#cab8ac] text-black transition-all duration-300 transform hover:scale-105 z-30 selected-hour"
                 >
                   Book Now
                 </a>
               </div>
             </div>
+
+
+
           </SwiperSlide>
         ))}
       </Swiper>

@@ -36,7 +36,7 @@ const page = () => {
                 <p className='mb-10'>Your order has been successfully processed.</p>
                 <a
                     href="/"
-                    className="Common_Button"
+                    className="Common_Button selected-hour"
                     data-auto-id="true"
                     id="protected/checkout/checkout-page-with-layout-conditionals-continueshoppingpath-2"
                 >

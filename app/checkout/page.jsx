@@ -211,11 +211,9 @@ const page = () => {
           >
 
             <section
-              className="elementor-section elementor-top-section elementor-element elementor-element-b92d2c elementor-section-boxed elementor-section-height-default elementor-section-height-default"
+              className="mt-10 elementor-section elementor-top-section elementor-element elementor-element-b92d2c elementor-section-boxed elementor-section-height-default elementor-section-height-default"
               data-id="b92d2c"
-              data-element_type="section"
-              data-settings='{"background_background":"gradient"}'
-              style={{ backgroundImage: " linear-gradient(90deg, #FFFFFF 50%, #ebebd3 50%)" }}
+              data-element_type="section" 
             >
               <div className="elementor-container elementor-column-gap-default">
                 <div
@@ -699,11 +697,11 @@ const page = () => {
                                                   </tr>
 
                                                   <tr className="shipping_total_fee">
-                                                    <td colSpan={1}><span style={{ color: "#82838e" }}>Delivery</span></td>
+                                                    <td colSpan={1}><span style={{ color: "#fff" }}>Delivery</span></td>
                                                     <td colSpan={1} style={{ textAlign: "right" }}>
-                                                      <span className="woocommerce-Price-amount amount" style={{ color: "#82838e" }}>
+                                                      <span className="woocommerce-Price-amount amount" style={{ color: "#fff" }}>
                                                         <bdi>
-                                                          <span className="woocommerce-Price-currencySymbol" style={{ color: "#82838e" }}>$</span>
+                                                          <span className="woocommerce-Price-currencySymbol" style={{ color: "#fff" }}>$</span>
                                                           {deliveryFee.toFixed(2)}
                                                         </bdi>
                                                       </span>
@@ -783,10 +781,10 @@ const page = () => {
               <path d="M1.5 2h3s1.5 0 2 2l4 13s.4 1 1 1h13s3.6-.3 4-4l1-5s0-1-2-1h-19" />
             </svg>
           </div>
-          <p className="EmptyCartBlurb">You have no items in your shopping bag.</p>
+          <p className="EmptyCartBlurb text-white">You have no items in your shopping bag.</p>
           <a
             href="/shop"
-            className="Common_Button"
+            className="Common_Button selected-hour"
             data-auto-id="true"
             id="protected/checkout/checkout-page-with-layout-conditionals-continueshoppingpath-2"
           >
@@ -808,7 +806,7 @@ const page = () => {
         }}
       />
       <style
-        dangerouslySetInnerHTML={{ __html: "\n\nbody {\n      color: initial;\n}\n" }}
+        dangerouslySetInnerHTML={{ __html: "\n\nbody {\n      color: white;\n}\n" }}
       />
 
 

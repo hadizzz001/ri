@@ -162,6 +162,7 @@ const Cart = () => {
                                                             onChange={(e) => handleQuantityChange(obj._id, e.target.value)}
                                                             min="1"
                                                             max={maxStock[obj._id] || 1} 
+                                                            readOnly={true}
                                                         />
 
 

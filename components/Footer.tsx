@@ -1,11 +1,13 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { sendEmail } from '../app/api/sendEmail/sendEmail'
+import { usePathname } from 'next/navigation';
 
 
 const Footer = () => {
 
     const [isFoot1, setIsFoot1] = useState(true);
+    const pathname = usePathname();
 
 
 
@@ -23,6 +25,8 @@ const Footer = () => {
     };
 
 
+    // Set maxTotalEm depending on the route
+    const maxTotalEm = pathname === '/' ? 380 : 140;
 
 
 
@@ -96,50 +100,64 @@ const Footer = () => {
                 <section className="SiteFooter__footNote">
                     <div className="SiteFooter__footNote__inner">
 
-<div className="text flex flex-wrap justify-between gap-4 sm:gap-0">
-  {/* Column 1 */}
-  <div className="w-full sm:w-1/3 flex justify-center items-center mb-5">
-    <p className="question text-center sm:text-left">
-      Got a question?{" "}
-      <span>
-        Contact{" "}
-        <a
-          href="mailto:info@rafidaham.com"
-          data-auto-id="true"
-          id="page-footer-mailto-support-bellroy-com-1"
-        >
-          info@rafidaham.com
-        </a>
-      </span>
-    </p>
-  </div>
+                        <div className="text flex flex-wrap justify-between gap-4 sm:gap-0">
+                            {/* Column 1 */}
+                            <div className="w-full sm:w-1/3 flex justify-center items-center mb-5">
+                                <p className="question text-center sm:text-left">
+                                    Got a question?{" "}
+                                    <span>
+                                        Contact{" "}
+                                        <a
+                                            href="mailto:info@rafidaham.com"
+                                            data-auto-id="true"
+                                            id="page-footer-mailto-support-bellroy-com-1"
+                                        >
+                                            info@rafidaham.com
+                                        </a>
+                                    </span>
+                                </p>
+                            </div>
 
-  {/* Column 2 */}
-  <div className="w-full sm:w-1/3 flex justify-center items-center mb-5">
-    <div className="relative flex items-center justify-center h-[200px] w-[200px]">
-      <img
-        src="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1748939438/Untitled-1_okvugt.webp"
-        alt="Background Design"
-        className="absolute top-0 left-0 w-full h-full object-cover opacity-5 pointer-events-none"
-      />
-      <div className="z-10">
-        <img
-          src="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1748938427/RAFI_WHITE_NAME_ddwts7.webp"
-          width={200}
-          height={10}
-          alt="Logo"
-        />
-      </div>
-    </div>
-  </div>
+                            {/* Column 2 */}
+                            <div className="w-full sm:w-1/3 flex justify-center items-center mb-5">
+                                <div className="relative flex items-center justify-center h-[200px] w-[200px]">
 
-  {/* Column 3 */}
-  <div className="w-full sm:w-1/3 flex justify-center items-center mb-5">
-    <span className="copyright text-center sm:text-right">
-      All rights reserved © {new Date().getFullYear()} Rafi Daham - Hair Repair Studio
-    </span>
-  </div>
-</div>
+                                    <div className="z-10">
+                                        <img
+                                            src="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1751030325/black_bgez4v.webp"
+                                            width={200}
+                                            height={10}
+                                            alt="Logo"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div
+                                    className="absolute bottom-0 right-0 z-1"
+                                    style={{
+                                        width: '350px', // half the original width (550px / 2)
+                                        height: '350px',
+                                        backgroundImage:
+                                            "url('https://res.cloudinary.com/dtjcqfoxc/image/upload/v1751030325/Untitled-11_lfqbgu.webp')",
+                                        backgroundSize: '350px 350px', // keep original size but show only part
+                                        backgroundRepeat: 'no-repeat',
+                                        backgroundPosition: 'left bottom', // show left half
+                                        opacity: 0.05,
+                                        pointerEvents: 'none',
+                                        position: 'absolute',
+                                        top: `${maxTotalEm}em`,
+                                        right: '12em',
+                                    }}
+                                />
+                            </div>
+
+                            {/* Column 3 */}
+                            <div className="w-full sm:w-1/3 flex justify-center items-center mb-5">
+                                <span className="copyright text-center sm:text-right">
+                                    All rights reserved © {new Date().getFullYear()} Rafi Daham - Hair Repair Studio
+                                </span>
+                            </div>
+                        </div>
 
 
                     </div>

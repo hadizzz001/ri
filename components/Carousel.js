@@ -54,7 +54,7 @@ const MyCarousel = () => {
                   width: '550px', // set a fixed width
                   height: '550px', // set a fixed height
                   backgroundImage:
-                    "url('https://res.cloudinary.com/dtjcqfoxc/image/upload/v1748939438/Untitled-1_okvugt.webp')",
+                    "url('https://res.cloudinary.com/dtjcqfoxc/image/upload/v1751030325/Untitled-11_lfqbgu.webp')",
                   backgroundSize: 'contain',
                   backgroundRepeat: 'no-repeat',
                   backgroundPosition: 'bottom right',

@@ -166,7 +166,7 @@ function NavBar() {
             data-auto-id="true"
             id="page-header-homepage-1"
           >
-            <img id="logotoedits" src="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1748938427/RAFI_WHITE_NAME_ddwts7.webp" alt="" width={150} />
+            <img id="logotoedits" src="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1751022677/RAFI_WHITE_NAME1_dmsyxu.webp" alt="" width={150} />
           </a>
           <button id='hamburger' className="hamburger xl:pointer-fine:br_invisible" onClick={handleClick}>
             <span />

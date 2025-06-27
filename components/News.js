@@ -57,6 +57,7 @@ const FullWidthImageSwiper = () => {
           </SwiperSlide>
         ))}
       </Swiper>
+
     </div>
   );
 };

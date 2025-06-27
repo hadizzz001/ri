@@ -13,7 +13,8 @@
 }
 
 body {
-  background-color: #141412 !important;
+  background-color: #f8f8f8 !important;
+  color: #100501 !important;
 }
 
 /* START: General styles */
@@ -93,30 +94,30 @@ body {
 
 
 .sywVideo {
-  color: #fff !important;
+  color: #100501 !important;
   background-color: transparent !important;
 }
 
 .sywCarousel {
-  color: #fff !important;
+  color: #100501 !important;
 }
 
 .sywProductTabs-title {
-  color: #fff !important;
+  color: #100501 !important;
   background-color: transparent !important;
 }
 
 .sywPaymentOptions {
-  color: #fff !important;
+  color: #100501 !important;
 }
 
 .SiteFooter__wrapper {
-  background: #fff !important;
+  background: #100501 !important;
 }
 
 
 a:hover {
-  color: #fff !important;
+  color: #100501 !important;
   text-decoration: none;
 }
 
@@ -127,7 +128,7 @@ a:hover {
 
 .syw-cta-desktop:hover,
 .syw-cta-desktop:focus {
-  color: #fff !important;
+  color: #100501 !important;
   text-decoration: none;
 }
 
@@ -142,14 +143,14 @@ a:hover {
   font-family: "Lato", sans-serif;
   font-size: 12px;
   font-weight: 700;
-  background: #fff;
+  background: #100501;
   text-align: center;
   padding: 0 5px;
   min-width: 100%;
   outline: none;
   border: 0;
   border-radius: 4px;
-  color: #fff;
+  color: #100501;
   text-transform: uppercase;
   letter-spacing: 1.5px;
   cursor: pointer;
@@ -212,7 +213,7 @@ a:hover {
 
 
 #anchorNew:hover {
-  color: #fff !important;
+  color: #100501 !important;
 }
 
 .form-control {
@@ -241,7 +242,7 @@ a:hover {
 
 
 .HtmlProductAddToCart {
-  background-color: #fff !important;
+  background-color: #100501 !important;
 }
 
 button:focus {
@@ -389,7 +390,7 @@ button:focus {
 
 
 a:hover {
-  color: #fff !important;
+  color: #100501 !important;
   text-decoration: none;
 }
 
@@ -437,20 +438,20 @@ h3 {
 }
 
 .mypar11223 {
-  color: #fff !important;
+  color: #100501 !important;
   letter-spacing: 3px !important;
   font-weight: 600 !important;
 }
 
 .mypar11224 {
-  color: #fff !important;
+  color: #100501 !important;
   letter-spacing: 3px !important;
   font-size: 25px !important;
 }
 
 
 .mypar1122 {
-  color: #fff !important;
+  color: #100501 !important;
 }
 
 
@@ -466,7 +467,7 @@ h3 {
 @media (max-width: 1199px),
 (pointer: coarse) {
   .pageHeaderContainer.br-dark-bg {
-    background: #fff !important;
+    background: #100501 !important;
   }
 }
 
@@ -494,7 +495,7 @@ main {
 
 
 .SiteFooter__wrapper {
-  background: #141412 !important;
+  background: #f8f8f8 !important;
 }
 
 #listnavstyle {
@@ -517,12 +518,12 @@ main {
 
 
 .myssss {
-  background-color: #100501 !important
+  background-color: #fff !important
 }
 
 @media (max-width: 768px) {
   .SiteFooterSitemap .column {
-    background: #141412 !important;
+    background: #f8f8f8 !important;
   }
 
   #listnavstyle {
@@ -562,7 +563,7 @@ main {
 
 
 .NewsletterSignupFooter {
-  background: #141412 !important;
+  background: #f8f8f8 !important;
 }
 
 
@@ -588,7 +589,7 @@ textarea {
 
 .react-calendar__tile--active {
   background: #100501 !important;
-  color: #fff !important;
+  color: #100501 !important;
 }
 
 
@@ -606,16 +607,16 @@ textarea {
 
 
 .br_text-current {
-  color: #fff !important;
+  color: #100501 !important;
 }
 
 
 .myBB {
-  color: #fff !important;
+  color: #100501 !important;
 }
 
 .myNewC {
-  color: #fff !important;
+  color: #100501 !important;
 }
 
 
@@ -639,12 +640,12 @@ header {
 }
 
 .Checkout_Cart_LineItems_LineItem_Price .Currency {
-  color: #fff !important;
+  color: #100501 !important;
 }
 
 .Currency_Monetary,
 .Currency_Code {
-  color: #fff !important;
+  color: #100501 !important;
 }
 
 
@@ -686,34 +687,34 @@ header {
 }
 
 .elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form .wfacp_main_form.woocommerce .wfacp_section_title { 
-    color: #fff !important; 
+    color: #100501 !important; 
 }
 
 .elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form table.shop_table tbody tr td span:not(.wfacp-pro-count) { 
-    color: #fff !important;
+    color: #100501 !important;
 }
 
 .elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form table.shop_table tbody .cart_item .product-total span.amount bdi {
-    color: #fff !important;
+    color: #100501 !important;
 }
 
 .elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form table.shop_table tfoot tr.order-total th span {
-    color: #fff !important;
+    color: #100501 !important;
 }
 .elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form table.shop_table tfoot tr.order-total td span.woocommerce-Price-amount.amount bdi {
-    color: #fff !important;
+    color: #100501 !important;
 }
 .elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form table.shop_table tfoot tr.order-total td span {
-    color: #fff !important;
+    color: #100501 !important;
 }
 .elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form table.shop_table tfoot tr:not(.order-total):not(.cart-discount) th span {
-    color: #fff !important;
+    color: #100501 !important;
 }
 .elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form table.shop_table tfoot tr:not(.order-total):not(.cart-discount) td bdi {
-    color: #fff !important;
+    color: #100501 !important;
 }
 .elementor-20120 .elementor-element.elementor-element-451a47ba #wfacp-e-form table.shop_table tfoot tr:not(.order-total):not(.cart-discount) td span {
-    color: #fff !important;
+    color: #100501 !important;
 }
 
 .u-section-1 {
@@ -721,7 +722,7 @@ header {
 }
 
 .u-overlap.u-overlap-transparent:not(.u-overlap-contrast) .u-header :not(.u-nav-item) > a, .u-gradient > .u-container-layout > a, .u-image:not(.u-shading) > .u-container-layout > a, a {
-    color: #fff !important;
+    color: #100501 !important;
 }
 
 /* img {

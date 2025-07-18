@@ -69,7 +69,7 @@ const pathname = usePathname();
       }}
     >
       {images.map((img, idx) => {
-        const baseWidth = 250;
+        const baseWidth = 250 * 4;
         const width = baseWidth; // full image width
         const height = baseWidth;
         const scaledWidth = width * img.scale;

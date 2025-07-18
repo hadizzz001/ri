@@ -1,21 +1,41 @@
-'use client';
-
-import Link from 'next/link';
-
-const BookFloatingButton = () => {
+const WhatsAppIcon = () => {
   return (
-    <Link href="/appointment">
-      <div className="fixed bottom-4 left-4 bg-[#cab8ac] w-16 h-16 rounded-full flex items-center justify-center shadow-lg z-50 cursor-pointer transition duration-300">
-      <svg
-      style={{width: "50%", height: "50%"}}
-  fill="#100501"
+    <a
+      href="/appointment"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        position: 'fixed',
+        bottom: '5px',
+        left: '10px',
+        backgroundColor: '#000',
+        color: '#fff',
+        borderRadius: '8px',
+        padding: '11px',
+        width: '45px',
+        height: '45px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '10px',
+        zIndex: 1000,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+        textDecoration: 'none',
+      }}
+      id="wap1"
+      className="uppercase"
+    >
+<svg
+  fill="#ffffff"
+  width="64px"
+  height="64px"
   viewBox="0 0 100.353 100.353"
   id="Layer_1"
   version="1.1"
   xmlSpace="preserve"
   xmlns="http://www.w3.org/2000/svg"
   xmlnsXlink="http://www.w3.org/1999/xlink"
-  stroke="#fff"
+  stroke="#ffffff"
 >
   <g id="SVGRepo_bgCarrier" strokeWidth={0} />
   <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
@@ -34,9 +54,8 @@ const BookFloatingButton = () => {
   </g>
 </svg>
 
-      </div>
-    </Link>
+    </a>
   );
 };
 
-export default BookFloatingButton;
+export default WhatsAppIcon;

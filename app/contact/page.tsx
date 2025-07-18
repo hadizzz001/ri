@@ -38,7 +38,7 @@ export default function Home() {
     <>
 
 
-      <div className="mt-10 ">
+      <div className="mt-20 mb-20">
         <div className="container-xl">
           <br />
           <h4 className="br_text-2xl-serif md:br_text-3xl-serif" style={{textAlign:"center"}}>GET IN TOUCH</h4>
@@ -137,6 +137,17 @@ export default function Home() {
         
       </div>
       <div className="clearfix" />
+
+
+      <style
+  dangerouslySetInnerHTML={{
+    __html: `
+      .form-control {
+        border: 1px solid #c5c5c5 !important;
+      }
+    `,
+  }}
+/>
       
     </>
 

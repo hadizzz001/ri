@@ -82,7 +82,7 @@ export default function AppointmentPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-10 p-4 rounded-md shadow mt-10">
+    <div className="max-w-xl mx-auto  p-4 rounded-md shadow mt-20 mb-20">
       <h1 className="text-2xl font-bold mb-4">Book an Appointment</h1>
 
       <label className="block mb-2 font-semibold">Select Country</label>

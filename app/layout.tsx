@@ -4,25 +4,23 @@ import './globals.css'
 import './custom.css'
 import './bootstrap.min.css'
 import './bs-select.css'
-import './slick.css'
-import { useSearchParams } from 'next/navigation'
+import './slick.css' 
 import { CartProvider } from './context/CartContext';
 import { BooleanProvider } from './context/CartBoolContext'; 
 import GifLoader from '../components/GifLoader'
 import WhatsAppIcon from '../components/WhatsAppIcon'; 
-import Appoint from '../components/Appoint'; 
-import BackgroundImages from '../components/BackgroundImages';  
+import Appoint from '../components/Appoint';   
+import BodyStyleController from '../components/BodyStyleController';  
 import { useEffect } from 'react';
 
  
-
  
 
 export default function RootLayout({
   children
 }: {
   children: React.ReactNode
-}) { 
+}) {  
 
     useEffect(() => {
     const handleContextMenu = (e) => {
@@ -33,6 +31,26 @@ export default function RootLayout({
       document.removeEventListener('contextmenu', handleContextMenu);
     };
   }, []);
+
+
+
+    useEffect(() => {
+    const positions = [
+      'center',
+      'top',
+      'top left',
+      'top right',
+      'bottom',
+      'bottom left',
+      'bottom right',
+      'left',
+      'right'
+    ];
+    const random = positions[Math.floor(Math.random() * positions.length)];
+    document.body.style.backgroundPosition = random;
+  }, []);
+
+ 
 
   
  
@@ -128,9 +146,8 @@ export default function RootLayout({
   />
   
  
-<link href="https://db.onlinewebfonts.com/c/fc650de7c3b3af62825a0e743b69425f?family=Helvetica+Neue+LT+W05+55+Roman" rel="stylesheet" type="text/css"/>             
-
- 
+<link href="https://fonts.cdnfonts.com/css/futura-std-4" rel="stylesheet"/>
+                
   
 </>
 
@@ -139,13 +156,12 @@ export default function RootLayout({
  
       <GifLoader />
 
-        
+         <BodyStyleController />
         <BooleanProvider>
         <CartProvider>
           <Navbar2 />
           <WhatsAppIcon />
-          <Appoint />
-          <BackgroundImages />
+          <Appoint /> 
           {children} 
           <Footer />
         </CartProvider>

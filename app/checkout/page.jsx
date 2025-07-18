@@ -206,7 +206,7 @@ const page = () => {
           <div
             data-elementor-type="wp-post"
             data-elementor-id={20120}
-            className="elementor elementor-20120 md:mt-[150px]"
+            className="elementor elementor-20120 md:mt-[150px] mb-20"
             data-elementor-post-type="wfacp_checkout"
           >
 
@@ -781,7 +781,7 @@ const page = () => {
               <path d="M1.5 2h3s1.5 0 2 2l4 13s.4 1 1 1h13s3.6-.3 4-4l1-5s0-1-2-1h-19" />
             </svg>
           </div>
-          <p className="EmptyCartBlurb text-white">You have no items in your shopping bag.</p>
+          <p className="EmptyCartBlurb text-black">You have no items in your shopping bag.</p>
           <a
             href="/shop"
             className="Common_Button selected-hour"
@@ -827,6 +827,12 @@ const page = () => {
         }}
       />
 
+<style
+  dangerouslySetInnerHTML={{
+    __html:
+      "\n\n  @media (min-width: 768px) {\n    .md\\:block {\n        display: block !important;\n    }\n}\n"
+  }}
+/>
 
 
     </>

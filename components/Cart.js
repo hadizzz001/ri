@@ -122,9 +122,9 @@ const Cart = () => {
 
             <div className="Checkout">
                 <div id="cartid2" className="MiniCart_Cart" style={{ zIndex: "99999999" }}>
-                    <div className="MiniCart_Cart_Heading br_text-grey-500 mt-2">
+                    <div className="MiniCart_Cart_Heading br_text-grey-500 mt-1">
 
-                        <span className="myNewC">Your shopping bag</span>
+                        
                         <button
                             slot="close-button"
                             className="MiniCart_Cart_CloseButton"

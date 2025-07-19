@@ -12,7 +12,7 @@
 }
 
 body {
-  background-image: url('https://res.cloudinary.com/dtjcqfoxc/image/upload/v1752420875/backzzz_hhx68f.webp');
+  background-image: url('https://res.cloudinary.com/dtjcqfoxc/image/upload/v1752958782/backzzz_cesjpb.webp');
   background-repeat: repeat;
   background-size: cover; 
   background-attachment: initial;
@@ -29,7 +29,7 @@ body.home-page {
 /* Mobile-specific styles */
 @media (max-width: 768px) {
   body {
-    background-image: url("https://res.cloudinary.com/dtjcqfoxc/image/upload/v1752421977/backzzz1_vfsmrs.webp"); 
+    background-image: url("https://res.cloudinary.com/dtjcqfoxc/image/upload/v1752958782/backzzz_cesjpb.webp"); 
     background-repeat: initial;
   }
 }

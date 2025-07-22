@@ -3,41 +3,17 @@
 import React, { useState, useEffect, useRef } from "react";
 
 const slidesData = [
-  {
-    id: 1,
-    bottomLine: "Welcome to a world of beauty",
-    subtitle: "Expertise, and elegance!",
-    duration: 3000,
-  },
-  {
-    id: 2,
-    bottomLine: "Beauty Care",
-    subtitle: "Is Our Passion",
-    duration: 3000,
-  },
-  {
-    id: 3,
-    bottomLine: "The brush doesn’t paint…",
-    subtitle: "it speaks my passion.",
-    duration: 2000,
-  },
-  {
-    id: 4,
-    bottomLine: "A Haircut That",
-    subtitle: "Speaks Confidence",
-    duration: 3000,
-  },
-  {
-    id: 5,
-    bottomLine: "Bridal Beauty",
-    subtitle: "& Luxury Hair Care",
-    duration: 6000,
-  },
+  { id: 1, bottomLine: "Welcome to a world of beauty", subtitle: "Expertise, and elegance!", duration: 3000 },
+  { id: 2, bottomLine: "Beauty Care", subtitle: "Is Our Passion", duration: 3000 },
+  { id: 3, bottomLine: "The brush doesn’t paint…", subtitle: "it speaks my passion.", duration: 2000 },
+  { id: 4, bottomLine: "A Haircut That", subtitle: "Speaks Confidence", duration: 3000 },
+  { id: 5, bottomLine: "Bridal Beauty", subtitle: "& Luxury Hair Care", duration: 6000 },
 ];
 
 const MyCarousel = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [fadeBlack, setFadeBlack] = useState(false);
   const timeoutRef = useRef(null);
   const videoRef = useRef(null);
 
@@ -48,12 +24,19 @@ const MyCarousel = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Slide loop logic without any slider
+  // Slide loop logic with black fade effect
   useEffect(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     timeoutRef.current = setTimeout(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % slidesData.length);
+      // Trigger black fade overlay
+      setFadeBlack(true);
+
+      // After short fade duration, switch slide and remove black overlay
+      setTimeout(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % slidesData.length);
+        setFadeBlack(false);
+      }, 300); // fade duration: 300ms
     }, slidesData[currentIndex].duration);
 
     return () => clearTimeout(timeoutRef.current);
@@ -64,7 +47,7 @@ const MyCarousel = () => {
     if (videoRef.current) {
       videoRef.current.pause();
       videoRef.current.currentTime = 0;
-      videoRef.current.play();
+      videoRef.current.play().catch(() => {});
     }
   }, [currentIndex]);
 
@@ -73,7 +56,7 @@ const MyCarousel = () => {
   const videoSrc = isMobile ? `/${slideNumber}mo.mp4` : `/${slideNumber}p.mp4`;
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-full h-screen overflow-hidden" style={{ backgroundColor: "black" }}>
       <video
         ref={videoRef}
         src={videoSrc}
@@ -81,6 +64,15 @@ const MyCarousel = () => {
         muted
         playsInline
         preload="auto"
+        autoPlay
+      />
+
+      {/* Black Fade Overlay */}
+      <div
+        className={`absolute top-0 left-0 w-full h-full bg-black pointer-events-none transition-opacity duration-300 ${
+          fadeBlack ? "opacity-100" : "opacity-0"
+        }`}
+        style={{ zIndex: 50 }}
       />
 
       {/* Background Graphic */}
@@ -103,18 +95,13 @@ const MyCarousel = () => {
 
       {/* Title & Subtitle - Center */}
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center z-20 px-4">
-        <h5 className="myNewButtonHadiz1">
-          {slide.bottomLine}
-        </h5>
-        <p className="myNewButtonHadiz2">{slide.subtitle}</p>
+        <h5 className="myNewButtonHadiz1 whitespace-nowrap">{slide.bottomLine}</h5>
+        <p className="myNewButtonHadiz2 whitespace-nowrap">{slide.subtitle}</p>
       </div>
 
       {/* Book Appointment - Bottom */}
       <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20">
-        <a
-          href="/appointment"
-          className="myNewButtonHadiz"
-        >
+        <a href="/appointment" className="myNewButtonHadiz">
           Book Appointment
         </a>
       </div>

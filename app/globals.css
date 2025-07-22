@@ -920,6 +920,22 @@
  }
 
 
+ .myNewButtonHadiz2 {
+   position: relative;
+   background-color: transparent !important;
+   color: white !important;
+   font-size: 17px !important;
+   font-weight: 200 !important;
+   margin-top: 3px !important;
+ }
+ .myNewButtonHadiz1 {
+   position: relative;
+   background-color: transparent !important;
+   color: white !important;
+   font-size: 22px !important;
+   font-weight: 500 !important;
+   margin-top: 3px !important;
+ }
  .myNewButtonHadiz {
    position: relative;
    background-color: transparent !important;

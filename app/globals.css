@@ -928,6 +928,7 @@
    font-weight: 200 !important;
    margin-top: 3px !important;
  }
+
  .myNewButtonHadiz1 {
    position: relative;
    background-color: transparent !important;
@@ -936,34 +937,24 @@
    font-weight: 500 !important;
    margin-top: 3px !important;
  }
+
  .myNewButtonHadiz {
    position: relative;
-   background-color: transparent !important;
+   background-color: #000 !important;
    color: white !important;
-   font-size: 17px !important;
+   font-size: 11px !important;
    font-weight: 600 !important;
    margin-top: 3px !important;
+   border-radius: 8px;
+   padding: 12px 13px;
+   display: flex;
+   align-items: center; 
+       font-family: "Futura Std", sans-serif !important;
+    font-weight: 100 !important;
+    text-transform: uppercase !important;
  }
 
  .myNewButtonHadiz:hover {
    color: white !important;
  }
-
-
- .myNewButtonHadiz::after {
-   content: "";
-   position: absolute;
-   bottom: 0;
-   left: 0;
-   height: 1px;
-   width: 100%;
-   background-color: white;
-   transition: width 0.4s ease, left 0.4s ease;
-   color: white !important;
- }
-
- .myNewButtonHadiz:hover::after {
-   width: 0%;
-   left: 100%;
-   color: white !important;
- }
+ 

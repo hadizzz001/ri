@@ -1,28 +1,29 @@
-"use client"
-import {  Footer,Navbar2 } from '../components'
+'use client'
+
+import { Footer, Navbar2 } from '../components'
 import './globals.css'
 import './custom.css'
 import './bootstrap.min.css'
 import './bs-select.css'
-import './slick.css' 
+import './slick.css'
 import { CartProvider } from './context/CartContext';
-import { BooleanProvider } from './context/CartBoolContext'; 
+import { BooleanProvider } from './context/CartBoolContext';
 import GifLoader from '../components/GifLoader'
-import WhatsAppIcon from '../components/WhatsAppIcon'; 
-import Appoint from '../components/Appoint';   
-import BodyStyleController from '../components/BodyStyleController';  
+import WhatsAppIcon from '../components/WhatsAppIcon';
+import Appoint from '../components/Appoint';
+import BodyStyleController from '../components/BodyStyleController';
 import { useEffect } from 'react';
 
- 
- 
+
+
 
 export default function RootLayout({
   children
 }: {
   children: React.ReactNode
-}) {  
+}) {
 
-    useEffect(() => {
+  useEffect(() => {
     const handleContextMenu = (e) => {
       e.preventDefault();
     };
@@ -34,7 +35,7 @@ export default function RootLayout({
 
 
 
-    useEffect(() => {
+  useEffect(() => {
     const positions = [
       'center',
       'top',
@@ -50,76 +51,72 @@ export default function RootLayout({
     document.body.style.backgroundPosition = random;
   }, []);
 
- 
 
-  
- 
+
+
+
 
   return (
-    <html className="no-js no-touch supports-no-cookies" lang="en"> 
-    <>
-  <meta content="text/html; charset=utf-8" httpEquiv="Content-Type" />
-  <meta content="en" httpEquiv="Content-Language" />
-  <meta content="IE=edge" httpEquiv="X-UA-Compatible" />
-  <meta
-    content="width=device-width, initial-scale=1, maximum-scale=1"
-    name="viewport"
-  />
-  <meta content="max-image-preview:large" name="robots" />
-  <title>
-    Rafi Daham - Hair Repair Studio
-  </title>
-  <meta
-    content="At Rafi Daham - Hair Repair Studio, we're reshaping the way businesses connect."
-    name="description" 
-  />
-  <meta content="Rafi Daham - Hair Repair Studio" name="keywords" property="abbasbaba, shoes, men, women" />
-  <meta
-    content="Rafi Daham - Hair Repair Studio"
-    name=""
-    property="og:title"
-  />
-  <meta
-    content="https://rafidaham.com/"
-    name=""
-    property="og:url"
-  />
-  <meta content="website" name="" property="og:type" />
-  <meta
-    content="At Rafi Daham - Hair Repair Studio, we're reshaping the way businesses connect."
-    name=""
-    property="og:description"
-  />
-  <meta
-    content="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1747076728/vzuolw8ebi6acoynqyy6.webp"
-    name=""
-    property="og:image"
-  />
-   
-  <link
-    href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1747076728/vzuolw8ebi6acoynqyy6.webp"
-    rel="apple-touch-icon"
-    sizes="180x180"
-  />
-  <link
-    href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1747076728/vzuolw8ebi6acoynqyy6.webp"
-    rel="icon"
-    sizes="32x32" 
-  />
-  <link
-    href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1747076728/vzuolw8ebi6acoynqyy6.webp"
-    rel="icon"
-    sizes="16x16" 
-  /> 
- 
-  <meta content="#ffffff" name="msapplication-TileColor" />
-  <meta content="#ffffff" name="theme-color" />
-  <link href="https://assets.bellroy.com" rel="preconnect" />
-  <link href="https://bellroy.imgix.net" rel="preconnect" /> 
-  
+    <html className="no-js no-touch supports-no-cookies" lang="en">
+      <head>
+        <meta content="text/html; charset=utf-8" httpEquiv="Content-Type" />
+        <meta content="en" httpEquiv="Content-Language" />
+        <meta content="IE=edge" httpEquiv="X-UA-Compatible" />
+        <meta
+          content="width=device-width, initial-scale=1, maximum-scale=1"
+          name="viewport"
+        />
+        <meta content="max-image-preview:large" name="robots" />
+        <title>
+          Rafi Daham
+        </title>
+        <meta
+          content="At Rafi Daham - Hair Repair Studio, we're reshaping the way businesses connect."
+          name="description"
+        />
+        <meta content="Rafi Daham - Hair Repair Studio" name="keywords" property="Rafi, daham, hair, women" />
+        <meta
+          content="Rafi Daham"
+          name=""
+          property="og:title"
+        />
+        <meta
+          content="https://rafidaham.com/"
+          name=""
+          property="og:url"
+        />
+        <meta content="website" name="" property="og:type" />
+        <meta
+          content="At Rafi Daham - Hair Repair Studio, we're reshaping the way businesses connect."
+          name=""
+          property="og:description"
+        />
+        <meta
+          content="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png"
+          name=""
+          property="og:image"
+        />
 
- 
- 
+        <link
+          href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png"
+          rel="apple-touch-icon"
+          sizes="180x180"
+        />
+        <link
+          href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png"
+          rel="icon"
+          sizes="32x32"
+        />
+        <link
+          href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png"
+          rel="icon"
+          sizes="16x16"
+        />
+
+        <meta content="#ffffff" name="msapplication-TileColor" />
+        <meta content="#ffffff" name="theme-color" />
+        <link href="https://assets.bellroy.com" rel="preconnect" />
+        <link href="https://bellroy.imgix.net" rel="preconnect" />
 
 
 
@@ -130,45 +127,49 @@ export default function RootLayout({
 
 
 
-  <link
-    href="css/webfonts-3e3c2400.css"
-    rel="preload"
-    as="style"
-  />
-  <link
-    rel="stylesheet"
-    href="css/webfonts-3e3c2400.css"
-    media="print" 
-  />
-  <link
-    rel="stylesheet"
-    href="css/style-4109db2b.css"
-  />
-  
- 
-<link href="https://fonts.cdnfonts.com/css/futura-std-4" rel="stylesheet"/>
-                
-  
-</>
+
+
+
+
+        <link
+          href="css/webfonts-3e3c2400.css"
+          rel="preload"
+          as="style"
+        />
+        <link
+          rel="stylesheet"
+          href="css/webfonts-3e3c2400.css"
+          media="print"
+        />
+        <link
+          rel="stylesheet"
+          href="css/style-4109db2b.css"
+        />
+
+
+        <link href="https://fonts.cdnfonts.com/css/futura-std-4" rel="stylesheet" />
+
+
+      </head>
 
       <body>
 
- 
-      <GifLoader />
 
-         <BodyStyleController />
+        <GifLoader />
+
+        <BodyStyleController />
         <BooleanProvider>
-        <CartProvider>
-          <Navbar2 />
-          <WhatsAppIcon />
-          <Appoint /> 
-          {children} 
-          <Footer />
-        </CartProvider>
+          <CartProvider>
+            <Navbar2 />
+            <WhatsAppIcon />
+            <Appoint />
+            {children}
+            <Footer />
+          </CartProvider>
         </BooleanProvider>
 
- 
-        
+
+
       </body>
     </html>
   )
@@ -237,4 +238,3 @@ export default function RootLayout({
 
 
 
- 

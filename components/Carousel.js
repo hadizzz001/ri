@@ -13,7 +13,7 @@ const MyCarousel = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const videoSrc = isMobile ? "/mob.mp4" : "/pc.mp4";
+  const videoSrc = isMobile ? "https://res.cloudinary.com/dgi9mfldc/video/upload/v1756650010/Comp_1_2_zyhqez.mp4" : "https://res.cloudinary.com/dgi9mfldc/video/upload/v1756649976/Comp_1_3_mypzbm.mp4";
 
   return (
     <div

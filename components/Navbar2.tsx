@@ -55,14 +55,14 @@ export default function NavBar() {
 
         <div className="px-4 py-3 flex justify-between items-center text-white">
           {/* Hamburger */}
-<button
-  onClick={() => setMenuOpen(true)}
-  aria-label="Open menu"
-  className="flex items-center space-x-2"
->
-  <Menu className="w-6 h-6 stroke-[1]" />
-  <span className="hidden sm:inline">Menu</span>
-</button>
+          <button
+            onClick={() => setMenuOpen(true)}
+            aria-label="Open menu"
+            className="flex items-center space-x-2"
+          >
+            <Menu className="w-6 h-6 stroke-[1]" />
+            <span className="hidden sm:inline">Menu</span>
+          </button>
 
 
           {/* Logo */}

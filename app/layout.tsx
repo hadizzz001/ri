@@ -14,9 +14,6 @@ import Appoint from '../components/Appoint';
 import BodyStyleController from '../components/BodyStyleController';
 import { useEffect } from 'react';
 
-
-
-
 export default function RootLayout({
   children
 }: {
@@ -24,7 +21,7 @@ export default function RootLayout({
 }) {
 
   useEffect(() => {
-    const handleContextMenu = (e) => {
+    const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
     };
     document.addEventListener('contextmenu', handleContextMenu);
@@ -32,8 +29,6 @@ export default function RootLayout({
       document.removeEventListener('contextmenu', handleContextMenu);
     };
   }, []);
-
-
 
   useEffect(() => {
     const positions = [
@@ -51,112 +46,73 @@ export default function RootLayout({
     document.body.style.backgroundPosition = random;
   }, []);
 
-
-
-
-
-
   return (
     <html className="no-js no-touch supports-no-cookies" lang="en">
       <head>
-        <meta content="text/html; charset=utf-8" httpEquiv="Content-Type" />
-        <meta content="en" httpEquiv="Content-Language" />
-        <meta content="IE=edge" httpEquiv="X-UA-Compatible" />
+        {/* Standard Meta Tags */}
+        <meta charSet="utf-8" />
+        <meta httpEquiv="Content-Language" content="en" />
+        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        <meta name="robots" content="max-image-preview:large" />
+        <meta name="theme-color" content="#ffffff" />
+        <meta name="msapplication-TileColor" content="#ffffff" />
+
+        {/* SEO */}
+        <title>Rafi Daham</title>
         <meta
-          content="width=device-width, initial-scale=1, maximum-scale=1"
-          name="viewport"
-        />
-        <meta content="max-image-preview:large" name="robots" />
-        <title>
-          Rafi Daham
-        </title>
-        <meta
-          content="At Rafi Daham - Hair Repair Studio, we're reshaping the way businesses connect."
           name="description"
+          content="Rafi Daham embarked on his hairstyling journey in 1994, transforming his passion for artistry and precision into a lifelong career."
         />
-        <meta content="Rafi Daham - Hair Repair Studio" name="keywords" property="Rafi, daham, hair, women" />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Rafi Daham" />
         <meta
-          content="Rafi Daham"
-          name=""
-          property="og:title"
-        />
-        <meta
-          content="https://rafidaham.com/"
-          name=""
-          property="og:url"
-        />
-        <meta content="website" name="" property="og:type" />
-        <meta
-          content="At Rafi Daham - Hair Repair Studio, we're reshaping the way businesses connect."
-          name=""
           property="og:description"
+          content="Rafi Daham embarked on his hairstyling journey in 1994, transforming his passion for artistry and precision into a lifelong career."
         />
+        <meta property="og:url" content="https://rafidaham.com" />
+        <meta property="og:site_name" content="Rafi Daham" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Rafi Daham" />
         <meta
-          content="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png"
-          name=""
-          property="og:image"
+          name="twitter:description"
+          content="Rafi Daham embarked on his hairstyling journey in 1994, transforming his passion for artistry and precision into a lifelong career."
         />
+        <meta name="twitter:image" content="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png" />
 
-        <link
-          href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png"
-          rel="apple-touch-icon"
-          sizes="180x180"
-        />
-        <link
-          href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png"
-          rel="icon"
-          sizes="32x32"
-        />
-        <link
-          href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png"
-          rel="icon"
-          sizes="16x16"
-        />
+        {/* Icons */}
+        <link rel="apple-touch-icon" sizes="180x180" href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png" />
+        <link rel="icon" sizes="32x32" href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png" />
+        <link rel="icon" sizes="16x16" href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png" />
 
-        <meta content="#ffffff" name="msapplication-TileColor" />
-        <meta content="#ffffff" name="theme-color" />
-        <link href="https://assets.bellroy.com" rel="preconnect" />
-        <link href="https://bellroy.imgix.net" rel="preconnect" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <link
-          href="css/webfonts-3e3c2400.css"
-          rel="preload"
-          as="style"
-        />
-        <link
-          rel="stylesheet"
-          href="css/webfonts-3e3c2400.css"
-          media="print"
-        />
-        <link
-          rel="stylesheet"
-          href="css/style-4109db2b.css"
-        />
-
-
+        {/* Fonts & Styles */}
+        <link rel="preload" as="style" href="css/webfonts-3e3c2400.css" />
+        <link rel="stylesheet" href="css/webfonts-3e3c2400.css" media="print" />
+        <link rel="stylesheet" href="css/style-4109db2b.css" />
         <link href="https://fonts.cdnfonts.com/css/futura-std-4" rel="stylesheet" />
 
-
+        {/* Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Rafi Daham",
+              url: "https://rafidaham.com",
+              logo: "https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png",
+            }),
+          }}
+        />
       </head>
 
       <body>
-
-
         <GifLoader />
-
         <BodyStyleController />
         <BooleanProvider>
           <CartProvider>
@@ -167,74 +123,7 @@ export default function RootLayout({
             <Footer />
           </CartProvider>
         </BooleanProvider>
-
-
-
       </body>
     </html>
   )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// export const metadata = {
-//   title: 'Coming Soon',
-// };
-
-// export default function RootLayout() {
-//   return (
-//     <html lang="en">
-//       <head>
-//         <meta name="viewport" content="width=device-width, initial-scale=1" />
-//       </head>
-//       <body
-//         style={{
-//           margin: 0,
-//           padding: 0,
-//           height: '100vh',
-//           width: '100vw',
-//           overflow: 'hidden',
-//           backgroundColor: '#282121',
-//         }}
-//       >
-//         <picture>
-//           <source
-//             media="(max-width: 768px)"
-//             srcSet="/mobile.webp"
-//           />
-//           <source
-//             media="(min-width: 769px)"
-//             srcSet="/pc.webp"
-//           />
-//           <img
-//             src="/pc.webp"
-//             alt="Coming Soon"
-//             style={{
-//               width: '100vw',
-//               height: '100vh',
-//               objectFit: 'contain',
-//               display: 'block',
-//               margin: '0 auto',
-//             }}
-//           />
-//         </picture>
-//       </body>
-//     </html>
-//   );
-// }
-
-
-
-
-

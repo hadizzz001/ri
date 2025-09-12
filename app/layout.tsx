@@ -109,6 +109,13 @@ export default function RootLayout({
             }),
           }}
         />
+
+        <link rel="icon" href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png?v=2" type="image/x-icon" />
+<link rel="shortcut icon" href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png?v=2" type="image/x-icon" />
+<link rel="apple-touch-icon" href="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png?v=2" />
+<meta property="og:image" content="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1756638279/icon_bng0gm.png?v=2" />
+
+
       </head>
 
       <body>

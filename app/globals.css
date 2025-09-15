@@ -13,7 +13,7 @@
  body {
    background-image: url('https://res.cloudinary.com/dtjcqfoxc/image/upload/v1753086923/backzzz_ykjcd6.webp');
    background-repeat: repeat;
-   background-size: cover;
+   background-size: contain;
    background-attachment: initial;
    color: #100501 !important;
  }
@@ -948,13 +948,102 @@
    border-radius: 8px;
    padding: 12px 13px;
    display: flex;
-   align-items: center; 
-       font-family: "Futura Std", sans-serif !important;
-    font-weight: 100 !important;
-    text-transform: uppercase !important;
+   align-items: center;
+   font-family: "Futura Std", sans-serif !important;
+   font-weight: 100 !important;
+   text-transform: uppercase !important;
  }
 
  .myNewButtonHadiz:hover {
    color: white !important;
  }
- 
+
+
+
+ .customb {
+   font-size: 14px !important;
+   text-transform: uppercase !important;
+   padding: 0.5rem 2rem !important;
+   background-color: transparent !important;
+   color: #100501 !important;
+   border: 1px solid black !important;
+   border-radius: 0 !important;
+ }
+
+ .customb:hover,
+ .customb:focus,
+ .customb:active {
+   background-color: black !important;
+   color: white !important;
+   outline: none !important;
+   /* removes blue outline */
+ }
+
+
+ .myBold {
+   letter-spacing: 1px !important;
+   font-family: 'Neue Helvetica BQ', sans-serif !important;
+   font-size: 32px !important;
+   text-transform: uppercase !important;
+   color: #100501 !important;
+   font-weight: 700 !important;
+ }
+
+ .myBold1 {
+
+   font-family: 'Neue Helvetica BQ', sans-serif !important;
+   font-size: 15px !important;
+   text-transform: uppercase !important;
+   color: #100501 !important;
+   font-weight: 100 !important;
+ }
+
+
+
+ .custom-hr {
+   border: none !important;
+   border-top: 0.5px solid #cccccc !important;
+   margin: 4rem 0 !important;
+ }
+
+ .custom-hr1 {
+   border: none !important;
+   border-top: 0.5px solid #cccccc !important;
+   margin: 1rem 0 !important;
+ }
+
+
+ ul,
+ ol,
+ li {
+   list-style: disc !important;
+ }
+
+
+
+ .myparhal {
+   font-family: 'Helvetica Neue', sans-serif !important;
+
+   font-size: 15px !important;
+   text-transform: uppercase !important;
+   color: #100501 !important;
+   font-weight: 100 !important;
+ }
+
+ .myparhal1 {
+   font-family: 'Helvetica Neue', sans-serif !important;
+   letter-spacing: 1px !important;
+   font-size: 32px !important;
+   text-transform: uppercase !important;
+   color: #100501 !important;
+   font-weight: 100 !important;
+ }
+
+ .myparhal2 {
+   font-family: 'Helvetica Neue', sans-serif !important;
+   letter-spacing: 1px !important;
+   font-size: 15px !important;
+   text-transform: initial !important;
+   color: #100501 !important;
+   font-weight: 100 !important;
+ }

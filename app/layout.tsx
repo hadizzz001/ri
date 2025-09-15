@@ -98,6 +98,10 @@ export default function RootLayout({
   <link rel="stylesheet" href="css/style-4109db2b.css" />
   <link href="https://fonts.cdnfonts.com/css/futura-std-4" rel="stylesheet" />
 
+<link href="https://fonts.cdnfonts.com/css/neue-helvetica-bq" rel="stylesheet"/>
+<link href="https://fonts.cdnfonts.com/css/helvetica-neue-55?styles=16016" rel="stylesheet" />
+                               
+
   {/* Structured Data */}
   <script
     type="application/ld+json"

@@ -2,7 +2,8 @@
 import { useState, useEffect } from "react";  
 import Services from './Services';  
 import Carousel from './Carousel';  
-import About from './About';   
+import About1 from './About1';   
+import About2 from './About2';   
 import Reviews from './Reviews';   
 import Map from './Map';   
 import News from './News';   
@@ -143,7 +144,8 @@ const Body = () => {
 
         <Carousel /> 
         <NewsTicker /> 
-        <About /> 
+        <About1 /> 
+        <About2 /> 
         <News /> 
         <Services /> 
         <Reviews /> 

@@ -43,7 +43,7 @@ const MyCarousel = () => {
           backgroundSize: "contain",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "bottom right",
-          opacity: 0.05,
+          opacity: 0.025,
           pointerEvents: "none",
           top: "31em",
           left: "3em",

@@ -19,8 +19,7 @@ export default function CustomTable() {
           {[
             { title: 'Hair Wash', value: '10$' },
             { title: 'Blow Dry', value: '25$' },
-            { title: 'Blow Dry With (EX)', value: '35$' },
-            { title: 'Blow Dry Long', value: '35$' }
+            { title: 'Blow Dry With (EX)', value: '35$' }, 
           ].map((item, idx) => (
             <div key={idx}>
               <div className="grid grid-cols-1 sm:grid-cols-2">
@@ -61,9 +60,9 @@ export default function CustomTable() {
           </div>
           <hr className="custom-hr1" />
           {[
-            { title: 'Simple Hairstyle', value: '50$' },
+            { title: 'Simple Hairstyle', value: '35$' },
             { title: 'Wave Hair', value: '35$' },
-            { title: 'Wave – Long', value: '50$' }
+            { title: 'Wave – Long', value: '45$' }
           ].map((item, idx) => (
             <div key={idx}>
               <div className="grid grid-cols-1 sm:grid-cols-2">
@@ -145,8 +144,32 @@ export default function CustomTable() {
             { title: 'Ponytail', value: '50$' },
             { title: 'Wet Look Style', value: '35$' },
             { title: 'Retro Classic Style', value: '90$' },
-            { title: 'Bride Package H+M', value: '1000$' },
-            { title: 'Engagement Package H+M', value: '400$' }
+            { title: 'Bride`s Hair (In Salon)', value: '600$' },
+            { title: 'Bride`s Hair (Outside)', value: '1300$' },
+            { title: 'ENGAGEMENT Hair (In Salon)', value: '300$' },
+            { title: 'ENGAGEMENT Hair (Outside)', value: '700$' }, 
+          ].map((item, idx) => (
+            <div key={idx}>
+              <div className="grid grid-cols-1 sm:grid-cols-2">
+                <div className="py-3 px-2 myBold1">{item.title}</div>
+                <div className="py-3 px-2 myparhal">{item.value}</div>
+              </div>
+              <hr className="custom-hr1" />
+            </div>
+          ))}
+        </div>
+        {/* Table 6: HAIR STYLES */}
+        <div className="border-y border-[#333]">
+          <div className="uppercase text-left py-3 border-b border-[#333] myparhal1">
+            HAIR EXTENSION  
+          </div>
+          <hr className="custom-hr1" />
+          {[
+            { title: 'Micro Extension', value: '1.5$- 3$  (1 pc.)' },
+            { title: 'Tape Extension (Planted)', value: '320$' },
+            { title: 'Tape Extension (Normal)', value: '250$' },
+            { title: 'Front Wigs Full lase', value: '800$. 1300$' },
+            { title: 'bangs half haed', value: '350$ 500$' }, 
           ].map((item, idx) => (
             <div key={idx}>
               <div className="grid grid-cols-1 sm:grid-cols-2">

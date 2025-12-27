@@ -25,7 +25,13 @@ const FullWidthImageSwiper = () => {
   }, []);
 
   return (
-    <div className="w-full h-[350px] overflow-hidden mb-20">
+    <div className="w-full h-[350px] overflow-hidden mt-10 mb-20">
+<span className="mx-4 flex justify-center mb-4">
+  <h1 className="uppercase myparhal1 text-center">
+    Our <b className="myBold">News</b>
+  </h1>
+</span>
+
       <Swiper
         modules={[A11y, Autoplay]}
         spaceBetween={10}

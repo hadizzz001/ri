@@ -49,11 +49,11 @@ export default function NavBar() {
       <header
         className="w-full sticky top-0 z-50"
         style={{
-          background: 'linear-gradient(180deg, #000000e5, transparent)',
+          background: '#fff',
         }}
       >
 
-        <div className="px-4 py-3 flex justify-between items-center text-white">
+        <div className="px-4 py-6 flex justify-between items-center text-black">
           {/* Hamburger */}
           <button
             onClick={() => setMenuOpen(true)}
@@ -69,7 +69,7 @@ export default function NavBar() {
           <div className="absolute left-1/2 transform -translate-x-1/2">
             <a href="/">
               <img
-                src="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1751022677/RAFI_WHITE_NAME1_dmsyxu.webp"
+                src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1766829842/black123_fbqmfb.webp"
                 alt="Logo"
                 className="h-8"
                 style={{ maxHeight: '40px' }}
@@ -94,7 +94,7 @@ export default function NavBar() {
               >
                 <path
                   d="M17.4061 7.35962C16.4121 5.32492 14.3273 4 12 4C9.67273 4 7.56364 5.30126 6.59394 7.35962H4V19H20V7.35962H17.4061ZM12 4.70978C13.9394 4.70978 15.6848 5.72713 16.6061 7.35962H7.39394C8.31515 5.72713 10.0606 4.70978 12 4.70978ZM19.2727 18.2902H4.72727V8.0694H6.27879H17.7455H19.297V18.2902H19.2727Z"
-                  fill="#ffffff"
+                  fill="#222"
                 />
               </svg>
 

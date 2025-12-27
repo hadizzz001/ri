@@ -428,7 +428,7 @@
    }
 
    .menuicon svg {
-     stroke: #fff !important;
+     stroke: #222 !important;
    }
  }
 
@@ -661,7 +661,7 @@
 
 
  header {
-   background-color: transparent !important
+   background-color: #fff !important
  }
 
 

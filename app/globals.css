@@ -911,8 +911,7 @@
  button,
  input[type="button"],
  input[type="reset"],
- input[type="submit"] {
-   background-color: initial !important;
+ input[type="submit"] { 
  }
 
  .Checkout_Cart_LineItems_LineItem {
@@ -940,12 +939,11 @@
 
  .myNewButtonHadiz {
    position: relative;
-   background-color: #000 !important;
-   color: white !important;
+   background-color: #cab8ac !important;
+   color: black !important;
    font-size: 11px !important;
    font-weight: 600 !important;
-   margin-top: 3px !important;
-   border-radius: 8px;
+   margin-top: 3px !important; 
    padding: 12px 13px;
    display: flex;
    align-items: center;

@@ -2,11 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Image from 'next/image';
 
 const Page = () => {
   const [allTemp1, setAllTemps1] = useState(null);
-  const [selectedImg, setSelectedImg] = useState(null);
   const searchParams = useSearchParams();
   const search = searchParams.get('id');
 
@@ -29,38 +27,26 @@ const Page = () => {
   const whatsappLink = `https://wa.me/96178808100?text=Hello, I am interested in this service: ${encodeURIComponent(allTemp1.title)}`;
 
   return (
-    <div className="p-4 max-w-md mx-auto mt-20 mb-20">
+    <div className="w-full px-2 mt-4 mb-4"> {/* small padding so images are not stuck */}
       <h1 className="text-2xl font-bold mb-4 text-center">{allTemp1.title}</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {allTemp1.img?.map((src, index) => (
-          <img
-            key={index}
-            src={src}
-            alt={`Gallery image ${index + 1}`}
-            width={500}
-            height={300}
-            className="rounded-lg cursor-pointer"
-            onClick={() => setSelectedImg(src)}
-          />
-        ))}
-      </div>
+      {allTemp1.img?.map((src, index) => (
+        <img
+          key={index}
+          src={src}
+          alt={`Gallery image ${index + 1}`}
+          className="w-full block mb-4"
+        />
+      ))}
 
-      <button
-        className="mt-6 px-4 py-2 bg-[#cab8ac] text-[#100501] rounded-none hover:bg-black block mx-auto"
-        onClick={() => window.location.href = whatsappLink}
-      >
-        Contact Us
-      </button>
-
-      {selectedImg && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
-          onClick={() => setSelectedImg(null)}
+      <div className="flex justify-center">
+        <button
+          className="px-6 py-2 bg-[#cab8ac] text-[#100501]"
+          onClick={() => window.location.href = whatsappLink}
         >
-          <img src={selectedImg} alt="Preview" className="max-w-full max-h-full rounded-lg" />
-        </div>
-      )}
+          Contact Us
+        </button>
+      </div>
     </div>
   );
 };

@@ -25,7 +25,7 @@ const FullWidthImageSwiper = () => {
   }, []);
 
   return (
-    <div className="w-full h-[350px] overflow-hidden mt-10 mb-20">
+    <div className="w-full h-[550px] overflow-hidden mt-10 mb-20">
 <span className="mx-4 flex justify-center mb-4">
   <h1 className="uppercase myparhal1 text-center">
     Our <b className="myBold">News</b>
@@ -45,13 +45,13 @@ const FullWidthImageSwiper = () => {
             slidesPerView: 1,
           },
           768: {
-            slidesPerView: 3,
+            slidesPerView: 4,
           },
         }}
       >
         {items.map((item) => (
           <SwiperSlide key={item._id}>
-            <div className="w-full h-[350px] relative">
+            <div className="w-full h-[550px] relative">
               <a href={`/new?id=${item._id}`}>
                 <img
                   src={item.img[0]}

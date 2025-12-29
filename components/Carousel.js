@@ -13,50 +13,53 @@ const MyCarousel = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const videoSrc = isMobile ? "https://res.cloudinary.com/dgi9mfldc/video/upload/v1756650010/Comp_1_2_zyhqez.mp4" : "https://res.cloudinary.com/dgi9mfldc/video/upload/v1756649976/Comp_1_3_mypzbm.mp4";
+  const videoSrc = isMobile
+    ? "https://res.cloudinary.com/dgi9mfldc/video/upload/v1756650010/Comp_1_2_zyhqez.mp4"
+    : "https://res.cloudinary.com/dgi9mfldc/video/upload/v1756649976/Comp_1_3_mypzbm.mp4";
 
   return (
-    <div
-      className="relative w-full h-screen overflow-hidden"
-      style={{ backgroundColor: "black" }}
-    >
-      {/* Background Video */}
-      <video
-        ref={videoRef}
-        src={videoSrc}
-        className="w-full h-full object-cover "
-        muted
-        playsInline
-        preload="auto"
-        autoPlay
-        loop
-      />
-
-      {/* Background Graphic Overlay */}
+    <div className="px-4 md:px-8 mt-20">
+      {/* Banner Wrapper */}
       <div
-        className="absolute bottom-0 right-0 z-10"
-        style={{
-          width: "550px",
-          height: "550px",
-          backgroundImage:
-            "url('https://res.cloudinary.com/dtjcqfoxc/image/upload/v1751030325/Untitled-11_lfqbgu.webp')",
-          backgroundSize: "contain",
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "bottom right",
-          opacity: 0.025,
-          pointerEvents: "none",
-          top: "31em",
-          left: "3em",
-        }}
-      />
+        className="relative w-full h-screen overflow-hidden rounded-md"
+        style={{ backgroundColor: "black" }}
+      >
+        {/* Background Video */}
+        <video
+          ref={videoRef}
+          src={videoSrc}
+          className="w-full h-full object-cover"
+          muted
+          playsInline
+          preload="auto"
+          autoPlay
+          loop
+        />
 
- 
+        {/* Background Graphic Overlay */}
+        <div
+          className="absolute bottom-0 right-0 z-10"
+          style={{
+            width: "550px",
+            height: "550px",
+            backgroundImage:
+              "url('https://res.cloudinary.com/dtjcqfoxc/image/upload/v1751030325/Untitled-11_lfqbgu.webp')",
+            backgroundSize: "contain",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "bottom right",
+            opacity: 0.025,
+            pointerEvents: "none",
+            top: "31em",
+            left: "3em",
+          }}
+        />
 
-      {/* Book Appointment - Bottom */}
-      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20">
-        <a href="/appointment" className="myNewButtonHadiz">
-          Book Appointment
-        </a>
+        {/* Book Appointment */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
+          <a href="/appointment" className="myNewButtonHadiz">
+            Book Appointment
+          </a>
+        </div>
       </div>
     </div>
   );

@@ -50,7 +50,7 @@ const Footer = () => {
                 </div>
 
                 {/* Middle Row */}
-                <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 items-center   mb-10">
+                <div className="max-w-8xl mx-auto grid grid-cols-1 md:grid-cols-3 items-center   mb-10">
                     <div></div>
                     <div className="flex justify-center">
                         <img src="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1751030325/black_bgez4v.webp" alt="Logo" width={70} />
@@ -60,6 +60,8 @@ const Footer = () => {
                         <a href='https://www.facebook.com/1raffidahamhairdressing/' className='colorp'>Facebook</a>
                         <a href='https://wa.me/96178808100' className='colorp'>WhatsApp</a>
                         <a href='https://lb.linkedin.com/in/rafi-daham-aa74a492https://www.tiktok.com/@rafidaham_hairdressing' className='colorp'>Linkedin</a>
+                   <a href="https://pin.it/7p9wCp9ex" className="colorp">Pinterest Hair Colorist</a>
+
                     </div>
                 </div>
 
@@ -154,6 +156,8 @@ const Footer = () => {
                     <a href="https://www.facebook.com/1raffidahamhairdressing/" className="colorp">Facebook</a>
                     <a href="https://wa.me/96178808100" className="colorp">WhatsApp</a>
                     <a href="https://lb.linkedin.com/in/rafi-daham-aa74a492https://www.tiktok.com/@rafidaham_hairdressing" className="colorp">Linkedin</a>
+               <a href="https://pin.it/7p9wCp9ex" className="colorp">Pinterest Hair Colorist</a>
+
                 </div>
 
                  <hr id='myhrbar1' className="my-4" />

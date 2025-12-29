@@ -71,8 +71,8 @@ export default function NavBar() {
               <img
                 src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1766829842/black123_fbqmfb.webp"
                 alt="Logo"
-                className="h-8"
-                style={{ maxHeight: '40px' }}
+                className="h-10"
+                style={{ maxHeight: '50px' }}
               />
             </a>
           </div>
@@ -110,7 +110,7 @@ export default function NavBar() {
 
         {/* Fullscreen Menu */}
         {menuOpen && (
-          <div className="fixed inset-0 bg-white text-black flex flex-col items-center justify-center z-50">
+          <div className="fixed inset-0 bg-[#cab8ac] text-black flex flex-col items-center justify-center z-50">
             <button
               onClick={() => setMenuOpen(false)}
               className="absolute top-4 right-4"
@@ -122,9 +122,9 @@ export default function NavBar() {
               <a href="/" onClick={() => setMenuOpen(false)}>Home</a>
               <a href="/appointment" onClick={() => setMenuOpen(false)}>Appointment</a>
               <a href="/services" onClick={() => setMenuOpen(false)}>Hair Services</a>
-              <a href="/ext" onClick={() => setMenuOpen(false)}>Extensions</a>
+              <a href="/service?id=6946dd036a445eca9603c163" onClick={() => setMenuOpen(false)}>Extensions</a>
               <a href="/shop" onClick={() => setMenuOpen(false)}>Shop</a>
-              <a href="/vid" onClick={() => setMenuOpen(false)}>Videos</a>
+              <a href="/vid" onClick={() => setMenuOpen(false)}>Interviews</a>
               <a href="/contact" onClick={() => setMenuOpen(false)}>Contact Us</a>
             </nav>
 

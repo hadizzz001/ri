@@ -169,7 +169,7 @@ const handleSubmit = async (e) => {
     const message = `Note: to confirm the appointment there will be a down payment of $${downPayment}\n\nNew appointment:\nName: ${data.name}\nPhone: ${data.phone}\nEmail: ${data.email}\nCountry: ${data.country}\nCity: ${data.city}\nDate: ${data.date}\nHour: ${data.hour}\n\nService:\n${cartSummary}\n\nTotal: $${total.toFixed(2)}`;
 
     // 3. Redirect to WhatsApp
-    const phoneNumber = '96176368475';
+    const phoneNumber = '96178808100';
     const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappURL, '_blank');
 

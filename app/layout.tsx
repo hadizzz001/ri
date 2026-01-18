@@ -5,9 +5,7 @@ import './globals.css'
 import './custom.css'
 import './bootstrap.min.css'
 import './bs-select.css'
-import './slick.css'
-import { CartProvider } from './context/CartContext';
-import { BooleanProvider } from './context/CartBoolContext';
+import './slick.css' 
 import GifLoader from '../components/GifLoader'
 import WhatsAppIcon from '../components/WhatsAppIcon';
 import Appoint from '../components/Appoint';
@@ -120,16 +118,12 @@ export default function RootLayout({
 
       <body>
         <GifLoader />
-        <BodyStyleController />
-        <BooleanProvider>
-          <CartProvider>
+        <BodyStyleController /> 
             <Navbar2 />
             <WhatsAppIcon />
             <Appoint />
             {children}
-            <Footer />
-          </CartProvider>
-        </BooleanProvider>
+            <Footer /> 
       </body>
     </html>
   )

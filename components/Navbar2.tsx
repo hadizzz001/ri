@@ -1,9 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import Cart from "../components/Cart"
-import { useBooleanValue } from '../app/context/CartBoolContext';
-import { useCart } from '../app/context/CartContext';
+import { useState } from 'react'; 
 import {
   Menu,
   X,
@@ -13,25 +10,11 @@ import {
 export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
-  const { cart } = useCart();
-  const { isBooleanValue, setBooleanValue } = useBooleanValue();
+  const [cartOpen, setCartOpen] = useState(false); 
 
 
 
-  const handleClickc = () => {
-    var cartb = document.getElementById("cartid");
-    var cartb2 = document.getElementById("cartid2");
-    setBooleanValue(!isBooleanValue);
-    if (cartb && cartb2) {
-      if (isBooleanValue) {
-        cartb2.className += " MiniCart_Cart-visible";
-      }
-      else {
-        cartb2.classList.remove("MiniCart_Cart-visible");
-      }
-    }
-  };
+ 
 
 
 
@@ -43,8 +26,7 @@ export default function NavBar() {
 
   return (
 
-    <>
-      <Cart />
+    <> 
 
       <header
         className="w-full sticky top-0 z-50"
@@ -82,29 +64,7 @@ export default function NavBar() {
           <div className="flex items-center space-x-4">
             <button onClick={() => setSearchOpen(true)} aria-label="Search">
               <Search className="w-6 h-6 stroke-[1]" />
-            </button>
-            <span onClick={handleClickc} className="menuicon">
-
-              <svg
-                width={24}
-                height={24}
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M17.4061 7.35962C16.4121 5.32492 14.3273 4 12 4C9.67273 4 7.56364 5.30126 6.59394 7.35962H4V19H20V7.35962H17.4061ZM12 4.70978C13.9394 4.70978 15.6848 5.72713 16.6061 7.35962H7.39394C8.31515 5.72713 10.0606 4.70978 12 4.70978ZM19.2727 18.2902H4.72727V8.0694H6.27879H17.7455H19.297V18.2902H19.2727Z"
-                  fill="#222"
-                />
-              </svg>
-
-
-              {cart && cart.length > 0 ? (
-                <span className="MiniCart_CartIndicator_Badge1"></span>
-              ) :
-                (<div></div>)
-              }
-            </span>
+            </button> 
           </div>
         </div>
 
@@ -122,8 +82,7 @@ export default function NavBar() {
               <a href="/" onClick={() => setMenuOpen(false)}>Home</a>
               <a href="/appointment" onClick={() => setMenuOpen(false)}>Appointment</a>
               <a href="/services" onClick={() => setMenuOpen(false)}>Hair Services</a>
-              <a href="/service?id=6946dd036a445eca9603c163" onClick={() => setMenuOpen(false)}>Extensions</a>
-              <a href="/shop" onClick={() => setMenuOpen(false)}>Shop</a>
+              <a href="/service?id=6946dd036a445eca9603c163" onClick={() => setMenuOpen(false)}>Extensions</a> 
               <a href="/vid" onClick={() => setMenuOpen(false)}>Interviews</a>
               <a href="/contact" onClick={() => setMenuOpen(false)}>Contact Us</a>
             </nav>
@@ -185,10 +144,7 @@ export default function NavBar() {
               aria-label="Close cart"
             >
               <X className="w-8 h-8 stroke-[1]" />
-            </button>
-            <div className="mt-20 px-4">
-              <Cart />
-            </div>
+            </button> 
           </div>
         )}
       </header>

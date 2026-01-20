@@ -7,6 +7,7 @@ import 'swiper/css';
 
 const FullWidthImageSwiper = () => {
   const [items, setItems] = useState([]);
+  const [items1, setItems1] = useState([]);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -24,13 +25,32 @@ const FullWidthImageSwiper = () => {
     fetchImages();
   }, []);
 
+  useEffect(() => {
+    const fetchImages1 = async () => {
+      try {
+        const res = await fetch('/api/new1');
+        const data = await res.json(); 
+        setItems1(data);
+      } catch (err) {
+        console.error('Failed to fetch images:', err);
+      }
+    };
+
+    fetchImages1();
+  }, []);
+
+  console.log("data== ",items1);
+  
+
   return (
     <div className="w-full h-[550px] overflow-hidden mt-10 mb-20">
-<span className="mx-4 flex justify-center mb-4">
+<span className="mx-4 flex flex-col justify-center mb-4">
   <h1 className="uppercase myparhal1 text-center">
     Our <b className="myBold">News</b>
-  </h1>
+  </h1> 
+  <p className="mx-2 my-2 text-center">{items1[0].title}</p>
 </span>
+
 
       <Swiper
         modules={[A11y, Autoplay]}

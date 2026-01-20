@@ -24,8 +24,8 @@ export default function Features() {
             />
           </div>
           <span className="mx-4">
-            <h1 className="  myparhal1 text-left">
-              About Rafi Daham
+            <h1 className="uppercase myparhal1 text-left">
+              About <b className="myBold">Rafi Daham</b>
             </h1>
           </span>
         </div>

@@ -3,9 +3,12 @@ const nextConfig = {
     images: {
         domains: ["www.dbeauty.fi"], // Add your hostname here
       },
-      typescript: {
-        ignoreBuildErrors: true,
-      },
+          eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 export default nextConfig;

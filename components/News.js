@@ -38,8 +38,7 @@ const FullWidthImageSwiper = () => {
 
     fetchImages1();
   }, []);
-
-  console.log("data== ",items1);
+ 
   
 
   return (
@@ -48,7 +47,10 @@ const FullWidthImageSwiper = () => {
   <h1 className="uppercase myparhal1 text-center">
     Our <b className="myBold">News</b>
   </h1> 
-  <p className="mx-2 my-2 text-center">{items1[0].title}</p>
+  <p className="mx-2 my-2 text-center">
+  {items1?.[0]?.title ?? ''}
+</p>
+
 </span>
 
 

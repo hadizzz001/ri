@@ -88,7 +88,7 @@ export default function Features() {
 
           <br /><br />
 
-          <div className="grid grid-cols-4 gap-4 my-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 my-4">
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359487/c1_qxqv3b.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359479/IMG_6145_sy8z9u.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359473/c7_qzuiib.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
@@ -134,7 +134,7 @@ export default function Features() {
 
           <br /><br />
 
-          <div className="grid grid-cols-4 gap-4 my-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 my-4">
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769364439/IMG_4773_dzyx8q.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769364438/IMG_3882_dj2cmw.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769364438/IMG_3937_jflq6u.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
@@ -155,7 +155,7 @@ export default function Features() {
 
           <br /><br />
 
-<div className="grid grid-cols-4 gap-4 my-4">
+<div className="grid grid-cols-1 md:grid-cols-4 gap-4 my-4">
   <img
     src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769364020/m10_wduidv.webp"
     alt="Gallery"

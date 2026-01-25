@@ -93,11 +93,8 @@ export default function Features() {
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359479/IMG_6145_sy8z9u.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359473/c7_qzuiib.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359466/c14_wihnyf.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
-            <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359445/IMG_7673_oh1aqp.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
-            <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359441/IMG_7988_lvrc57.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359437/IMG_9937_gksy60.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359438/IMG_3916_gu0xxa.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
-            <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359437/IMG_2956_daolsa.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359437/IMG_2353_mmepei.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359436/IMG_5759_slwjsg.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359436/IMG_8311_nt2sjb.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
@@ -138,7 +135,8 @@ export default function Features() {
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769364439/IMG_4773_dzyx8q.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769364438/IMG_3882_dj2cmw.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769364438/IMG_3937_jflq6u.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
-            <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769364438/IMG_0018_1_qlkdje.webp" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
+            <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359437/IMG_2956_daolsa.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
+       
         </div>
 
           <br /><br />
@@ -213,12 +211,36 @@ export default function Features() {
     className="aspect-square object-cover cursor-pointer"
     onClick={(e) => setSelectedImage(e.target.src)}
   />
+  <img
+    src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769376882/WhatsApp_Image_2026-01-25_at_23.25.06_1_e4bfuy.jpg"
+    alt="Gallery"
+    className="aspect-square object-cover cursor-pointer"
+    onClick={(e) => setSelectedImage(e.target.src)}
+  />
+  <img
+    src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769376882/WhatsApp_Image_2026-01-25_at_23.25.06_lcp2lt.jpg"
+    alt="Gallery"
+    className="aspect-square object-cover cursor-pointer"
+    onClick={(e) => setSelectedImage(e.target.src)}
+  />
+  <img
+    src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769376881/WhatsApp_Image_2026-01-25_at_23.25.09_pfnwpp.jpg"
+    alt="Gallery"
+    className="aspect-square object-cover cursor-pointer"
+    onClick={(e) => setSelectedImage(e.target.src)}
+  />
+  <img
+    src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769376881/WhatsApp_Image_2026-01-25_at_23.25.12_suh5ez.jpg"
+    alt="Gallery"
+    className="aspect-square object-cover cursor-pointer"
+    onClick={(e) => setSelectedImage(e.target.src)}
+  />
 </div>
 
         </p>
 
 <hr className="custom-hr" />
-        <h2 className="myparhal1 text-left mb-10">Our Interviews on TV and More</h2>
+        <h2 className="myparhal1 text-left mb-10"><b>Our Interviews on TV and More</b></h2>
 
         <p className="myparhal2 text-left mb-5">
           Discover our appearances on television, interviews, and other media features showcasing our expertise and passion for beauty. From insightful discussions to behind-the-scenes looks, explore the stories that highlight our journey in the beauty industry.

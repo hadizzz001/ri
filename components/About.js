@@ -65,7 +65,7 @@ export default function Features() {
         </p>
           <hr className="custom-hr" />
 
-        <h2 className="myparhal1 text-left mb-10">A Journey of Achievements & Collaborations</h2>
+        <h2 className="myparhal1 text-left mb-10"><b>A Journey of Achievements & Collaborations</b></h2>
 
         <p className="myparhal2 text-left">
           Throughout our journey, Rafi Daham Salon has been part of defining moments that shaped its name in the world of beauty. We have collaborated with a distinguished selection of artists and influential figures, and contributed to creative projects that gained prominent exposure in leading fashion and beauty magazines. Alongside this, we have built strong partnerships with global brands that share our passion for quality, excellence, and innovation.
@@ -80,7 +80,7 @@ export default function Features() {
 
           <br /><br />
 
-          <h2 className="myparhal1 text-left">Stars Who Trusted Us</h2>
+          <h2 className="myparhal1 text-left"><b>Stars Who Trusted Us</b></h2>
 
           <br /><br />
 
@@ -123,7 +123,7 @@ export default function Features() {
 
           <br /><br />
 
-          <h2 className="myparhal1 text-left">Partnerships with Global Brands</h2>
+          <h2 className="myparhal1 text-left"><b>Partnerships with Global Brands</b></h2>
 
           <br /><br />
 
@@ -145,7 +145,7 @@ export default function Features() {
 
           <br /><br />
 
-          <h2 className="myparhal1 text-left">Editorial Shoots & Media Features</h2>
+          <h2 className="myparhal1 text-left"><b>Editorial Shoots & Media Features</b></h2>
 
           <br /><br />
 
@@ -231,6 +231,18 @@ export default function Features() {
   />
   <img
     src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769376881/WhatsApp_Image_2026-01-25_at_23.25.12_suh5ez.jpg"
+    alt="Gallery"
+    className="aspect-square object-cover cursor-pointer"
+    onClick={(e) => setSelectedImage(e.target.src)}
+  />
+  <img
+    src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769426762/WhatsApp_Image_2026-01-25_at_23.42.08_z6vkek.jpg"
+    alt="Gallery"
+    className="aspect-square object-cover cursor-pointer"
+    onClick={(e) => setSelectedImage(e.target.src)}
+  />
+  <img
+    src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769426761/WhatsApp_Image_2026-01-25_at_23.42.08_1_ooffnb.jpg"
     alt="Gallery"
     className="aspect-square object-cover cursor-pointer"
     onClick={(e) => setSelectedImage(e.target.src)}

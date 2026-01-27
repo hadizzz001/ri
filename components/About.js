@@ -90,7 +90,6 @@ export default function Features() {
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 my-4">
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359487/c1_qxqv3b.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
-            <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359479/IMG_6145_sy8z9u.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359473/c7_qzuiib.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359466/c14_wihnyf.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />
             <img src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1769359437/IMG_9937_gksy60.jpg" alt="Gallery" className="aspect-square object-cover cursor-pointer" onClick={(e) => setSelectedImage(e.target.src)} />

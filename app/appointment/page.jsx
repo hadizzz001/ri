@@ -16,6 +16,8 @@ export default function AppointmentPage() {
   const [availableHours, setAvailableHours] = useState([]);
   const [selectedHour, setSelectedHour] = useState('');
   const [form, setForm] = useState({ name: '', phone: '', email: '' });
+  const [errors, setErrors] = useState({});
+  const [isArabic, setIsArabic] = useState(false);
 
   useEffect(() => {
     fetch('/api/apoint')
@@ -86,10 +88,10 @@ const dateEntry = matches
 
 
 
-// Returns the price with 150% increase if country is not Lebanon
+// Returns the price with 300% increase if country is not Lebanon
 const getEffectivePrice = (price) => {
   if (!country) return price; // no country selected yet
-  return country !== 'Lebanon' ? (price * 2.5).toFixed(2) : price.toFixed(2);
+  return country !== 'Lebanon' ? (price * 4).toFixed(2) : price.toFixed(2);
 };
 
 
@@ -103,15 +105,41 @@ const formatLocalDate = (date) => {
 };
 
 const isDateAvailable = (date) => {
+  // Check if date is in the past
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (date < today) return false;
+  
   const formatted = formatLocalDate(date);
   return availableDates.includes(formatted);
 };
 
-
-
+const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
 
 const handleSubmit = async (e) => {
   e.preventDefault();
+
+  // Validate form
+  const newErrors = {};
+  if (!form.name.trim()) newErrors.name = 'Name is required';
+  if (!form.phone.trim()) newErrors.phone = 'Phone is required';
+  if (!form.email.trim()) newErrors.email = 'Email is required';
+  else if (!isValidEmail(form.email)) newErrors.email = 'Email format is invalid';
+  if (!country) newErrors.country = 'Country is required';
+  if (!city) newErrors.city = 'City is required';
+  if (!selectedDate) newErrors.date = 'Date is required';
+  if (!selectedHour) newErrors.hour = 'Time is required';
+  if (Object.keys(cart).length === 0) newErrors.cart = 'Please select at least one service';
+
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+
+  setErrors({});
 
   // Convert cart object to array
   const cartArray = Object.values(cart); // Now it's an array of items
@@ -124,9 +152,9 @@ const handleSubmit = async (e) => {
   const cartSummary = cartArray.map(item => {
     let price = Number(item.price); // Ensure it's a number
 
-    // Apply 150% increase if outside Lebanon
+    // Apply 300% increase if outside Lebanon
     if (isOutsideLebanon) {
-      price = price * 2.5; // original + 150%
+      price = price * 4; // original + 300%
     }
 
     const subtotal = price * item.qty;
@@ -146,7 +174,7 @@ const handleSubmit = async (e) => {
     hour: selectedHour,
     cart: cartArray.map(item => ({
       title: item.title,
-      price: isOutsideLebanon ? Number(item.price) * 2.5 : Number(item.price),
+      price: isOutsideLebanon ? Number(item.price) * 4 : Number(item.price),
       qty: item.qty,
     })),
     total,
@@ -166,7 +194,12 @@ const handleSubmit = async (e) => {
     // 2. Build WhatsApp message
     const downPayment = (total * 0.25).toFixed(2); // 25% of total
 
-    const message = `Note: to confirm the appointment there will be a down payment of $${downPayment}\n\nNew appointment:\nName: ${data.name}\nPhone: ${data.phone}\nEmail: ${data.email}\nCountry: ${data.country}\nCity: ${data.city}\nDate: ${data.date}\nHour: ${data.hour}\n\nService:\n${cartSummary}\n\nTotal: $${total.toFixed(2)}`;
+    let message;
+    if (isArabic) {
+      message = `ملاحظة: لتأكيد الموعد سيكون هناك دفعة أولى بنسبة 25% من المبلغ الإجمالي\n\nموعد جديد:\nالاسم: ${data.name}\nالهاتف: ${data.phone}\nالبريد الإلكتروني: ${data.email}\nالدولة: ${data.country}\nالمدينة: ${data.city}\nالتاريخ: ${data.date}\nالوقت: ${data.hour}\n\nالخدمة:\n${cartSummary}\n\nالإجمالي: $${total.toFixed(2)}\n\nالدفعة الأولى: $${downPayment}`;
+    } else {
+      message = `Note: to confirm the appointment there will be a down payment of $${downPayment}\n\nNew appointment:\nName: ${data.name}\nPhone: ${data.phone}\nEmail: ${data.email}\nCountry: ${data.country}\nCity: ${data.city}\nDate: ${data.date}\nHour: ${data.hour}\n\nService:\n${cartSummary}\n\nTotal: $${total.toFixed(2)}`;
+    }
 
     // 3. Redirect to WhatsApp
     const phoneNumber = '96178808100';
@@ -251,6 +284,7 @@ const handleSubmit = async (e) => {
           <option key={c} value={c}>{c}</option>
         ))}
       </select>
+      {errors.country && <p className="text-red-600 text-sm mb-4">{errors.country}</p>}
 
       {country && (
         <>
@@ -265,6 +299,7 @@ const handleSubmit = async (e) => {
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
+          {errors.city && <p className="text-red-600 text-sm mb-4">{errors.city}</p>}
         </>
       )}
 
@@ -276,6 +311,7 @@ const handleSubmit = async (e) => {
             onChange={setSelectedDate}
             tileDisabled={({ date }) => !isDateAvailable(date)}
           />
+          {errors.date && <p className="text-red-600 text-sm mt-2">{errors.date}</p>}
         </div>
       )}
 
@@ -293,6 +329,20 @@ const handleSubmit = async (e) => {
               </button>
             ))}
           </div>
+          {errors.hour && <p className="text-red-600 text-sm mt-2">{errors.hour}</p>}
+        </div>
+      )}
+
+      {city && (
+        <div className="mt-4 mb-4 flex items-center">
+          <input
+            type="checkbox"
+            id="arabicCheckbox"
+            checked={isArabic}
+            onChange={e => setIsArabic(e.target.checked)}
+            className="w-4 h-4 rounded"
+          />
+          <label htmlFor="arabicCheckbox" className="ml-2 font-semibold">عربي - Arabic</label>
         </div>
       )}
 
@@ -306,14 +356,21 @@ const handleSubmit = async (e) => {
             required
             className="w-full p-2 border rounded"
           />
+          {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
+          
           <input
             name="phone"
             value={form.phone}
-            onChange={e => setForm({ ...form, phone: e.target.value })}
+            onChange={e => {
+              const value = e.target.value.replace(/[^0-9]/g, '');
+              setForm({ ...form, phone: value });
+            }}
             placeholder="Phone"
             required
             className="w-full p-2 border rounded"
           />
+          {errors.phone && <p className="text-red-600 text-sm">{errors.phone}</p>}
+          
           <input
             type="email"
             name="email"
@@ -323,13 +380,7 @@ const handleSubmit = async (e) => {
             required
             className="w-full p-2 border rounded"
           />
-
-          {/* Show button only if form is valid and at least one product is added */}
-          {isFormValid && hasProducts && (
-            <button type="submit" className="w-full selected-hour py-2 rounded">
-              Continue to Payment
-            </button>
-          )}
+          {errors.email && <p className="text-red-600 text-sm">{errors.email}</p>}
         </form>
       )}
 
@@ -374,6 +425,64 @@ const handleSubmit = async (e) => {
           );
         })}
       </div>
+
+      {/* Submit Button at the End */}
+      {selectedDate && selectedHour && (
+        <div className="mt-6 mb-4">
+          {errors.cart && <p className="text-red-600 text-sm mb-3">{errors.cart}</p>}
+          
+          {/* Order Summary */}
+          {Object.keys(cart).length > 0 && (
+            <div className="bg-gray-100 p-4 rounded mb-4 border">
+              <h3 className="font-semibold mb-3">Order Summary</h3>
+              <div className="space-y-2 mb-3">
+                {Object.values(cart).map((item, idx) => (
+                  <div key={idx} className="flex justify-between text-sm">
+                    <span>{item.title} x{item.qty}</span>
+                    <span>${(getEffectivePrice(Number(item.price)) * item.qty).toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t pt-2 font-semibold flex justify-between">
+                <span>Total:</span>
+                <span>${Object.values(cart).reduce((acc, item) => {
+                  const price = Number(getEffectivePrice(Number(item.price)));
+                  return acc + (price * item.qty);
+                }, 0).toFixed(2)}</span>
+              </div>
+            </div>
+          )}
+          
+          <button 
+            onClick={handleSubmit} 
+            disabled={!form.name || !form.phone || !form.email || Object.keys(cart).length === 0}
+            className={`w-full py-2 rounded font-semibold ${
+              form.name && form.phone && form.email && Object.keys(cart).length > 0
+                ? 'selected-hour cursor-pointer'
+                : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+            }`}
+          >
+            Continue to Payment
+          </button>
+
+          {/* Validation Errors Display */}
+          {Object.keys(errors).length > 0 && (
+            <div className="mt-4 p-4 bg-red-100 border-2 border-red-500 rounded">
+              <p className="font-bold text-lg text-red-700 mb-2">Please fix the following errors:</p>
+              <ul className="text-red-600 font-semibold text-base">
+                {errors.name && <li>• {errors.name}</li>}
+                {errors.phone && <li>• {errors.phone}</li>}
+                {errors.email && <li>• {errors.email}</li>}
+                {errors.country && <li>• {errors.country}</li>}
+                {errors.city && <li>• {errors.city}</li>}
+                {errors.date && <li>• {errors.date}</li>}
+                {errors.hour && <li>• {errors.hour}</li>}
+                {errors.cart && <li>• {errors.cart}</li>}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -10,6 +10,8 @@ import GifLoader from '../components/GifLoader'
 import WhatsAppIcon from '../components/WhatsAppIcon';
 import Appoint from '../components/Appoint';
 import BodyStyleController from '../components/BodyStyleController';
+import { CartProvider } from './context/CartContext';
+import { BooleanProvider } from './context/CartBoolContext';
 import { useEffect } from 'react';
 
 export default function RootLayout({
@@ -119,11 +121,15 @@ export default function RootLayout({
       <body>
         <GifLoader />
         <BodyStyleController /> 
+        <CartProvider>
+          <BooleanProvider>
             <Navbar2 />
             <WhatsAppIcon />
             <Appoint />
             {children}
-            <Footer /> 
+            <Footer />
+          </BooleanProvider>
+        </CartProvider>
       </body>
     </html>
   )

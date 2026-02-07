@@ -1,17 +1,23 @@
 "use client"
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 const GifLoader = () => {
   const [showGif, setShowGif] = useState(true);
+  const pathname = usePathname();
 
   useEffect(() => {
+    // Shop page needs more time to load data
+    const isShopPage = pathname === '/shop';
+    const timeout = isShopPage ? 4000 : 2000;
+
     const timeoutId = setTimeout(() => {
       setShowGif(false);
-    }, 2000);
+    }, timeout);
 
     // Cleanup the timeout when the component unmounts
     return () => clearTimeout(timeoutId);
-  }, []);
+  }, [pathname]);
 
   return (
     

@@ -1157,3 +1157,116 @@
   text-align: center;
   font-weight: 600;
 }
+
+/* ===== Shop Page Custom Classes ===== */
+
+.zkDiscountPrice {
+  color: #000000 !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+}
+
+.qxProductTitle {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  text-transform: uppercase !important;
+  line-height: 1.6 !important;
+  display: block !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+}
+
+.vjItemTitleBlack {
+  color: #000000 !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  text-transform: uppercase !important;
+  line-height: 1.5 !important;
+  display: block !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+  margin-top: 8px !important;
+  margin-bottom: 8px !important;
+  text-align: center !important;
+}
+
+.trShopHeaderTitle {
+  color: #000000 !important;
+  font-weight: 600 !important;
+  font-size: 28px !important;
+  text-transform: uppercase !important;
+  line-height: 1.4 !important;
+  display: block !important;
+  letter-spacing: 2px !important;
+  padding: 16px !important;
+}
+
+.fpShopHeaderDesc {
+  color: #000000 !important;
+  font-weight: 400 !important;
+  font-size: 16px !important;
+  line-height: 1.6 !important;
+  display: block !important;
+  text-align: center !important;
+  padding: 16px !important;
+}
+
+.price-container {
+  display: inline-flex !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  align-items: baseline !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+.zkDiscountPrice {
+  color: #000000 !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  margin-right: 8px !important;
+  text-align: center !important;
+}
+
+/* ===== Product Page Font Styles ===== */
+
+.myGray {
+  color: #636363 !important;
+  font-family: 'SinkinSans-Regular', sans-serif !important;
+}
+
+.myRed {
+  color: #c41e3a !important;
+  font-family: 'SinkinSans-Semibold', sans-serif !important;
+}
+
+.myPrice1234 {
+  font-size: 22px !important;
+  font-weight: 600 !important;
+  font-family: 'SinkinSans-Semibold', sans-serif !important;
+}
+
+.myPrice123 {
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  font-family: 'SinkinSans-Light', sans-serif !important;
+}
+
+.myPriceThin {
+  color: #222 !important;
+  font-size: 15px !important;
+  font-weight: 300 !important;
+  font-family: 'SinkinSans-Light', sans-serif !important;
+}
+
+.myPriceThinGray {
+  color: #999 !important;
+  font-size: 15px !important;
+  font-weight: 300 !important;
+  font-family: 'SinkinSans-Light', sans-serif !important;
+}
+
+/* ===== Shop Page Custom Classes ===== */

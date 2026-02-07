@@ -2,6 +2,33 @@
  @tailwind components;
  @tailwind utilities;
 
+ /* Force light mode only - disable dark mode completely */
+ :root {
+   color-scheme: light only;
+ }
+
+ html {
+   color-scheme: light only;
+ }
+
+ /* Override any dark mode preferences */
+ @media (prefers-color-scheme: dark) {
+   :root {
+     color-scheme: light only;
+   }
+   
+   html, body {
+     background-color: #ffffff !important;
+     color: #100501 !important;
+   }
+ }
+
+ /* Shop page condensed text */
+ .shop-page-condensed * {
+   font-stretch: condensed !important;
+   letter-spacing: -0.02em !important;
+ }
+
  * {
    margin: 0;
    padding: 0;
@@ -1202,6 +1229,8 @@
   display: block !important;
   letter-spacing: 2px !important;
   padding: 16px !important;
+  text-align: center !important;
+  width: 100% !important;
 }
 
 .fpShopHeaderDesc {

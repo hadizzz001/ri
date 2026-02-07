@@ -47,7 +47,7 @@ export default function RootLayout({
   }, []);
 
   return (
-    <html className="no-js no-touch supports-no-cookies" lang="en">
+    <html className="light no-js no-touch supports-no-cookies" lang="en" style={{ colorScheme: 'light' }}>
 <head>
   {/* Standard Meta Tags */}
   <meta charSet="utf-8" />

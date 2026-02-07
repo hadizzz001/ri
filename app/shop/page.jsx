@@ -317,35 +317,27 @@ const Body = () => {
 
     <>
 
-      <div className="br_min-h-screen br_relative md:mt-20 mt-20">
+      <div className="br_min-h-screen br_relative md:mt-20 mt-20 shop-page-condensed">
 
-        <header className="br_text-white  br_p-3 br_pt-11 md:br_py-20 br_flex md:br_justify-center">
-          <div className="br_text-left md:br_max-w-[600px] lg:br_max-w-[800px] md:br_text-center br_flex br_flex-col br_gap-2  md:br_gap-4 md:br_items-center">
+        <header className="br_text-white br_p-3 br_pt-11 md:br_py-20 br_flex br_justify-center">
+          <div className="br_text-center br_max-w-[600px] lg:br_max-w-[800px] br_flex br_flex-col br_gap-2 md:br_gap-4 br_items-center br_w-full">
             <h3 className="trShopHeaderTitle">
               Our Products
             </h3>
-            <p className="fpShopHeaderDesc">
-              Discover the finest collection of detailed car model toys for every collector and enthusiast.
-            </p>
+<p className="fpShopHeaderDesc">
+  Discover a wide range of high-quality products designed to meet your everyday needs.
+</p>
+
           </div>
         </header>
         <div className="br_flex">
-          <div id='filterId1' className="br_text-grey-500 br_fixed br_top-full br_h-full br_bottom-0 br_left-0 br_right-0    br_mt-0 br_flex br_flex-col br_justify-between br_transition-opacity br_duration-300 md:br_mt-14 md:br_flex-[0_0_280px]    br_translate-y-0 br_opacity-0 md:br_opacity-100 md:br_block md:br_relative md:br_h-auto md:br_transform-none">
-            <div className="br_items-center md:br_hidden br_grid br_px-4 br_grid-cols-[repeat(3,1fr)] br_border-solid br_border-0 br_border-b br_border-grey-300">
+          <div id='filterId1' className="br_text-grey-500 br_fixed br_top-full br_h-full br_bottom-0 br_left-0 br_right-0 br_mt-0 br_flex br_flex-col br_justify-between br_transition-opacity br_duration-300 md:br_mt-14 md:br_flex-[0_0_280px] br_translate-y-0 br_opacity-0 md:br_opacity-100 md:br_block md:br_relative md:br_h-auto md:br_transform-none bg-white md:bg-transparent z-50">
+            <div className="br_items-center md:br_hidden br_grid br_px-4 br_grid-cols-[repeat(3,1fr)] br_border-solid br_border-0 br_border-b br_border-grey-300 bg-white">
 
               <div className="br_text-base-sans-bold-stretched br_tracking-cta br_text-white br_my-4 br_py-2 br_px-0 br_border-none br_bg-transparent"></div>
               <h3 className="br_text-2xl br_text-center myNewC">Filters</h3>
-              <button onClick={handleClick2} className="br_flex br_justify-end br_border-none br_bg-transparent br_cursor-pointer br_p-0 myNewC"  >
-                <span className="br_w-6 br_h-6 br_rotate-45">
-                  <svg
-                    width={14}
-                    height={14}
-                    viewBox="0 0 14 14"
-                    className="br_fill-none br_stroke-current br_w-full br_h-full"
-                  >
-                    <path strokeLinecap="square" d="M0 7 14 7M7 0 7 14" />
-                  </svg>
-                </span>
+              <button onClick={handleClick2} className="br_flex br_justify-end br_border-none br_bg-transparent br_cursor-pointer br_p-0 myNewC text-base font-semibold text-black">
+                Done
               </button>
             </div>
 
@@ -353,7 +345,7 @@ const Body = () => {
 
 
 
-            <div className="br_overflow-y-auto br_flex-grow br_pb-3">
+            <div className="br_overflow-y-auto br_flex-grow br_pb-3 bg-white">
               <details className="br_pl-4 md:br_pl-8 br_pr-4">
                 <summary className="br_list-none br_cursor-pointer [&::-webkit-details-marker]:br_hidden [&::marker]:br_hidden">
                   <h3 className="br_border-solid br_border-0 br_border-b br_border-grey-300 br_text-white br_text-base-sans-bold-stretched br_pb-2 br_flex br_justify-between br_items-end br_pt-4 myNewC">
@@ -433,7 +425,7 @@ const Body = () => {
                       className="br_block br_relative br_max-w-full br_w-full br_py-2 br_break-inside-avoid md:br_inline-block md:br_overflow-hidden md:br_m-0 md:br_p-0"
                       title={subCategory.name}
                     >
-                      <label className="br_flex br_gap-4 br_cursor-pointer br_text-white br_text-base-sans-spaced br_py-1 md:br_py-2 myNewC">
+                      <label className="br_flex br_gap-4 br_cursor-pointer br_text-white br_text-base-sans-spaced br_py-1 md:br_py-2 myNewC text-lg">
                         <input
                           className="br_absolute br_h-0 br_w-0 br_opacity-0"
                           type="checkbox"
@@ -510,7 +502,6 @@ const Body = () => {
                   ))}
                 </div>
               </details>
-
 
             </div>
 

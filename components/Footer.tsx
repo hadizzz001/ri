@@ -69,7 +69,7 @@ const Footer = () => {
 
                 {/* Bottom Row */}
                 <div className="text-center mt-20 mb-20">
-                    <p className="text-sm uppercase">Rafi Daham 2025 ALL RIGHTS RESERVED</p>
+                    <p className="text-sm uppercase">Rafi Daham {new Date().getFullYear()} ALL RIGHTS RESERVED</p>
                 </div>
             </div>
 
@@ -169,7 +169,7 @@ const Footer = () => {
 
                 {/* Copyright */}
                 <div className="text-center mt-20 mb-20">
-                    <p className="text-sm uppercase">Rafi Daham 2025 ALL RIGHTS RESERVED</p>
+                    <p className="text-sm uppercase">Rafi Daham {new Date().getFullYear()} ALL RIGHTS RESERVED</p>
                 </div>
             </div>
 

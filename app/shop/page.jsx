@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import CarCard from '../../components1/CarCard'; 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
+import { useSearchParams } from 'next/navigation';
  
 
 
@@ -93,6 +94,7 @@ const SlidingPagination = ({ page, totalPages, setPage }) => {
 
 
 const Body = () => {
+  const searchParams = useSearchParams();
   const [allTemp, setTemp] = useState()
   const [isActive1, setIsActive1] = useState(true);
   const [checkboxesData, setCheckboxesData] = useState([]);
@@ -102,7 +104,7 @@ const Body = () => {
   const [subCategoriesData, setSubCategoriesData] = useState([]);
   const [factoriesData, setFactoriesData] = useState([]);
   const [checkedSubCategories, setCheckedSubCategories] = useState([]);
-  const [checkedFactories, setCheckedFactories] = useState([]);
+  const [checkedFactories, setCheckedFactories] = useState(() => searchParams.getAll('brnd'));
   const [checkedSizes, setCheckedSizes] = useState([]);
   const [allSizes, setAllSizes] = useState([]);
   const [allAvailableSizes, setAllAvailableSizes] = useState([]); // <-- Add this

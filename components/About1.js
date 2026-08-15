@@ -18,7 +18,7 @@ export default function Features() {
         <div className="relative  ">
           <div className="w-full ">
             <img
-              src="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1757960874/photo_2024_r9zgnh.webp"
+              src="https://res.cloudinary.com/dgi9mfldc/image/upload/v1786818356/IMG_5813_1_donjhk.jpg"
               className="object-cover w-full h-full transition-all duration-500 grayscale hover:grayscale-0"
               alt={'Rafi Daham'}
             />

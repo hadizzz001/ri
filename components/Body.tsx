@@ -8,6 +8,7 @@ import Reviews from './Reviews';
 import Map from './Map';   
 import News from './News';   
 import NewsTicker from './NewsTicker';   
+import AdsBanner from './AdsBanner';   
 
 
 
@@ -143,6 +144,7 @@ const Body = () => {
         <div id="usp-scroll-to"></div>
 
         <Carousel /> 
+        <AdsBanner /> 
         <NewsTicker /> 
         <About1 /> 
         <About2 /> 

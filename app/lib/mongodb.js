@@ -6,7 +6,10 @@ const options = {
   socketTimeoutMS: 45000,
   connectTimeoutMS: 30000,
   retryWrites: true,
+  retryReads: true,
   w: 'majority',
+  family: 4, // force IPv4 - avoids slow/failing IPv6 lookups on mobile networks
+  maxPoolSize: 10,
 };
 
 let client;

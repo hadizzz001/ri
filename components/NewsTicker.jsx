@@ -21,7 +21,13 @@ const NewsTicker = () => {
   }, []);
 
   return (
-    <div className="w-full py-2 mt-10">
+    <div className="w-full py-2 mt-10 newsTickerBrands">
+      <style
+        dangerouslySetInnerHTML={{
+          __html:
+            '.newsTickerBrands .rfm-marquee,.newsTickerBrands .rfm-initial-child-container,.newsTickerBrands .rfm-child{align-items:flex-end !important}',
+        }}
+      />
       <Marquee speed={80} gradient={false} autoFill pauseOnHover={false}>
         {brands
           .filter((brand) => {
@@ -32,12 +38,18 @@ const NewsTicker = () => {
             <Link
               key={brand.id ?? brand._id}
               href={`/shop?brnd=${encodeURIComponent(brand.name)}`}
-              className="mx-12 flex items-center justify-center"
+              className="mx-12 flex items-end justify-center"
             >
               <img
                 src={Array.isArray(brand.img) ? brand.img[0] : brand.img}
                 alt={brand.name}
-                style={{ width: '160px', height: '160px', objectFit: 'contain' }}
+                style={{
+                  width: '160px',
+                  height: '160px',
+                  objectFit: 'contain',
+                  objectPosition: 'bottom center',
+                  display: 'block',
+                }}
               />
             </Link>
           ))}

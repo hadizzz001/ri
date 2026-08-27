@@ -110,7 +110,7 @@ export default function NavBar() {
 
         {/* Fullscreen Menu */}
         {menuOpen && (
-          <div className="fixed inset-0 bg-[#cab8ac] text-black flex flex-col items-center justify-center z-50">
+          <div className="fixed inset-0 menu-pattern-bg text-black flex flex-col items-center justify-center z-50">
             <button
               onClick={() => setMenuOpen(false)}
               className="absolute top-4 right-4"
@@ -118,7 +118,7 @@ export default function NavBar() {
             >
               <X className="w-8 h-8 stroke-[1]" />
             </button>
-            <nav className="flex flex-col items-center gap-6 mt-12 text-3xl font-bold">
+            <nav className="relative flex flex-col items-center gap-6 mt-12 text-3xl font-bold">
               <a href="/" onClick={() => setMenuOpen(false)}>Home</a>
               <a href="/appointment" onClick={() => setMenuOpen(false)}>Appointment</a>
               <a href="/services" onClick={() => setMenuOpen(false)}>Hair Services</a>

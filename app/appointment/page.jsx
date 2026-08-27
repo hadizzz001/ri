@@ -1,488 +1,975 @@
 'use client';
-import { useEffect, useState } from 'react';
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
 
+/**
+ * Fresha-style booking flow for Rafi Daham Hair Repair Studio.
+ *
+ *  Step 1 — Services   (categories + service list + live cart)
+ *  Step 2 — Time       (country / city, calendar, time slots)
+ *  Step 3 — Confirm    (contact details, notes, language)
+ *
+ * On confirm: the booking is stored in MongoDB, a confirmation email is sent
+ * with Resend (plus reminder emails 2 & 1 day before via /api/booking/reminders)
+ * and the client is handed over to WhatsApp with a ready-made message.
+ */
 
-export default function AppointmentPage() {
-  // --- Appointment state ---
-  const [data, setData] = useState([]);
-  const [countryOptions, setCountryOptions] = useState([]);
-  const [cityOptions, setCityOptions] = useState([]);
-  const [country, setCountry] = useState('');
-  const [city, setCity] = useState('');
-  const [availableDates, setAvailableDates] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [availableHours, setAvailableHours] = useState([]);
-  const [selectedHour, setSelectedHour] = useState('');
-  const [form, setForm] = useState({ name: '', phone: '', email: '' });
-  const [errors, setErrors] = useState({});
-  const [isArabic, setIsArabic] = useState(false);
+import { useEffect, useMemo, useRef, useState } from 'react';
+import './appointment.css';
 
-  useEffect(() => {
-    fetch('/api/apoint')
-      .then(res => res.json())
-      .then(json => {
-        setData(json);
-        const countries = [...new Set(json.map(item => item.info.country))];
-        setCountryOptions(countries);
-      });
-  }, []);
+/* --------------------------------------------------------------------- i18n */
 
-  useEffect(() => {
-    if (!country) return;
-    const cities = [
-      ...new Set(data.filter(d => d.info.country === country).map(d => d.info.city))
-    ];
-    setCityOptions(cities);
-    setCity('');
-    setSelectedDate(null);
-    setAvailableDates([]);
-    setAvailableHours([]);
-    setSelectedHour('');
-  }, [country]);
-
-useEffect(() => {
-  if (!country || !city) return;
-
-  // Get all matching entries for country + city
-  const matches = data.filter(d => d.info.country === country && d.info.city === city);
-
-  // Flatten all dates into a single array
-const allDates = matches.flatMap(match => match.info.dates.map(d => d.date.split('T')[0]));
-
-
-  setAvailableDates(allDates);
-  setSelectedDate(null);
-  setAvailableHours([]);
-  setSelectedHour('');
-}, [city]);
-
-
-useEffect(() => {
-  if (!selectedDate || !country || !city) return;
-
-  // Get all matching entries for country + city
-  const matches = data.filter(d => d.info.country === country && d.info.city === city);
- 
-
-  // Find the date entry from any of the matches
-const selectedLocal = formatLocalDate(selectedDate);
-
-const dateEntry = matches
-  .flatMap(m => m.info.dates)
-  .find(d => d.date.split('T')[0] === selectedLocal);
-
-
-  if (dateEntry) {
-    const available = dateEntry.hours
-      .filter(h => !h.booked)
-      .map(h => h.hour);
-    setAvailableHours(available);
-  } else {
-    setAvailableHours([]);
-  }
-
-  setSelectedHour('');
-}, [selectedDate]);
-
-
-
-// Returns the price with 300% increase if country is not Lebanon
-const getEffectivePrice = (price) => {
-  if (!country) return price; // no country selected yet
-  return country !== 'Lebanon' ? (price * 4).toFixed(2) : price.toFixed(2);
+const STRINGS = {
+  en: {
+    dir: 'ltr',
+    brand: 'Rafi Daham Hair Repair Studio',
+    address: 'Beirut, Jabal Lubnan, Lebanon',
+    steps: ['Services', 'Time', 'Confirm'],
+    selectServices: 'Select services',
+    selectTime: 'Select time',
+    review: 'Review and confirm',
+    all: 'Featured',
+    book: 'Book',
+    added: 'Added',
+    mins: 'mins',
+    from: 'from',
+    country: 'Country',
+    city: 'City',
+    chooseCountry: 'Choose a country',
+    chooseCity: 'Choose a city',
+    noDates: 'No dates available for this location yet.',
+    noSlots: 'No free times on this day — please choose another date.',
+    yourDetails: 'Your details',
+    name: 'Full name',
+    phone: 'Phone number',
+    email: 'Email address',
+    notes: 'Notes (optional)',
+    notesPh: 'Anything we should know before your visit?',
+    emailNote: 'We will email your confirmation and a reminder before your visit.',
+    continue: 'Continue',
+    confirmBook: 'Confirm booking',
+    sending: 'Booking…',
+    emptyCart: 'No services selected',
+    total: 'Total',
+    free: 'free',
+    deposit: 'A 25% deposit is required to confirm the appointment.',
+    outside: 'Out-of-Lebanon bookings are priced at the travelling rate.',
+    serviceCount: (n) => `${n} service${n === 1 ? '' : 's'}`,
+    errRequired: 'This field is required',
+    errEmail: 'Please enter a valid email address',
+    errPhone: 'Please enter a valid phone number',
+    errCart: 'Please select at least one service',
+    doneTitle: 'Appointment requested!',
+    doneText:
+      'We have emailed your confirmation. WhatsApp is opening so you can finalise the details with us.',
+    ref: 'Reference',
+    date: 'Date',
+    time: 'Time',
+    location: 'Location',
+    newBooking: 'Book another appointment',
+    langBtn: 'العربية',
+    reminderNote: 'You will get a reminder email 2 days and 1 day before.',
+    openWhatsApp: 'Send details on WhatsApp',
+    waHint:
+      "If WhatsApp didn't open automatically, tap the button above to send us your booking details.",
+  },
+  ar: {
+    dir: 'rtl',
+    brand: 'صالون رافي دهام',
+    address: 'بيروت، جبل لبنان',
+    steps: ['الخدمات', 'الوقت', 'التأكيد'],
+    selectServices: 'اختر الخدمات',
+    selectTime: 'اختر الوقت',
+    review: 'مراجعة وتأكيد',
+    all: 'الأبرز',
+    book: 'احجز',
+    added: 'تمت الإضافة',
+    mins: 'دقيقة',
+    from: 'من',
+    country: 'الدولة',
+    city: 'المدينة',
+    chooseCountry: 'اختر الدولة',
+    chooseCity: 'اختر المدينة',
+    noDates: 'لا توجد تواريخ متاحة لهذا الموقع حالياً.',
+    noSlots: 'لا توجد أوقات متاحة في هذا اليوم — يرجى اختيار تاريخ آخر.',
+    yourDetails: 'معلوماتك',
+    name: 'الاسم الكامل',
+    phone: 'رقم الهاتف',
+    email: 'البريد الإلكتروني',
+    notes: 'ملاحظات (اختياري)',
+    notesPh: 'هل من شيء يجب أن نعرفه قبل زيارتك؟',
+    emailNote: 'سنرسل لك التأكيد وتذكيراً قبل موعدك عبر البريد الإلكتروني.',
+    continue: 'متابعة',
+    confirmBook: 'تأكيد الحجز',
+    sending: 'جارٍ الحجز…',
+    emptyCart: 'لم يتم اختيار أي خدمة',
+    total: 'الإجمالي',
+    free: 'مجاني',
+    deposit: 'يلزم دفع 25% كعربون لتأكيد الموعد.',
+    outside: 'الحجوزات خارج لبنان تُحتسب بسعر التنقّل.',
+    serviceCount: (n) => `${n} خدمة`,
+    errRequired: 'هذا الحقل مطلوب',
+    errEmail: 'يرجى إدخال بريد إلكتروني صحيح',
+    errPhone: 'يرجى إدخال رقم هاتف صحيح',
+    errCart: 'يرجى اختيار خدمة واحدة على الأقل',
+    doneTitle: 'تم إرسال طلب الموعد!',
+    doneText: 'أرسلنا لك التأكيد عبر البريد. سيتم فتح واتساب لإتمام التفاصيل معنا.',
+    ref: 'رقم الحجز',
+    date: 'التاريخ',
+    time: 'الوقت',
+    location: 'الموقع',
+    newBooking: 'حجز موعد آخر',
+    langBtn: 'English',
+    reminderNote: 'ستصلك رسالة تذكير قبل يومين وقبل يوم من الموعد.',
+    openWhatsApp: 'إرسال التفاصيل عبر واتساب',
+    waHint:
+      'إذا لم يُفتح واتساب تلقائياً، اضغط على الزر أعلاه لإرسال تفاصيل حجزك.',
+  },
 };
 
+const WHATSAPP_NUMBER = '96178808100';
 
+/* ---------------------------------------------------------------- helpers */
 
-const formatLocalDate = (date) => {
-  if (!date) return '';
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+const fmtLocalDate = (d) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+    d.getDate()
+  ).padStart(2, '0')}`;
+
+const money = (n) => `$${Number(n || 0).toFixed(2)}`;
+
+const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || '').trim());
+
+const prettyDate = (iso, lang) => {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
 };
 
-const isDateAvailable = (date) => {
-  // Check if date is in the past
+/* ------------------------------------------------------------- Calendar UI */
+
+function MiniCalendar({ month, onMonthChange, value, onChange, isEnabled, lang }) {
+  const first = new Date(month.getFullYear(), month.getMonth(), 1);
+  const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+  const startPad = first.getDay(); // 0 = Sunday
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  if (date < today) return false;
-  
-  const formatted = formatLocalDate(date);
-  return availableDates.includes(formatted);
-};
 
-const isValidEmail = (email) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
+  const dows =
+    lang === 'ar'
+      ? ['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت']
+      : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const canGoBack =
+    month.getFullYear() > today.getFullYear() ||
+    (month.getFullYear() === today.getFullYear() && month.getMonth() > today.getMonth());
 
-  // Validate form
-  const newErrors = {};
-  if (!form.name.trim()) newErrors.name = 'Name is required';
-  if (!form.phone.trim()) newErrors.phone = 'Phone is required';
-  if (!form.email.trim()) newErrors.email = 'Email is required';
-  else if (!isValidEmail(form.email)) newErrors.email = 'Email format is invalid';
-  if (!country) newErrors.country = 'Country is required';
-  if (!city) newErrors.city = 'City is required';
-  if (!selectedDate) newErrors.date = 'Date is required';
-  if (!selectedHour) newErrors.hour = 'Time is required';
-  if (Object.keys(cart).length === 0) newErrors.cart = 'Please select at least one service';
-
-  if (Object.keys(newErrors).length > 0) {
-    setErrors(newErrors);
-    return;
-  }
-
-  setErrors({});
-
-  // Convert cart object to array
-  const cartArray = Object.values(cart); // Now it's an array of items
-
-  // Check if reservation is outside Lebanon
-  const isOutsideLebanon = country !== 'Lebanon';
-
-  // Calculate totals
-  let total = 0;
-  const cartSummary = cartArray.map(item => {
-    let price = Number(item.price); // Ensure it's a number
-
-    // Apply 300% increase if outside Lebanon
-    if (isOutsideLebanon) {
-      price = price * 4; // original + 300%
-    }
-
-    const subtotal = price * item.qty;
-    total += subtotal;
-
-    return `${item.title} - $${price.toFixed(2)} x ${item.qty} = $${subtotal.toFixed(2)}`;
-  }).join('\n');
-
-  // Prepare data for API
-  const data = {
-    name: form.name,
-    phone: form.phone,
-    email: form.email,
-    country,
-    city,
-    date: formatLocalDate(selectedDate),
-    hour: selectedHour,
-    cart: cartArray.map(item => ({
-      title: item.title,
-      price: isOutsideLebanon ? Number(item.price) * 4 : Number(item.price),
-      qty: item.qty,
-    })),
-    total,
-  };
-
-  try {
-    // 1. Send data to API
-    const res = await fetch('/api/sendOrder', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-
-    const result = await res.json();
-    console.log('Data saved:', result);
-
-    // 2. Build WhatsApp message
-    const downPayment = (total * 0.25).toFixed(2); // 25% of total
-
-    let message;
-    if (isArabic) {
-      message = `ملاحظة: لتأكيد الموعد سيكون هناك دفعة أولى بنسبة 25% من المبلغ الإجمالي\n\nموعد جديد:\nالاسم: ${data.name}\nالهاتف: ${data.phone}\nالبريد الإلكتروني: ${data.email}\nالدولة: ${data.country}\nالمدينة: ${data.city}\nالتاريخ: ${data.date}\nالوقت: ${data.hour}\n\nالخدمة:\n${cartSummary}\n\nالإجمالي: $${total.toFixed(2)}\n\nالدفعة الأولى: $${downPayment}`;
-    } else {
-      message = `Note: to confirm the appointment there will be a down payment of $${downPayment}\n\nNew appointment:\nName: ${data.name}\nPhone: ${data.phone}\nEmail: ${data.email}\nCountry: ${data.country}\nCity: ${data.city}\nDate: ${data.date}\nHour: ${data.hour}\n\nService:\n${cartSummary}\n\nTotal: $${total.toFixed(2)}`;
-    }
-
-    // 3. Redirect to WhatsApp
-    const phoneNumber = '96178808100';
-    const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappURL, '_blank');
-
-    window.location.reload();
-  } catch (err) {
-    console.error('Error submitting form:', err);
-  }
-};
-
-
-
- 
-
-
-  // --- ProductGrid state ---
-  const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState({});
-
-  useEffect(() => {
-    const stored = localStorage.getItem("cart");
-    if (stored) setCart(JSON.parse(stored));
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
-
-  useEffect(() => {
-    fetch("/api/products")
-      .then(res => res.json())
-      .then(setProducts);
-  }, []);
-
-  const addToCart = (product) => {
-    setCart(prev => ({
-      ...prev,
-      [product._id]: { ...product, qty: 1 },
-    }));
-  };
-
-  const increaseQty = (id) => {
-    setCart(prev => ({
-      ...prev,
-      [id]: { ...prev[id], qty: prev[id].qty + 1 },
-    }));
-  };
-
-  const decreaseQty = (id) => {
-    setCart(prev => {
-      const qty = prev[id].qty - 1;
-      if (qty <= 0) {
-        const copy = { ...prev };
-        delete copy[id];
-        return copy;
-      }
-      return {
-        ...prev,
-        [id]: { ...prev[id], qty },
-      };
-    });
-  };
-
-  // --- Check if form is valid ---
-  const isFormValid = form.name && form.phone && form.email;
-  const hasProducts = Object.keys(cart).length > 0;
+  const cells = [];
+  for (let i = 0; i < startPad; i += 1) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d += 1)
+    cells.push(new Date(month.getFullYear(), month.getMonth(), d));
 
   return (
-    <div className="max-w-xl mx-auto p-4 bg-[#cab8ac] mt-20 mb-20">
-      <h1 className="text-2xl font-bold mb-4">Book an Appointment</h1>
-
-      <label className="block mb-2 font-semibold">Select Country</label>
-      <select
-        value={country}
-        onChange={e => setCountry(e.target.value)}
-        className="w-full p-2 border rounded mb-4"
-      >
-        <option value="">-- Select Country --</option>
-        {countryOptions.map(c => (
-          <option key={c} value={c}>{c}</option>
-        ))}
-      </select>
-      {errors.country && <p className="text-red-600 text-sm mb-4">{errors.country}</p>}
-
-      {country && (
-        <>
-          <label className="block mb-2 font-semibold">Select City</label>
-          <select
-            value={city}
-            onChange={e => setCity(e.target.value)}
-            className="w-full p-2 border rounded mb-4"
+    <div className="fr-cal">
+      <div className="fr-cal-head">
+        <div className="fr-cal-month">
+          {month.toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-GB', {
+            month: 'long',
+            year: 'numeric',
+          })}
+        </div>
+        <div className="fr-cal-nav">
+          <button
+            type="button"
+            aria-label="Previous month"
+            disabled={!canGoBack}
+            onClick={() =>
+              onMonthChange(new Date(month.getFullYear(), month.getMonth() - 1, 1))
+            }
           >
-            <option value="">-- Select City --</option>
-            {cityOptions.map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-          {errors.city && <p className="text-red-600 text-sm mb-4">{errors.city}</p>}
-        </>
-      )}
-
-      {availableDates.length > 0 && (
-        <div className="mt-4">
-          <h2 className="font-semibold mb-2">Select a Day</h2>
-          <Calendar
-            value={selectedDate}
-            onChange={setSelectedDate}
-            tileDisabled={({ date }) => !isDateAvailable(date)}
-          />
-          {errors.date && <p className="text-red-600 text-sm mt-2">{errors.date}</p>}
+            ‹
+          </button>
+          <button
+            type="button"
+            aria-label="Next month"
+            onClick={() =>
+              onMonthChange(new Date(month.getFullYear(), month.getMonth() + 1, 1))
+            }
+          >
+            ›
+          </button>
         </div>
-      )}
+      </div>
 
-      {selectedDate && availableHours.length > 0 && (
-        <div className="mt-4">
-          <h2 className="font-semibold mb-2">Select a Time</h2>
-          <div className="grid grid-cols-3 gap-2">
-            {availableHours.map(hour => (
-              <button
-                key={hour}
-                onClick={() => setSelectedHour(hour)}
-                className={`p-2 rounded border text-center text-sm myGray ${selectedHour === hour ? 'selected-hour' : ''}`}
-              >
-                {hour}
-              </button>
-            ))}
+      <div className="fr-cal-grid">
+        {dows.map((d) => (
+          <div key={d} className="fr-cal-dow">
+            {d}
           </div>
-          {errors.hour && <p className="text-red-600 text-sm mt-2">{errors.hour}</p>}
-        </div>
-      )}
-
-      {city && (
-        <div className="mt-4 mb-4 flex items-center">
-          <input
-            type="checkbox"
-            id="arabicCheckbox"
-            checked={isArabic}
-            onChange={e => setIsArabic(e.target.checked)}
-            className="w-4 h-4 rounded"
-          />
-          <label htmlFor="arabicCheckbox" className="ml-2 font-semibold">عربي - Arabic</label>
-        </div>
-      )}
-
-      {selectedDate && selectedHour && (
-        <form onSubmit={handleSubmit} className="mt-6 space-y-3">
-          <input
-            name="name"
-            value={form.name}
-            onChange={e => setForm({ ...form, name: e.target.value })}
-            placeholder="Name"
-            required
-            className="w-full p-2 border rounded"
-          />
-          {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
-          
-          <input
-            name="phone"
-            value={form.phone}
-            onChange={e => {
-              const value = e.target.value.replace(/[^0-9]/g, '');
-              setForm({ ...form, phone: value });
-            }}
-            placeholder="Phone"
-            required
-            className="w-full p-2 border rounded"
-          />
-          {errors.phone && <p className="text-red-600 text-sm">{errors.phone}</p>}
-          
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={e => setForm({ ...form, email: e.target.value })}
-            placeholder="Email"
-            required
-            className="w-full p-2 border rounded"
-          />
-          {errors.email && <p className="text-red-600 text-sm">{errors.email}</p>}
-        </form>
-      )}
-
-      {/* --- Product Grid Section --- */}
-      <div className="pg-grid mt-10">
-        {products.map(p => {
-          const item = cart[p._id];
+        ))}
+        {cells.map((date, i) => {
+          if (!date) return <div key={`p${i}`} />;
+          const iso = fmtLocalDate(date);
+          const enabled = isEnabled(iso, date);
           return (
-            <div key={p._id} className="pg-card border p-3 rounded mb-3">
-              <div className="pg-info mb-2">
-                <h3 className="pg-title font-semibold">{p.title}</h3>
-                <p className="pg-cat text-sm">{p.cat}</p>
-                <p className="pg-price font-bold">${getEffectivePrice(Number(p.price))}</p>
-              </div>
-              <div className="pg-action">
-                {!item ? (
-                  <button
-                    onClick={() => addToCart(p)}
-                    className="pg-add-btn border p-1 rounded"
-                  >
-                    Add
-                  </button>
-                ) : (
-                  <div className="pg-qty flex items-center gap-2">
-                    <button
-                      onClick={() => decreaseQty(p._id)}
-                      className="pg-qty-btn border px-2 rounded"
-                    >
-                      −
-                    </button>
-                    <span className="pg-qty-value">{item.qty}</span>
-                    <button
-                      onClick={() => increaseQty(p._id)}
-                      className="pg-qty-btn border px-2 rounded"
-                    >
-                      +
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+            <button
+              type="button"
+              key={iso}
+              disabled={!enabled}
+              onClick={() => onChange(iso)}
+              className={`fr-cal-day ${value === iso ? 'is-on' : ''} ${
+                enabled ? 'has-slots' : ''
+              }`}
+            >
+              {date.getDate()}
+            </button>
           );
         })}
       </div>
+    </div>
+  );
+}
 
-      {/* Submit Button at the End */}
-      {selectedDate && selectedHour && (
-        <div className="mt-6 mb-4">
-          {errors.cart && <p className="text-red-600 text-sm mb-3">{errors.cart}</p>}
-          
-          {/* Order Summary */}
-          {Object.keys(cart).length > 0 && (
-            <div className="bg-gray-100 p-4 rounded mb-4 border">
-              <h3 className="font-semibold mb-3">Order Summary</h3>
-              <div className="space-y-2 mb-3">
-                {Object.values(cart).map((item, idx) => (
-                  <div key={idx} className="flex justify-between text-sm">
-                    <span>{item.title} x{item.qty}</span>
-                    <span>${(getEffectivePrice(Number(item.price)) * item.qty).toFixed(2)}</span>
-                  </div>
+/* ------------------------------------------------------------------- Page */
+
+export default function AppointmentPage() {
+  const [lang, setLang] = useState('en');
+  const t = STRINGS[lang];
+
+  const [step, setStep] = useState(1);
+  const [services, setServices] = useState([]);
+  const [loadingServices, setLoadingServices] = useState(true);
+  const [availability, setAvailability] = useState([]);
+
+  const [activeCat, setActiveCat] = useState('');
+  const [cart, setCart] = useState({});
+
+  const [country, setCountry] = useState('');
+  const [city, setCity] = useState('');
+  const [month, setMonth] = useState(() => {
+    const n = new Date();
+    return new Date(n.getFullYear(), n.getMonth(), 1);
+  });
+  const [date, setDate] = useState('');
+  const [hour, setHour] = useState('');
+
+  const [form, setForm] = useState({ name: '', phone: '', email: '', notes: '' });
+  const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [done, setDone] = useState(null);
+
+  const topRef = useRef(null);
+
+  /* --------------------------------------------------------------- fetch */
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then((r) => r.json())
+      .then((json) => {
+        const list = Array.isArray(json) ? json : [];
+        setServices(list);
+        if (list.length) setActiveCat(list[0].cat);
+      })
+      .catch(() => setServices([]))
+      .finally(() => setLoadingServices(false));
+
+    fetch('/api/apoint')
+      .then((r) => r.json())
+      .then((json) => setAvailability(Array.isArray(json) ? json : []))
+      .catch(() => setAvailability([]));
+  }, []);
+
+  /* ------------------------------------------------------------ derived */
+
+  const categories = useMemo(() => {
+    const seen = [];
+    services.forEach((s) => {
+      if (!seen.includes(s.cat)) seen.push(s.cat);
+    });
+    return seen;
+  }, [services]);
+
+  const visibleServices = useMemo(
+    () => services.filter((s) => s.cat === activeCat),
+    [services, activeCat]
+  );
+
+  const countries = useMemo(
+    () => [...new Set(availability.map((a) => a?.info?.country).filter(Boolean))],
+    [availability]
+  );
+
+  const cities = useMemo(
+    () => [
+      ...new Set(
+        availability
+          .filter((a) => a?.info?.country === country)
+          .map((a) => a?.info?.city)
+          .filter(Boolean)
+      ),
+    ],
+    [availability, country]
+  );
+
+  /** { 'YYYY-MM-DD': ['10:00', ...] } for the picked country + city */
+  const slotsByDate = useMemo(() => {
+    const map = {};
+    availability
+      .filter((a) => a?.info?.country === country && a?.info?.city === city)
+      .forEach((a) => {
+        (a.info.dates || []).forEach((d) => {
+          const key = String(d.date).split('T')[0];
+          const free = (d.hours || []).filter((h) => !h.booked).map((h) => h.hour);
+          map[key] = [...new Set([...(map[key] || []), ...free])].sort();
+        });
+      });
+    return map;
+  }, [availability, country, city]);
+
+  const cartItems = useMemo(() => Object.values(cart), [cart]);
+  const priceFactor = country && country !== 'Lebanon' ? 4 : 1;
+  const total = cartItems.reduce(
+    (a, i) => a + Number(i.price) * priceFactor * i.qty,
+    0
+  );
+  const totalDuration = cartItems.reduce(
+    (a, i) => a + (Number(i.duration) || 0) * i.qty,
+    0
+  );
+
+  /* ------------------------------------------------------------ actions */
+
+  const goTo = (n) => {
+    setStep(n);
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const toggleService = (s) => {
+    setCart((prev) => {
+      const next = { ...prev };
+      if (next[s._id]) delete next[s._id];
+      else
+        next[s._id] = {
+          id: s._id,
+          title: s.title,
+          cat: s.cat,
+          price: Number(s.price),
+          duration: s.duration || null,
+          qty: 1,
+        };
+      return next;
+    });
+    setErrors((e) => ({ ...e, cart: undefined }));
+  };
+
+  const changeQty = (id, delta) =>
+    setCart((prev) => {
+      const item = prev[id];
+      if (!item) return prev;
+      const qty = item.qty + delta;
+      if (qty <= 0) {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      }
+      return { ...prev, [id]: { ...item, qty } };
+    });
+
+  // Reset downstream selections when the location changes
+  useEffect(() => {
+    setCity('');
+    setDate('');
+    setHour('');
+  }, [country]);
+
+  useEffect(() => {
+    setDate('');
+    setHour('');
+  }, [city]);
+
+  useEffect(() => {
+    setHour('');
+  }, [date]);
+
+  const canContinue = () => {
+    if (step === 1) return cartItems.length > 0;
+    if (step === 2) return !!country && !!city && !!date && !!hour;
+    return true;
+  };
+
+  const validateDetails = () => {
+    const e = {};
+    if (!form.name.trim()) e.name = t.errRequired;
+    if (!form.phone.trim()) e.phone = t.errRequired;
+    else if (form.phone.replace(/\D/g, '').length < 6) e.phone = t.errPhone;
+    if (!form.email.trim()) e.email = t.errRequired;
+    else if (!isEmail(form.email)) e.email = t.errEmail;
+    if (cartItems.length === 0) e.cart = t.errCart;
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const buildWhatsAppMessage = (payload) => {
+    const lines = payload.cart
+      .map(
+        (i) =>
+          `• ${i.title}${i.qty > 1 ? ` x${i.qty}` : ''} — ${money(i.price * i.qty)}`
+      )
+      .join('\n');
+
+    if (lang === 'ar') {
+      return [
+        `طلب موعد جديد — ${payload.reference}`,
+        '',
+        `الاسم: ${payload.name}`,
+        `الهاتف: ${payload.phone}`,
+        `البريد الإلكتروني: ${payload.email}`,
+        `الموقع: ${payload.city}، ${payload.country}`,
+        `التاريخ: ${payload.date}`,
+        `الوقت: ${payload.hour}`,
+        '',
+        'الخدمات:',
+        lines,
+        '',
+        `الإجمالي: ${money(payload.total)}`,
+        `العربون (25%): ${money(payload.deposit)}`,
+        payload.notes ? `\nملاحظات: ${payload.notes}` : '',
+      ].join('\n');
+    }
+
+    return [
+      `New appointment request — ${payload.reference}`,
+      '',
+      `Name: ${payload.name}`,
+      `Phone: ${payload.phone}`,
+      `Email: ${payload.email}`,
+      `Location: ${payload.city}, ${payload.country}`,
+      `Date: ${payload.date}`,
+      `Time: ${payload.hour}`,
+      '',
+      'Services:',
+      lines,
+      '',
+      `Total: ${money(payload.total)}`,
+      `Deposit to confirm (25%): ${money(payload.deposit)}`,
+      payload.notes ? `\nNotes: ${payload.notes}` : '',
+    ].join('\n');
+  };
+
+  const handleConfirm = async () => {
+    if (!validateDetails() || submitting) return;
+    setSubmitting(true);
+
+    try {
+      const res = await fetch('/api/booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...form,
+          country,
+          city,
+          date,
+          hour,
+          lang,
+          cart: cartItems.map((i) => ({ id: i.id, qty: i.qty })),
+        }),
+      });
+
+      const result = await res.json();
+      if (!res.ok) {
+        setErrors({ submit: result.error || 'Something went wrong' });
+        setSubmitting(false);
+        return;
+      }
+
+      const payload = {
+        ...form,
+        country,
+        city,
+        date,
+        hour,
+        reference: result.reference,
+        total: result.total,
+        deposit: result.deposit,
+        cart: result.cart,
+      };
+
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+        buildWhatsAppMessage(payload)
+      )}`;
+
+      // Show the confirmation screen first — it always carries a real
+      // WhatsApp link, so the handover works even if a pop-up is blocked.
+      setDone({ ...payload, waUrl: url });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Best-effort auto-open (silently ignored when blocked).
+      setTimeout(() => {
+        try {
+          window.open(url, '_blank', 'noopener,noreferrer');
+        } catch {
+          /* the button on the confirmation screen is the fallback */
+        }
+      }, 300);
+    } catch (err) {
+      console.error(err);
+      setErrors({ submit: 'Network error — please try again.' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const resetAll = () => {
+    setDone(null);
+    setCart({});
+    setStep(1);
+    setDate('');
+    setHour('');
+    setForm({ name: '', phone: '', email: '', notes: '' });
+    setErrors({});
+  };
+
+  /* ----------------------------------------------------------- rendering */
+
+  if (done) {
+    return (
+      <div className="fr-booking" dir={t.dir}>
+        <div className="fr-topbar">
+          <div className="fr-brand">{t.brand}</div>
+          <div className="fr-topbar-right">
+            <button
+              className="fr-lang"
+              onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+            >
+              {t.langBtn}
+            </button>
+          </div>
+        </div>
+
+        <div className="fr-done">
+          <div className="fr-done-icon">✓</div>
+          <h2>{t.doneTitle}</h2>
+          <p>{t.doneText}</p>
+          <p>{t.reminderNote}</p>
+
+          <div className="fr-done-card">
+            <div className="fr-done-row">
+              <span>{t.ref}</span>
+              <span>{done.reference}</span>
+            </div>
+            <div className="fr-done-row">
+              <span>{t.date}</span>
+              <span>{prettyDate(done.date, lang)}</span>
+            </div>
+            <div className="fr-done-row">
+              <span>{t.time}</span>
+              <span>{done.hour}</span>
+            </div>
+            <div className="fr-done-row">
+              <span>{t.location}</span>
+              <span>
+                {done.city}, {done.country}
+              </span>
+            </div>
+            {done.cart.map((i) => (
+              <div className="fr-done-row" key={i.id}>
+                <span>
+                  {i.title}
+                  {i.qty > 1 ? ` × ${i.qty}` : ''}
+                </span>
+                <span>{money(i.price * i.qty)}</span>
+              </div>
+            ))}
+            <div className="fr-summary-total">
+              <span>{t.total}</span>
+              <span>{money(done.total)}</span>
+            </div>
+          </div>
+
+          <a
+            className="fr-cta fr-cta--wa"
+            href={done.waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M20.52 3.48A11.86 11.86 0 0 0 12.08 0C5.55 0 .22 5.32.22 11.86c0 2.09.55 4.13 1.58 5.93L.12 24l6.36-1.67a11.85 11.85 0 0 0 5.6 1.43h.01c6.54 0 11.86-5.32 11.86-11.86 0-3.17-1.23-6.14-3.43-8.42Zm-8.43 18.28h-.01a9.86 9.86 0 0 1-5.03-1.38l-.36-.22-3.77.99 1.01-3.67-.24-.38a9.83 9.83 0 0 1-1.51-5.24c0-5.43 4.42-9.85 9.86-9.85 2.63 0 5.11 1.03 6.97 2.89a9.78 9.78 0 0 1 2.89 6.97c0 5.43-4.42 9.85-9.81 9.85Zm5.4-7.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.64-2.05-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.21 3.08.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.75-.72 2-1.41.25-.69.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35Z" />
+            </svg>
+            {t.openWhatsApp}
+          </a>
+          <p className="fr-done-hint">{t.waHint}</p>
+
+          <button className="fr-cta fr-cta--ghost" onClick={resetAll}>
+            {t.newBooking}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const heading =
+    step === 1 ? t.selectServices : step === 2 ? t.selectTime : t.review;
+
+  const summary = (
+    <aside className="fr-summary">
+      <div className="fr-summary-head">
+        <div className="fr-summary-logo">RD</div>
+        <div>
+          <div className="fr-summary-name">{t.brand}</div>
+          <div className="fr-summary-addr">{t.address}</div>
+        </div>
+      </div>
+
+      <div className="fr-summary-body">
+        {date && hour && (
+          <div className="fr-summary-when">
+            {prettyDate(date, lang)} · {hour}
+            {totalDuration ? ` · ${totalDuration} ${t.mins}` : ''}
+          </div>
+        )}
+
+        {cartItems.length === 0 ? (
+          <div className="fr-summary-empty">{t.emptyCart}</div>
+        ) : (
+          cartItems.map((i) => (
+            <div className="fr-summary-item" key={i.id}>
+              <div>
+                {i.title}
+                {i.qty > 1 ? ` × ${i.qty}` : ''}
+                {i.duration ? (
+                  <small>
+                    {i.duration} {t.mins}
+                  </small>
+                ) : null}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontWeight: 600 }}>
+                  {money(Number(i.price) * priceFactor * i.qty)}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Remove"
+                  onClick={() => toggleService({ _id: i.id })}
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+
+        <div className="fr-summary-total">
+          <span>{t.total}</span>
+          <span>{money(total)}</span>
+        </div>
+
+        {cartItems.length > 0 && <div className="fr-summary-note">{t.deposit}</div>}
+        {priceFactor > 1 && <div className="fr-summary-note">{t.outside}</div>}
+
+        {step < 3 && (
+          <button
+            className="fr-cta"
+            disabled={!canContinue()}
+            onClick={() => goTo(step + 1)}
+          >
+            {t.continue}
+          </button>
+        )}
+        {step === 3 && (
+          <button className="fr-cta" disabled={submitting} onClick={handleConfirm}>
+            {submitting ? t.sending : t.confirmBook}
+          </button>
+        )}
+      </div>
+    </aside>
+  );
+
+  return (
+    <div className="fr-booking" dir={t.dir} ref={topRef}>
+      {/* ---------------------------------------------------------- top bar */}
+      <div className="fr-topbar">
+        <button
+          className="fr-back"
+          disabled={step === 1}
+          onClick={() => goTo(Math.max(1, step - 1))}
+          aria-label="Back"
+        >
+          {t.dir === 'rtl' ? '›' : '‹'}
+        </button>
+        <div className="fr-brand">{t.brand}</div>
+        <div className="fr-topbar-right">
+          <button
+            className="fr-lang"
+            onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+          >
+            {t.langBtn}
+          </button>
+        </div>
+      </div>
+
+      <div className="fr-progress">
+        <span style={{ width: `${(step / 3) * 100}%` }} />
+      </div>
+
+      <div className="fr-shell">
+        <main className="fr-main">
+          <h1 className="fr-h1">{heading}</h1>
+          <p className="fr-sub">
+            {lang === 'ar'
+              ? `الخطوة ${step} من 3 — ${t.steps[step - 1]}`
+              : `Step ${step} of 3 — ${t.steps[step - 1]}`}
+          </p>
+
+          {/* ------------------------------------------------ 1. services */}
+          {step === 1 && (
+            <>
+              <div className="fr-chips">
+                {categories.map((c) => (
+                  <button
+                    key={c}
+                    className={`fr-chip ${activeCat === c ? 'is-active' : ''}`}
+                    onClick={() => setActiveCat(c)}
+                  >
+                    {c}
+                  </button>
                 ))}
               </div>
-              <div className="border-t pt-2 font-semibold flex justify-between">
-                <span>Total:</span>
-                <span>${Object.values(cart).reduce((acc, item) => {
-                  const price = Number(getEffectivePrice(Number(item.price)));
-                  return acc + (price * item.qty);
-                }, 0).toFixed(2)}</span>
-              </div>
-            </div>
-          )}
-          
-          <button 
-            onClick={handleSubmit} 
-            disabled={!form.name || !form.phone || !form.email || Object.keys(cart).length === 0}
-            className={`w-full py-2 rounded font-semibold ${
-              form.name && form.phone && form.email && Object.keys(cart).length > 0
-                ? 'selected-hour cursor-pointer'
-                : 'bg-gray-400 text-gray-600 cursor-not-allowed'
-            }`}
-          >
-            Continue to Payment
-          </button>
 
-          {/* Validation Errors Display */}
-          {Object.keys(errors).length > 0 && (
-            <div className="mt-4 p-4 bg-red-100 border-2 border-red-500 rounded">
-              <p className="font-bold text-lg text-red-700 mb-2">Please fix the following errors:</p>
-              <ul className="text-red-600 font-semibold text-base">
-                {errors.name && <li>• {errors.name}</li>}
-                {errors.phone && <li>• {errors.phone}</li>}
-                {errors.email && <li>• {errors.email}</li>}
-                {errors.country && <li>• {errors.country}</li>}
-                {errors.city && <li>• {errors.city}</li>}
-                {errors.date && <li>• {errors.date}</li>}
-                {errors.hour && <li>• {errors.hour}</li>}
-                {errors.cart && <li>• {errors.cart}</li>}
-              </ul>
-            </div>
+              {loadingServices &&
+                [0, 1, 2, 3, 4].map((i) => <div className="fr-skel" key={i} />)}
+
+              {visibleServices.map((s) => {
+                const item = cart[s._id];
+                return (
+                  <div
+                    key={s._id}
+                    className={`fr-service ${item ? 'is-selected' : ''}`}
+                  >
+                    <div className="fr-service-info">
+                      <h3 className="fr-service-title">{s.title}</h3>
+                      {s.duration ? (
+                        <p className="fr-service-meta">
+                          {s.duration} {t.mins}
+                        </p>
+                      ) : null}
+                      {s.description ? (
+                        <p className="fr-service-desc">{s.description}</p>
+                      ) : null}
+                      <div className="fr-service-price">
+                        {money(Number(s.price) * priceFactor)}
+                      </div>
+                    </div>
+
+                    {item ? (
+                      <div className="fr-qty">
+                        <button onClick={() => changeQty(s._id, -1)} aria-label="minus">
+                          −
+                        </button>
+                        <span>{item.qty}</span>
+                        <button onClick={() => changeQty(s._id, 1)} aria-label="plus">
+                          +
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        className="fr-book-btn"
+                        onClick={() => toggleService(s)}
+                      >
+                        {t.book}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+
+              {errors.cart && <p className="fr-error">{errors.cart}</p>}
+            </>
           )}
+
+          {/* ----------------------------------------------------- 2. time */}
+          {step === 2 && (
+            <>
+              <div className="fr-fields">
+                <div className="fr-field">
+                  <label htmlFor="fr-country">{t.country}</label>
+                  <select
+                    id="fr-country"
+                    className="fr-input"
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                  >
+                    <option value="">{t.chooseCountry}</option>
+                    {countries.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="fr-field">
+                  <label htmlFor="fr-city">{t.city}</label>
+                  <select
+                    id="fr-city"
+                    className="fr-input"
+                    value={city}
+                    disabled={!country}
+                    onChange={(e) => setCity(e.target.value)}
+                  >
+                    <option value="">{t.chooseCity}</option>
+                    {cities.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {city && Object.keys(slotsByDate).length === 0 && (
+                <p className="fr-error">{t.noDates}</p>
+              )}
+
+              {city && Object.keys(slotsByDate).length > 0 && (
+                <>
+                  <h2 className="fr-h2">{t.selectTime}</h2>
+                  <MiniCalendar
+                    lang={lang}
+                    month={month}
+                    onMonthChange={setMonth}
+                    value={date}
+                    onChange={setDate}
+                    isEnabled={(iso, d) => {
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      return d >= today && (slotsByDate[iso] || []).length > 0;
+                    }}
+                  />
+
+                  {date && (
+                    <>
+                      <h2 className="fr-h2">{prettyDate(date, lang)}</h2>
+                      {(slotsByDate[date] || []).length === 0 ? (
+                        <p className="fr-error">{t.noSlots}</p>
+                      ) : (
+                        <div className="fr-slots">
+                          {slotsByDate[date].map((h) => (
+                            <button
+                              key={h}
+                              className={`fr-slot ${hour === h ? 'is-on' : ''}`}
+                              onClick={() => setHour(h)}
+                            >
+                              {h}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+            </>
+          )}
+
+          {/* -------------------------------------------------- 3. confirm */}
+          {step === 3 && (
+            <>
+              <h2 className="fr-h2" style={{ marginTop: 0 }}>
+                {t.yourDetails}
+              </h2>
+
+              <div className="fr-fields">
+                <div className="fr-field">
+                  <label htmlFor="fr-name">{t.name}</label>
+                  <input
+                    id="fr-name"
+                    className={`fr-input ${errors.name ? 'has-error' : ''}`}
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  />
+                  {errors.name && <p className="fr-error">{errors.name}</p>}
+                </div>
+
+                <div className="fr-field">
+                  <label htmlFor="fr-phone">{t.phone}</label>
+                  <input
+                    id="fr-phone"
+                    inputMode="tel"
+                    className={`fr-input ${errors.phone ? 'has-error' : ''}`}
+                    value={form.phone}
+                    onChange={(e) =>
+                      setForm({ ...form, phone: e.target.value.replace(/[^\d+ ]/g, '') })
+                    }
+                  />
+                  {errors.phone && <p className="fr-error">{errors.phone}</p>}
+                </div>
+              </div>
+
+              <div className="fr-field" style={{ marginTop: 12 }}>
+                <label htmlFor="fr-email">{t.email}</label>
+                <input
+                  id="fr-email"
+                  type="email"
+                  inputMode="email"
+                  className={`fr-input ${errors.email ? 'has-error' : ''}`}
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                />
+                {errors.email ? (
+                  <p className="fr-error">{errors.email}</p>
+                ) : (
+                  <p className="fr-summary-note">{t.emailNote}</p>
+                )}
+              </div>
+
+              <div className="fr-field" style={{ marginTop: 12 }}>
+                <label htmlFor="fr-notes">{t.notes}</label>
+                <textarea
+                  id="fr-notes"
+                  className="fr-input"
+                  placeholder={t.notesPh}
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                />
+              </div>
+
+              {errors.submit && <p className="fr-error">{errors.submit}</p>}
+            </>
+          )}
+        </main>
+
+        {summary}
+      </div>
+
+      {/* --------------------------------------------- mobile sticky footer */}
+      <div className="fr-bottombar">
+        <div className="fr-bottombar-info">
+          <div className="fr-bottombar-total">{money(total)}</div>
+          <div className="fr-bottombar-count">
+            {cartItems.length === 0
+              ? t.emptyCart
+              : `${t.serviceCount(cartItems.length)}${
+                  date && hour ? ` · ${date} ${hour}` : ''
+                }`}
+          </div>
         </div>
-      )}
+
+        {step < 3 ? (
+          <button
+            className="fr-cta"
+            disabled={!canContinue()}
+            onClick={() => goTo(step + 1)}
+          >
+            {t.continue}
+          </button>
+        ) : (
+          <button className="fr-cta" disabled={submitting} onClick={handleConfirm}>
+            {submitting ? t.sending : t.confirmBook}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

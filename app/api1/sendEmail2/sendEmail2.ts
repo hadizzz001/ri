@@ -58,7 +58,7 @@ Delivery fee: $${delivery}
 
   await resend.emails.send({
     from: "info@hammoudstores.com",
-    // to: "alihadimedlej001@gmail.com",
+    // to: "rafidahamhair@gmail.com",
     to: "abbashammoud11021985@gmail.com",
     subject: "New Order from Website",
     text: message,

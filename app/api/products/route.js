@@ -9,7 +9,11 @@ export async function GET() {
     const db = client.db('test'); // Replace with your database name
     const collection = db.collection('Product'); // Replace with your collection name
 
-    const data = await collection.find({}).toArray(); // Fetch all documents
+    // Services are ordered by category then by their position inside the category
+    const data = await collection
+      .find({})
+      .sort({ catOrder: 1, order: 1 })
+      .toArray();
 
     return NextResponse.json(data); // Return data as JSON
   } catch (error) {

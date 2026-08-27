@@ -1298,6 +1298,11 @@
   font-family: 'SinkinSans-Light', sans-serif !important;
 }
 
+/* ===== Product page: brand row emphasis ===== */
+.rd-brand-heavy {
+  font-weight: 600 !important;
+}
+
 /* ===== Fullscreen menu: identical pattern treatment to the body ===== */
 .menu-pattern-bg {
   background-image: url('https://res.cloudinary.com/dtjcqfoxc/image/upload/v1753086923/backzzz_ykjcd6.webp');

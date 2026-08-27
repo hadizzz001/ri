@@ -489,7 +489,7 @@ Size: ${selectedSize || "N/A"}
                           style={{ margin: "0 0 0 3px" }}
                         />
                       </h4>
-                      <p className="mb-2 myGray" style={{ fontWeight: 900 }}>Brand: {fact}</p>
+                      <p className="mb-2 myGray rd-brand-heavy">Brand: {fact}</p>
                       <p className="mb-2 myGray">Category: {cat}</p>
                     </span>
 

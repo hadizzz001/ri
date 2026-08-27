@@ -758,7 +758,8 @@
   .fr-shell {
     grid-template-columns: minmax(0, 1fr);
     gap: 24px;
-    padding-bottom: 120px;
+    /* clears the taller sticky bar + the floating action buttons */
+    padding-bottom: 200px;
   }
   .fr-h1 {
     font-size: 27px;
@@ -779,10 +780,13 @@
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 40;
+    /* must clear the floating WhatsApp / appointment buttons (z-index 1000) */
+    z-index: 1100;
     background: #fff;
     border-top: 1px solid var(--fr-line);
-    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    padding: 12px 16px;
+    /* the floating buttons sit at bottom:5px and are ~45px tall */
+    padding-bottom: calc(62px + env(safe-area-inset-bottom));
     box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.07);
   }
   .fr-bottombar-info {

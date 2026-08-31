@@ -37,12 +37,17 @@
    border-color: transparent !important;
  }
 
+ html {
+   overflow-x: hidden;
+ }
+
  body {
    background-image: url('https://res.cloudinary.com/dtjcqfoxc/image/upload/v1753086923/backzzz_ykjcd6.webp');
    background-repeat: repeat;
    background-size: contain;
    background-attachment: initial;
    color: #100501 !important;
+   max-width: 100%;
  }
 
  body.home-page {
@@ -63,6 +68,59 @@
 
 
  /* START: General styles */
+ /* Global page container: applied to every page via layout.tsx.
+    Use the .full-bleed class on banner/hero sections to break out of it. */
+ body > .site-container,
+ .site-container {
+   width: 100%;
+   max-width: 1200px;
+   margin-left: auto;
+   margin-right: auto;
+   padding-left: 1rem;
+   padding-right: 1rem;
+   padding-top: calc(var(--header-h, 96px) * 0.35 + 2.5rem);
+   /* breathing room before the footer (home page is excluded from this container) */
+   padding-bottom: 5rem;
+   box-sizing: border-box;
+ }
+
+ @media (min-width: 768px) {
+   body > .site-container,
+   .site-container {
+     padding-left: 2rem;
+     padding-right: 2rem;
+     padding-top: calc(var(--header-h, 96px) * 0.35 + 3.5rem);
+     padding-bottom: 7rem;
+   }
+ }
+
+ /* Anchor links / scrollIntoView must not land under the sticky header */
+ html {
+   scroll-padding-top: calc(var(--header-h, 96px) + 1rem);
+ }
+
+ /* Nothing inside the container may overflow it */
+ .site-container img,
+ .site-container video,
+ .site-container iframe {
+   max-width: 100%;
+ }
+
+ /* only auto-height images that aren't explicitly sized/cropped */
+ .site-container img:not([class*="h-"]):not([class*="object-"]),
+ .site-container video:not([class*="h-"]):not([class*="object-"]),
+ .site-container iframe:not([class*="h-"]) {
+   height: auto;
+ }
+
+ /* Opt-out: makes banners / hero sections span the full viewport width */
+ .full-bleed {
+   width: 100vw;
+   max-width: 100vw;
+   margin-left: calc(50% - 50vw);
+   margin-right: calc(50% - 50vw);
+ }
+
  .max-width {
    @apply max-w-[1440px] mx-auto;
  }
@@ -1305,10 +1363,62 @@
 
 /* ===== Fullscreen menu: identical pattern treatment to the body ===== */
 .menu-pattern-bg {
+  position: relative;
+  isolation: isolate;
+  background-color: #fff;
+}
+
+.menu-pattern-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  /* identical treatment to <body> so tiles line up and are never cropped */
   background-image: url('https://res.cloudinary.com/dtjcqfoxc/image/upload/v1753086923/backzzz_ykjcd6.webp');
   background-repeat: repeat;
   background-size: contain;
+  background-position: left top;
   background-attachment: initial;
+  will-change: opacity;
+  animation: menuBgBreathe 4.5s ease-in-out infinite;
+}
+
+@media (max-width: 768px) {
+  .menu-pattern-bg::before {
+    background-repeat: initial;
+  }
+}
+
+/* continuous, minimal opacity breathing */
+@keyframes menuBgBreathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.menu-fade-in {
+  animation: menuFadeIn 350ms ease-out both;
+}
+
+@keyframes menuFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-pattern-bg::before,
+  .menu-fade-in {
+    animation: none;
+    opacity: 1;
+  }
 }
 
 /* ===== Shop Page Custom Classes ===== */

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Cart from "../components1/Cart"
 import { useBooleanValue } from '../app/context/CartBoolContext';
 import { useCart } from '../app/context/CartContext';
@@ -16,6 +16,29 @@ export default function NavBar() {
   const [cartOpen, setCartOpen] = useState(false);
   const { cart } = useCart();
   const { isBooleanValue, setBooleanValue } = useBooleanValue();
+  const headerRef = useRef<HTMLElement | null>(null);
+
+  // Expose the real header height as --header-h so every page can offset itself
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+
+    const setVar = () => {
+      document.documentElement.style.setProperty(
+        '--header-h',
+        `${Math.round(el.getBoundingClientRect().height)}px`
+      );
+    };
+
+    setVar();
+    const ro = new ResizeObserver(setVar);
+    ro.observe(el);
+    window.addEventListener('resize', setVar);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', setVar);
+    };
+  }, []);
 
 
 
@@ -47,6 +70,7 @@ export default function NavBar() {
       <Cart />
 
       <header
+        ref={headerRef}
         className="w-full sticky top-0 z-50"
         style={{
           background: '#fff',
@@ -110,7 +134,7 @@ export default function NavBar() {
 
         {/* Fullscreen Menu */}
         {menuOpen && (
-          <div className="fixed inset-0 menu-pattern-bg text-black flex flex-col items-center justify-center z-50">
+          <div className="fixed inset-0 menu-pattern-bg menu-fade-in text-black flex flex-col items-center justify-center z-50">
             <button
               onClick={() => setMenuOpen(false)}
               className="absolute top-4 right-4"

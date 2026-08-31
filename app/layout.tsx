@@ -13,12 +13,16 @@ import BodyStyleController from '../components/BodyStyleController';
 import { CartProvider } from './context/CartContext';
 import { BooleanProvider } from './context/CartBoolContext';
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function RootLayout({
   children
 }: {
   children: React.ReactNode
 }) {
+
+  const pathname = usePathname();
+  const isHome = pathname === '/';
 
   useEffect(() => {
     const handleContextMenu = (e: MouseEvent) => {
@@ -126,7 +130,7 @@ export default function RootLayout({
             <Navbar2 />
             <WhatsAppIcon />
             <Appoint />
-            {children}
+            {isHome ? children : <main className="site-container">{children}</main>}
             <Footer />
           </BooleanProvider>
         </CartProvider>

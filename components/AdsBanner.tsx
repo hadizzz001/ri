@@ -121,6 +121,13 @@ const AdsBanner = () => {
 
       <div className="adsBanner__dots" />
 
+      {/* Shop Now */}
+      <div className="adsBanner__cta">
+        <a href="/shop" className="myNewButtonHadiz">
+          Shop Now
+        </a>
+      </div>
+
       <style
         dangerouslySetInnerHTML={{
           __html: `
@@ -149,6 +156,8 @@ const AdsBanner = () => {
 .adsBanner__dots{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px}
 .adsBanner__dots .swiper-pagination-bullet{width:26px;height:3px;border-radius:2px;background:#c9c9c9;opacity:1;margin:0 !important;transition:width .35s ease,background .35s ease}
 .adsBanner__dots .swiper-pagination-bullet-active{width:52px;background:#100501}
+.adsBanner__cta{display:flex;justify-content:center;margin-top:18px}
+@media (min-width:768px){.adsBanner__cta{margin-top:24px}}
 `,
         }}
       />

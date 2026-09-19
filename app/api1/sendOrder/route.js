@@ -1,12 +1,17 @@
 import clientPromise from '../../lib/mongodb'; // Adjust path as needed
 import { NextResponse } from 'next/server';
+import { getCurrentUser } from '../../lib/auth';
 
-export const revalidate = 10;
+export const dynamic = 'force-dynamic';
 
 export async function POST(request) {
     try {
         const body = await request.json();
         const { inputs, items, total, delivery, code } = body;
+
+        // Stamp the order with the signed-in shopper (if any) so it shows in their history
+        let user = null;
+        try { user = await getCurrentUser(); } catch { user = null; }
 
         const client = await clientPromise;
         const db = client.db('test'); // Replace with your database name
@@ -29,6 +34,9 @@ export async function POST(request) {
             delivery: delivery + "",
             code: code,
             date: formattedDate,
+            createdAt: currentDate,
+            userId: user?._id || null,
+            userEmail: (user?.email || inputs?.email || '').trim().toLowerCase() || null,
         });
 
         return NextResponse.json({ success: true, insertedId: result.insertedId, oid: nextOid });

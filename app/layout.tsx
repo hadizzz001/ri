@@ -6,12 +6,14 @@ import './custom.css'
 import './bootstrap.min.css'
 import './bs-select.css'
 import './slick.css' 
+import './shop.css'
 import GifLoader from '../components/GifLoader'
 import WhatsAppIcon from '../components/WhatsAppIcon';
 import Appoint from '../components/Appoint';
 import BodyStyleController from '../components/BodyStyleController';
 import { CartProvider } from './context/CartContext';
 import { BooleanProvider } from './context/CartBoolContext';
+import { AuthProvider } from './context/AuthContext';
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
@@ -125,6 +127,7 @@ export default function RootLayout({
       <body>
         <GifLoader />
         <BodyStyleController /> 
+        <AuthProvider>
         <CartProvider>
           <BooleanProvider>
             <Navbar2 />
@@ -134,6 +137,7 @@ export default function RootLayout({
             <Footer />
           </BooleanProvider>
         </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   )

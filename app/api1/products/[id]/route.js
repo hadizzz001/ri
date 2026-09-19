@@ -1,6 +1,7 @@
 import clientPromise from '../../../lib/mongodb'; // Adjust path as needed
 import { NextResponse } from 'next/server';
 import { ObjectId } from 'mongodb'; // Import ObjectId for converting id strings
+import { attachRatings } from '../../../lib/ratings';
 
 
 export const revalidate = 10;
@@ -8,7 +9,6 @@ export const revalidate = 10;
 
 export async function GET(request, { params }) {
   const { id } = params;  
-  console.log("id: ", id);
   
   try {
     const client = await clientPromise; // Connect to MongoDB
@@ -17,6 +17,7 @@ export async function GET(request, { params }) {
 
     // Convert id to ObjectId and query the document
     const data = await collection.find({ _id: new ObjectId(id) }).toArray(); 
+    await attachRatings(db, data);
     
 
     return NextResponse.json(data); // Return data as JSON

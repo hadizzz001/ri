@@ -1,16 +1,7 @@
-"use client"
+"use client";
 
- 
+import Checkout from "../../components1/shop/Checkout";
 
-const page = () => {
-
-  
-
-
-  return (
-<></>
-
-  )
+export default function CheckoutPage() {
+  return <Checkout />;
 }
-
-export default page

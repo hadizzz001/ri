@@ -18,10 +18,10 @@ const MyCarousel = () => {
     : "https://res.cloudinary.com/dgi9mfldc/video/upload/v1756649976/Comp_1_3_mypzbm.mp4";
 
   return (
-    <div className="px-4 md:px-8 mt-20">
-      {/* Banner Wrapper */}
+    <div className="w-full">
+      {/* Banner Wrapper — edge to edge */}
       <div
-        className="relative w-full h-screen overflow-hidden rounded-md"
+        className="relative w-full h-screen overflow-hidden"
         style={{ backgroundColor: "black" }}
       >
         {/* Background Video */}

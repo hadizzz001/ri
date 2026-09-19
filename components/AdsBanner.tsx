@@ -131,9 +131,9 @@ const AdsBanner = () => {
       <style
         dangerouslySetInnerHTML={{
           __html: `
-.adsBanner{position:relative;margin:28px auto 10px;padding:0 16px;max-width:1600px}
-@media (min-width:768px){.adsBanner{padding:0 32px;margin:40px auto 16px}}
-.adsBanner__swiper{border-radius:10px;overflow:hidden;background:#0b0b0b;box-shadow:0 24px 45px -30px rgba(0,0,0,.75)}
+.adsBanner{position:relative;margin:28px auto 10px;padding:0;max-width:none;width:100%}
+@media (min-width:768px){.adsBanner{padding:0;margin:40px auto 16px}}
+.adsBanner__swiper{border-radius:0;overflow:hidden;background:#0b0b0b}
 .adsBanner__slide{overflow:hidden;background:#0b0b0b}
 .adsBanner__link{position:relative;display:block;width:100%;height:42vw;max-height:520px;min-height:190px;overflow:hidden}
 @media (min-width:1024px){.adsBanner__link{height:30vw}}

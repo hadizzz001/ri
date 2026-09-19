@@ -74,11 +74,14 @@
  .site-container {
    width: 100%;
    max-width: 1200px;
+   /* the sticky header is in normal flow, so the page must NOT be pulled up under it —
+      this cancels the `main { margin-top: -5em }` rule further down (kept for the home hero) */
+   margin-top: 0 !important;
    margin-left: auto;
    margin-right: auto;
    padding-left: 1rem;
    padding-right: 1rem;
-   padding-top: calc(var(--header-h, 96px) * 0.35 + 2.5rem);
+   padding-top: 1.25rem;
    /* breathing room before the footer (home page is excluded from this container) */
    padding-bottom: 5rem;
    box-sizing: border-box;
@@ -89,7 +92,7 @@
    .site-container {
      padding-left: 2rem;
      padding-right: 2rem;
-     padding-top: calc(var(--header-h, 96px) * 0.35 + 3.5rem);
+     padding-top: 2rem;
      padding-bottom: 7rem;
    }
  }

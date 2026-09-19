@@ -1,5 +1,6 @@
 import clientPromise from '../../../lib/mongodb'; // Adjust path as needed
 import { NextResponse } from 'next/server';
+import { attachRatings } from '../../../lib/ratings';
 
 export const revalidate = 10;
 export const dynamic = 'force-dynamic';
@@ -18,6 +19,7 @@ export async function GET(request, { params }) {
         { category: { $ne: 'Pool Trays' } }
       ]
     }).toArray();
+    await attachRatings(db, data);
 
     return NextResponse.json(data);
   } catch (error) {

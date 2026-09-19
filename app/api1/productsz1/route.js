@@ -1,7 +1,8 @@
 import clientPromise from "../../lib/mongodb";
 import { NextResponse } from "next/server";
+import { attachRatings } from "../../lib/ratings";
 
-export const revalidate = 10;
+export const dynamic = "force-dynamic";
 
 // Handle preflight (CORS)
 export async function OPTIONS() {
@@ -15,6 +16,17 @@ export async function OPTIONS() {
   });
 }
 
+const SORTS = {
+  featured: { sort: 1, _id: 1 },
+  "best-selling": { orders: -1, _id: 1 },
+  "title-asc": { titleLower: 1 },
+  "title-desc": { titleLower: -1 },
+  "price-asc": { priceNum: 1, _id: 1 },
+  "price-desc": { priceNum: -1, _id: 1 },
+  newest: { _id: -1 },
+  oldest: { _id: 1 },
+};
+
 export async function GET(req) {
   try {
     const client = await clientPromise;
@@ -23,27 +35,22 @@ export async function GET(req) {
 
     const { searchParams } = new URL(req.url);
 
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
+    const limit = Math.min(1000, Math.max(1, parseInt(searchParams.get("limit") || "10")));
     const skip = (page - 1) * limit;
 
-    // ✅ Multi-value support
     const rawSearch = searchParams.get("q");
-    const rawCats = searchParams.getAll("cat");  // ✅ multiple categories
-    const rawSubs = searchParams.getAll("sub");  // ✅ multiple subcategories
-    const rawBrnds = searchParams.getAll("brnd"); // ✅ multiple brands
-    const rawSizes = searchParams.getAll("size");
+    const cats = searchParams.getAll("cat").map((c) => c.trimEnd()).filter(Boolean);
+    const subs = searchParams.getAll("sub").map((c) => c.trimEnd()).filter(Boolean);
+    const brnds = searchParams.getAll("brnd").map((c) => c.trimEnd()).filter(Boolean);
+    const sizes = searchParams.getAll("size").map((s) => s.trim()).filter(Boolean);
+    const sortKey = searchParams.get("sort") || "featured";
+    const minPrice = parseFloat(searchParams.get("minPrice"));
+    const maxPrice = parseFloat(searchParams.get("maxPrice"));
+    const inStock = searchParams.get("inStock") === "1";
+    const onSale = searchParams.get("onSale") === "1";
 
     const search = rawSearch?.trim();
-const cats = rawCats.map(c => c.trimEnd()).filter(Boolean);
-const subs = rawSubs.map(c => c.trimEnd()).filter(Boolean);
-const brnds = rawBrnds.map(c => c.trimEnd()).filter(Boolean);
-
-    const sizes = rawSizes.map((s) => s.trim());
-
-    console.log("🔎 RAW:", { rawCats, rawSubs, rawBrnds });
-    console.log("✂️ TRIMMED:", { cats, subs, brnds });
-
     const query = {};
 
     // 🔍 Fuzzy search
@@ -65,61 +72,100 @@ const brnds = rawBrnds.map(c => c.trimEnd()).filter(Boolean);
       }
     }
 
-    // ✅ MULTIPLE CATEGORY FILTER
-// ✅ MULTIPLE CATEGORY FILTER (trim DB value)
-if (cats.length > 0) {
-  if (cats.includes("yes")) query.arrival = "yes";
+    // Category / sub / brand filters (trimmed DB values)
+    const exprAnd = [];
+    if (cats.length > 0) {
+      if (cats.includes("yes")) query.arrival = "yes";
+      const filteredCats = cats.filter((c) => c !== "yes");
+      if (filteredCats.length > 0) exprAnd.push({ $in: [{ $trim: { input: "$category" } }, filteredCats] });
+    }
+    if (subs.length > 0) exprAnd.push({ $in: [{ $trim: { input: "$sub" } }, subs] });
+    if (brnds.length > 0) exprAnd.push({ $in: [{ $trim: { input: "$factory" } }, brnds] });
+    if (exprAnd.length === 1) query.$expr = exprAnd[0];
+    else if (exprAnd.length > 1) query.$expr = { $and: exprAnd };
 
-  const filteredCats = cats.filter((c) => c !== "yes");
+    if (sizes.length > 0) query["color.sizes.size"] = { $in: sizes };
 
-  if (filteredCats.length > 0) {
-    query.$expr = {
-      ...(query.$expr || {}),
-      $in: [
-        { $trim: { input: "$category" } },
-        filteredCats,
-      ],
+    // Derived numeric fields used for price filtering / sorting
+    const toNum = (field) => ({
+      $convert: {
+        input: { $trim: { input: { $toString: { $ifNull: [field, "0"] } } } },
+        to: "double",
+        onError: 0,
+        onNull: 0,
+      },
+    });
+
+    const addFields = {
+      $addFields: {
+        priceOrig: toNum("$price"),
+        priceDisc: toNum("$discount"),
+        titleLower: { $toLower: { $ifNull: ["$title", ""] } },
+      },
     };
-  }
-}
+    // Effective selling price: discount when > 0, otherwise price
+    const addEffective = {
+      $addFields: {
+        priceNum: { $cond: [{ $gt: ["$priceDisc", 0] }, "$priceDisc", "$priceOrig"] },
+        isSale: { $and: [{ $gt: ["$priceDisc", 0] }, { $gt: ["$priceOrig", "$priceDisc"] }] },
+        stockNum: toNum("$stock"),
+        colorQty: {
+          $sum: {
+            $map: {
+              input: { $ifNull: ["$color", []] },
+              as: "c",
+              in: {
+                $add: [
+                  toNum("$$c.qty"),
+                  { $sum: { $map: { input: { $ifNull: ["$$c.sizes", []] }, as: "s", in: toNum("$$s.qty") } } },
+                ],
+              },
+            },
+          },
+        },
+      },
+    };
 
-
-if (subs.length > 0) {
-  query.$expr = {
-    ...(query.$expr || {}),
-    $in: [
-      { $trim: { input: "$sub" } },
-      subs,
-    ],
-  };
-}
-
-
-if (brnds.length > 0) {
-  query.$expr = {
-    ...(query.$expr || {}),
-    $in: [
-      { $trim: { input: "$factory" } },
-      brnds,
-    ],
-  };
-}
-
-
-    // ✅ MULTIPLE SIZE FILTER
-    if (sizes.length > 0) {
-      query["color.sizes.size"] = { $in: sizes };
+    const post = {};
+    if (!Number.isNaN(minPrice)) post.priceNum = { ...(post.priceNum || {}), $gte: minPrice };
+    if (!Number.isNaN(maxPrice)) post.priceNum = { ...(post.priceNum || {}), $lte: maxPrice };
+    if (onSale) post.isSale = true;
+    if (inStock) {
+      post.$or = [
+        { type: "single", stockNum: { $gt: 0 } },
+        { type: "collection", colorQty: { $gt: 0 } },
+        { type: { $nin: ["single", "collection"] } },
+      ];
     }
 
-    console.log("📝 QUERY:", query);
+    const basePipeline = [{ $match: query }, addFields, addEffective];
+    if (Object.keys(post).length) basePipeline.push({ $match: post });
 
-    const total = await collection.countDocuments(query);
+    const sort = SORTS[sortKey] || SORTS.featured;
+
+    const [countRow] = await collection.aggregate([...basePipeline, { $count: "n" }]).toArray();
+    const total = countRow?.n || 0;
 
     const data = await collection
-      .find(query)
-      .sort({ sort: 1, _id: 1 })
-      .skip(skip)
-      .limit(limit)
+      .aggregate([
+        ...basePipeline,
+        { $sort: sort },
+        { $skip: skip },
+        { $limit: limit },
+        { $project: { priceOrig: 0, priceDisc: 0, titleLower: 0, stockNum: 0, colorQty: 0 } },
+      ])
+      .toArray();
+
+    await attachRatings(db, data);
+
+    // Price bounds for the whole filtered catalogue (used by the price slider)
+    const [bounds] = await collection
+      .aggregate([
+        { $match: query },
+        addFields,
+        addEffective,
+        { $group: { _id: null, min: { $min: "$priceNum" }, max: { $max: "$priceNum" } } },
+      ])
       .toArray();
 
     return new NextResponse(
@@ -128,27 +174,19 @@ if (brnds.length > 0) {
         totalPages: Math.ceil(total / limit),
         totalItems: total,
         hasMore: page * limit < total,
+        priceRange: { min: Math.floor(bounds?.min || 0), max: Math.ceil(bounds?.max || 0) },
         products: data,
       }),
       {
         status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
       }
     );
   } catch (error) {
     console.error("❌ MongoDB error:", error);
-    return new NextResponse(
-      JSON.stringify({ error: "Failed to fetch data" }),
-      {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      }
-    );
+    return new NextResponse(JSON.stringify({ error: "Failed to fetch data" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+    });
   }
 }

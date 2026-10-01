@@ -5,16 +5,7 @@ import { useCart } from "../../app/context/CartContext";
 import { useBooleanValue } from "../../app/context/CartBoolContext";
 import Stars from "./Stars";
 import FavButton from "./FavButton";
-
-/** Normalised pricing for a product doc (price = original, discount = selling price). */
-export function getPricing(p) {
-  const orig = parseFloat(String(p?.price ?? "0")) || 0;
-  const disc = parseFloat(String(p?.discount ?? "0")) || 0;
-  const now = disc > 0 ? disc : orig;
-  const isSale = disc > 0 && orig > disc;
-  const pct = isSale ? Math.round(((orig - disc) / orig) * 100) : 0;
-  return { now, was: isSale ? orig : null, isSale, pct };
-}
+import { getPricing, productPath } from "./productInfo";
 
 const qty = (v) => parseInt(String(v ?? "0"), 10) || 0;
 
@@ -51,7 +42,7 @@ export default function ProductCard({ product }) {
   const { _id, title, img = [], factory, arrival, rating } = product;
   const { now, was, isSale, pct } = getPricing(product);
   const soldOut = isOutOfStock(product);
-  const href = `/product?id=${_id}&imgg=${encodeURIComponent(img[0] || "")}`;
+  const href = productPath(product);
   const main = img[0];
   const alt = img[1];
   const optimise = (u) => (u ? u.replace("/upload/", "/upload/f_auto,q_auto,w_600/") : u);

@@ -81,7 +81,7 @@ const Page = () => {
 
       <div className="flex justify-center">
         <button
-          className="px-6 py-2 bg-[#cab8ac] text-[#100501]"
+          className="rd-btn rd-btn--auto"
           onClick={() => window.location.href = whatsappLink}
         >
           Contact Us

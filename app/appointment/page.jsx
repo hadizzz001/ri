@@ -5,7 +5,7 @@
  *
  *  Step 1 — Services   (categories + service list + live cart)
  *  Step 2 — Time       (country / city, calendar, time slots)
- *  Step 3 — Confirm    (contact details, notes, language)
+ *  Step 3 — Confirm    (salon or home service, contact details, notes)
  *
  * On confirm: the booking is stored in MongoDB, a confirmation email is sent
  * with Resend (plus reminder emails 2 & 1 day before via /api/booking/reminders)
@@ -14,6 +14,8 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import './appointment.css';
+import { bookingText, buildBookingText, priceLines } from '../lib/bookingMessage';
+import { SERVICE_TYPES, bookingTotals, homeFactor, locationFactor } from '../lib/bookingPrice';
 
 /* --------------------------------------------------------------------- i18n */
 
@@ -37,6 +39,10 @@ const STRINGS = {
     chooseCity: 'Choose a city',
     noDates: 'No dates available for this location yet.',
     noSlots: 'No free times on this day — please choose another date.',
+    serviceTypeTitle: 'Salon or home service?',
+    serviceTypeHints: { salon: 'Visit us at the salon', home: 'We come to your place' },
+    samePrice: 'Standard price',
+    doublePrice: '×2 price',
     yourDetails: 'Your details',
     name: 'Full name',
     phone: 'Phone number',
@@ -57,6 +63,7 @@ const STRINGS = {
     errEmail: 'Please enter a valid email address',
     errPhone: 'Please enter a valid phone number',
     errCart: 'Please select at least one service',
+    errServiceType: 'Please choose salon or home service',
     doneTitle: 'Appointment requested!',
     doneText:
       'We have emailed your confirmation. WhatsApp is opening so you can finalise the details with us.',
@@ -65,7 +72,6 @@ const STRINGS = {
     time: 'Time',
     location: 'Location',
     newBooking: 'Book another appointment',
-    langBtn: 'العربية',
     reminderNote: 'You will get a reminder email 2 days and 1 day before.',
     openWhatsApp: 'Send details on WhatsApp',
     waHint:
@@ -90,6 +96,10 @@ const STRINGS = {
     chooseCity: 'اختر المدينة',
     noDates: 'لا توجد تواريخ متاحة لهذا الموقع حالياً.',
     noSlots: 'لا توجد أوقات متاحة في هذا اليوم — يرجى اختيار تاريخ آخر.',
+    serviceTypeTitle: 'في الصالون أم في المنزل؟',
+    serviceTypeHints: { salon: 'زيارتنا في الصالون', home: 'نأتي إلى منزلك' },
+    samePrice: 'السعر العادي',
+    doublePrice: 'ضعف السعر',
     yourDetails: 'معلوماتك',
     name: 'الاسم الكامل',
     phone: 'رقم الهاتف',
@@ -110,6 +120,7 @@ const STRINGS = {
     errEmail: 'يرجى إدخال بريد إلكتروني صحيح',
     errPhone: 'يرجى إدخال رقم هاتف صحيح',
     errCart: 'يرجى اختيار خدمة واحدة على الأقل',
+    errServiceType: 'يرجى اختيار الخدمة في الصالون أو في المنزل',
     doneTitle: 'تم إرسال طلب الموعد!',
     doneText: 'أرسلنا لك التأكيد عبر البريد. سيتم فتح واتساب لإتمام التفاصيل معنا.',
     ref: 'رقم الحجز',
@@ -117,7 +128,6 @@ const STRINGS = {
     time: 'الوقت',
     location: 'الموقع',
     newBooking: 'حجز موعد آخر',
-    langBtn: 'English',
     reminderNote: 'ستصلك رسالة تذكير قبل يومين وقبل يوم من الموعد.',
     openWhatsApp: 'إرسال التفاصيل عبر واتساب',
     waHint:
@@ -126,6 +136,55 @@ const STRINGS = {
 };
 
 const WHATSAPP_NUMBER = '96178808100';
+const LOGO = 'https://res.cloudinary.com/dtjcqfoxc/image/upload/v1751030325/black_bgez4v.webp';
+
+/* ------------------------------------------------------------------ icons */
+
+const Chevron = ({ dir = 'left' }) => (
+  <svg className="fr-ico" viewBox="0 0 24 24" aria-hidden="true">
+    <path d={dir === 'left' ? 'M15 5l-7 7 7 7' : 'M9 5l7 7-7 7'} />
+  </svg>
+);
+
+const Plus = () => (
+  <svg className="fr-ico" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 5v14M5 12h14" />
+  </svg>
+);
+
+/* ------------------------------------------------------ language switch */
+
+function LangSwitch({ lang, onChange }) {
+  return (
+    // Kept LTR in both languages so the sliding thumb never mirrors.
+    <div className="fr-lang" dir="ltr" role="group" aria-label="Language / اللغة">
+      <svg className="fr-lang-globe" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M3 12h18M12 3c2.4 2.6 3.6 5.6 3.6 9s-1.2 6.4-3.6 9c-2.4-2.6-3.6-5.6-3.6-9S9.6 5.6 12 3z" />
+      </svg>
+      <div className={`fr-lang-track ${lang === 'ar' ? 'is-ar' : ''}`}>
+        <span className="fr-lang-thumb" aria-hidden="true" />
+        <button
+          type="button"
+          className={lang === 'en' ? 'is-on' : ''}
+          aria-pressed={lang === 'en'}
+          onClick={() => onChange('en')}
+        >
+          EN
+        </button>
+        <button
+          type="button"
+          lang="ar"
+          className={lang === 'ar' ? 'is-on' : ''}
+          aria-pressed={lang === 'ar'}
+          onClick={() => onChange('ar')}
+        >
+          عربي
+        </button>
+      </div>
+    </div>
+  );
+}
 
 /* ---------------------------------------------------------------- helpers */
 
@@ -189,7 +248,7 @@ function MiniCalendar({ month, onMonthChange, value, onChange, isEnabled, lang }
               onMonthChange(new Date(month.getFullYear(), month.getMonth() - 1, 1))
             }
           >
-            ‹
+            <Chevron dir="left" />
           </button>
           <button
             type="button"
@@ -198,7 +257,7 @@ function MiniCalendar({ month, onMonthChange, value, onChange, isEnabled, lang }
               onMonthChange(new Date(month.getFullYear(), month.getMonth() + 1, 1))
             }
           >
-            ›
+            <Chevron dir="right" />
           </button>
         </div>
       </div>
@@ -237,6 +296,7 @@ function MiniCalendar({ month, onMonthChange, value, onChange, isEnabled, lang }
 export default function AppointmentPage() {
   const [lang, setLang] = useState('en');
   const t = STRINGS[lang];
+  const m = bookingText(lang);
 
   const [step, setStep] = useState(1);
   const [services, setServices] = useState([]);
@@ -254,6 +314,8 @@ export default function AppointmentPage() {
   });
   const [date, setDate] = useState('');
   const [hour, setHour] = useState('');
+  const [serviceType, setServiceType] = useState(''); // 'salon' | 'home'
+  const [taxPercent, setTaxPercent] = useState(0);
 
   const [form, setForm] = useState({ name: '', phone: '', email: '', notes: '' });
   const [errors, setErrors] = useState({});
@@ -279,6 +341,11 @@ export default function AppointmentPage() {
       .then((r) => r.json())
       .then((json) => setAvailability(Array.isArray(json) ? json : []))
       .catch(() => setAvailability([]));
+
+    fetch('/api/tax')
+      .then((r) => r.json())
+      .then((json) => setTaxPercent(Number(json?.percent) || 0))
+      .catch(() => setTaxPercent(0));
   }, []);
 
   /* ------------------------------------------------------------ derived */
@@ -329,11 +396,13 @@ export default function AppointmentPage() {
   }, [availability, country, city]);
 
   const cartItems = useMemo(() => Object.values(cart), [cart]);
-  const priceFactor = country && country !== 'Lebanon' ? 4 : 1;
-  const total = cartItems.reduce(
-    (a, i) => a + Number(i.price) * priceFactor * i.qty,
-    0
+  const priceFactor = locationFactor(country);
+  const totals = bookingTotals(
+    cartItems.map((i) => ({ price: Number(i.price) * priceFactor, qty: i.qty })),
+    { country, serviceType, taxPercent }
   );
+  const totalLines = priceLines(totals, lang);
+  const homeCostsMore = homeFactor('home', country) > 1;
   const totalDuration = cartItems.reduce(
     (a, i) => a + (Number(i.duration) || 0) * i.qty,
     0
@@ -401,6 +470,7 @@ export default function AppointmentPage() {
 
   const validateDetails = () => {
     const e = {};
+    if (!serviceType) e.serviceType = t.errServiceType;
     if (!form.name.trim()) e.name = t.errRequired;
     if (!form.phone.trim()) e.phone = t.errRequired;
     else if (form.phone.replace(/\D/g, '').length < 6) e.phone = t.errPhone;
@@ -409,53 +479,6 @@ export default function AppointmentPage() {
     if (cartItems.length === 0) e.cart = t.errCart;
     setErrors(e);
     return Object.keys(e).length === 0;
-  };
-
-  const buildWhatsAppMessage = (payload) => {
-    const lines = payload.cart
-      .map(
-        (i) =>
-          `• ${i.title}${i.qty > 1 ? ` x${i.qty}` : ''} — ${money(i.price * i.qty)}`
-      )
-      .join('\n');
-
-    if (lang === 'ar') {
-      return [
-        `طلب موعد جديد — ${payload.reference}`,
-        '',
-        `الاسم: ${payload.name}`,
-        `الهاتف: ${payload.phone}`,
-        `البريد الإلكتروني: ${payload.email}`,
-        `الموقع: ${payload.city}، ${payload.country}`,
-        `التاريخ: ${payload.date}`,
-        `الوقت: ${payload.hour}`,
-        '',
-        'الخدمات:',
-        lines,
-        '',
-        `الإجمالي: ${money(payload.total)}`,
-        `العربون (25%): ${money(payload.deposit)}`,
-        payload.notes ? `\nملاحظات: ${payload.notes}` : '',
-      ].join('\n');
-    }
-
-    return [
-      `New appointment request — ${payload.reference}`,
-      '',
-      `Name: ${payload.name}`,
-      `Phone: ${payload.phone}`,
-      `Email: ${payload.email}`,
-      `Location: ${payload.city}, ${payload.country}`,
-      `Date: ${payload.date}`,
-      `Time: ${payload.hour}`,
-      '',
-      'Services:',
-      lines,
-      '',
-      `Total: ${money(payload.total)}`,
-      `Deposit to confirm (25%): ${money(payload.deposit)}`,
-      payload.notes ? `\nNotes: ${payload.notes}` : '',
-    ].join('\n');
   };
 
   const handleConfirm = async () => {
@@ -472,6 +495,7 @@ export default function AppointmentPage() {
           city,
           date,
           hour,
+          serviceType,
           lang,
           cart: cartItems.map((i) => ({ id: i.id, qty: i.qty })),
         }),
@@ -490,14 +514,19 @@ export default function AppointmentPage() {
         city,
         date,
         hour,
+        serviceType,
         reference: result.reference,
+        subtotal: result.subtotal,
+        homeFee: result.homeFee,
+        taxPercent: result.taxPercent,
+        tax: result.tax,
         total: result.total,
         deposit: result.deposit,
         cart: result.cart,
       };
 
       const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-        buildWhatsAppMessage(payload)
+        buildBookingText(payload, lang)
       )}`;
 
       // Show the confirmation screen first — it always carries a real
@@ -527,6 +556,7 @@ export default function AppointmentPage() {
     setStep(1);
     setDate('');
     setHour('');
+    setServiceType('');
     setForm({ name: '', phone: '', email: '', notes: '' });
     setErrors({});
   };
@@ -537,19 +567,19 @@ export default function AppointmentPage() {
     return (
       <div className="fr-booking" dir={t.dir}>
         <div className="fr-topbar">
-          <div className="fr-brand">{t.brand}</div>
+          <div className="fr-brand">
+            <img className="fr-brand-logo" src={LOGO} alt="" width="30" height="30" />
+            <span>{t.brand}</span>
+          </div>
           <div className="fr-topbar-right">
-            <button
-              className="fr-lang"
-              onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-            >
-              {t.langBtn}
-            </button>
+            <LangSwitch lang={lang} onChange={setLang} />
           </div>
         </div>
 
         <div className="fr-done">
-          <div className="fr-done-icon">✓</div>
+          <div className="fr-done-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+          </div>
           <h2>{t.doneTitle}</h2>
           <p>{t.doneText}</p>
           <p>{t.reminderNote}</p>
@@ -573,6 +603,10 @@ export default function AppointmentPage() {
                 {done.city}, {done.country}
               </span>
             </div>
+            <div className="fr-done-row">
+              <span>{m.serviceType}</span>
+              <span>{m.serviceTypes[done.serviceType]}</span>
+            </div>
             {done.cart.map((i) => (
               <div className="fr-done-row" key={i.id}>
                 <span>
@@ -582,6 +616,12 @@ export default function AppointmentPage() {
                 <span>{money(i.price * i.qty)}</span>
               </div>
             ))}
+            {priceLines(done, lang).map(([label, amount]) => (
+              <div className="fr-done-row" key={label}>
+                <span>{label}</span>
+                <span>{amount}</span>
+              </div>
+            ))}
             <div className="fr-summary-total">
               <span>{t.total}</span>
               <span>{money(done.total)}</span>
@@ -589,7 +629,7 @@ export default function AppointmentPage() {
           </div>
 
           <a
-            className="fr-cta fr-cta--wa"
+            className="rd-btn fr-cta fr-cta--wa"
             href={done.waUrl}
             target="_blank"
             rel="noopener noreferrer"
@@ -601,7 +641,7 @@ export default function AppointmentPage() {
           </a>
           <p className="fr-done-hint">{t.waHint}</p>
 
-          <button className="fr-cta fr-cta--ghost" onClick={resetAll}>
+          <button type="button" className="rd-btn rd-btn--ghost fr-cta" onClick={resetAll}>
             {t.newBooking}
           </button>
         </div>
@@ -615,7 +655,7 @@ export default function AppointmentPage() {
   const summary = (
     <aside className="fr-summary">
       <div className="fr-summary-head">
-        <div className="fr-summary-logo">RD</div>
+        <img className="fr-summary-logo" src={LOGO} alt="Rafi Daham" width="52" height="52" />
         <div>
           <div className="fr-summary-name">{t.brand}</div>
           <div className="fr-summary-addr">{t.address}</div>
@@ -660,9 +700,20 @@ export default function AppointmentPage() {
           ))
         )}
 
+        {totalLines.length > 0 && (
+          <div className="fr-summary-lines">
+            {totalLines.map(([label, amount]) => (
+              <div className="fr-summary-line" key={label}>
+                <span>{label}</span>
+                <span>{amount}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="fr-summary-total">
           <span>{t.total}</span>
-          <span>{money(total)}</span>
+          <span>{money(totals.total)}</span>
         </div>
 
         {cartItems.length > 0 && <div className="fr-summary-note">{t.deposit}</div>}
@@ -670,7 +721,8 @@ export default function AppointmentPage() {
 
         {step < 3 && (
           <button
-            className="fr-cta"
+            type="button"
+            className="rd-btn fr-cta"
             disabled={!canContinue()}
             onClick={() => goTo(step + 1)}
           >
@@ -678,7 +730,7 @@ export default function AppointmentPage() {
           </button>
         )}
         {step === 3 && (
-          <button className="fr-cta" disabled={submitting} onClick={handleConfirm}>
+          <button type="button" className="rd-btn fr-cta" disabled={submitting} onClick={handleConfirm}>
             {submitting ? t.sending : t.confirmBook}
           </button>
         )}
@@ -691,21 +743,20 @@ export default function AppointmentPage() {
       {/* ---------------------------------------------------------- top bar */}
       <div className="fr-topbar">
         <button
+          type="button"
           className="fr-back"
           disabled={step === 1}
           onClick={() => goTo(Math.max(1, step - 1))}
           aria-label="Back"
         >
-          {t.dir === 'rtl' ? '›' : '‹'}
+          <Chevron dir={t.dir === 'rtl' ? 'right' : 'left'} />
         </button>
-        <div className="fr-brand">{t.brand}</div>
+        <div className="fr-brand">
+          <img className="fr-brand-logo" src={LOGO} alt="" width="30" height="30" />
+          <span>{t.brand}</span>
+        </div>
         <div className="fr-topbar-right">
-          <button
-            className="fr-lang"
-            onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-          >
-            {t.langBtn}
-          </button>
+          <LangSwitch lang={lang} onChange={setLang} />
         </div>
       </div>
 
@@ -725,11 +776,13 @@ export default function AppointmentPage() {
           {/* ------------------------------------------------ 1. services */}
           {step === 1 && (
             <>
-              <div className="fr-chips">
+              <div className="fr-chips" role="group" aria-label={t.steps[0]}>
                 {categories.map((c) => (
                   <button
+                    type="button"
                     key={c}
                     className={`fr-chip ${activeCat === c ? 'is-active' : ''}`}
+                    aria-pressed={activeCat === c}
                     onClick={() => setActiveCat(c)}
                   >
                     {c}
@@ -764,19 +817,21 @@ export default function AppointmentPage() {
 
                     {item ? (
                       <div className="fr-qty">
-                        <button onClick={() => changeQty(s._id, -1)} aria-label="minus">
+                        <button type="button" onClick={() => changeQty(s._id, -1)} aria-label="Decrease">
                           −
                         </button>
-                        <span>{item.qty}</span>
-                        <button onClick={() => changeQty(s._id, 1)} aria-label="plus">
+                        <span aria-live="polite">{item.qty}</span>
+                        <button type="button" onClick={() => changeQty(s._id, 1)} aria-label="Increase">
                           +
                         </button>
                       </div>
                     ) : (
                       <button
-                        className="fr-book-btn"
+                        type="button"
+                        className="rd-btn rd-btn--ghost rd-btn--sm rd-btn--auto fr-book-btn"
                         onClick={() => toggleService(s)}
                       >
+                        <Plus />
                         {t.book}
                       </button>
                     )}
@@ -857,8 +912,10 @@ export default function AppointmentPage() {
                         <div className="fr-slots">
                           {slotsByDate[date].map((h) => (
                             <button
+                              type="button"
                               key={h}
                               className={`fr-slot ${hour === h ? 'is-on' : ''}`}
+                              aria-pressed={hour === h}
                               onClick={() => setHour(h)}
                             >
                               {h}
@@ -877,8 +934,38 @@ export default function AppointmentPage() {
           {step === 3 && (
             <>
               <h2 className="fr-h2" style={{ marginTop: 0 }}>
-                {t.yourDetails}
+                {t.serviceTypeTitle}
               </h2>
+
+              <div
+                className={`fr-options ${errors.serviceType ? 'has-error' : ''}`}
+                role="group"
+                aria-label={t.serviceTypeTitle}
+              >
+                {SERVICE_TYPES.map((type) => (
+                  <button
+                    type="button"
+                    key={type}
+                    className={`fr-option ${serviceType === type ? 'is-on' : ''}`}
+                    aria-pressed={serviceType === type}
+                    onClick={() => {
+                      setServiceType(type);
+                      setErrors((e) => ({ ...e, serviceType: undefined }));
+                    }}
+                  >
+                    <span className="fr-option-title">{m.serviceTypes[type]}</span>
+                    <span className="fr-option-hint">{t.serviceTypeHints[type]}</span>
+                    {homeCostsMore && (
+                      <span className="fr-option-price">
+                        {type === 'home' ? t.doublePrice : t.samePrice}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+              {errors.serviceType && <p className="fr-error">{errors.serviceType}</p>}
+
+              <h2 className="fr-h2">{t.yourDetails}</h2>
 
               <div className="fr-fields">
                 <div className="fr-field">
@@ -946,7 +1033,7 @@ export default function AppointmentPage() {
       {/* --------------------------------------------- mobile sticky footer */}
       <div className="fr-bottombar">
         <div className="fr-bottombar-info">
-          <div className="fr-bottombar-total">{money(total)}</div>
+          <div className="fr-bottombar-total">{money(totals.total)}</div>
           <div className="fr-bottombar-count">
             {cartItems.length === 0
               ? t.emptyCart
@@ -958,14 +1045,15 @@ export default function AppointmentPage() {
 
         {step < 3 ? (
           <button
-            className="fr-cta"
+            type="button"
+            className="rd-btn fr-cta"
             disabled={!canContinue()}
             onClick={() => goTo(step + 1)}
           >
             {t.continue}
           </button>
         ) : (
-          <button className="fr-cta" disabled={submitting} onClick={handleConfirm}>
+          <button type="button" className="rd-btn fr-cta" disabled={submitting} onClick={handleConfirm}>
             {submitting ? t.sending : t.confirmBook}
           </button>
         )}

@@ -33,7 +33,7 @@ const ServicesGrid = () => {
         <h5 className="mx-2 uppercase mypar11223 mb-3 bold">{service.title}</h5>
         <p className="mx-2 my-2">{service.description}</p>
         <button
-          className="text-[12px] uppercase mt-4 mb-10 px-6 py-3 bg-[#cab8ac] text-[#100501] transition-all duration-300 transform hover:scale-105"
+          className="rd-btn rd-btn--auto mt-4 mb-10"
           onClick={() => window.location.href = `service?id=${service._id}`}
         >
           Discover More

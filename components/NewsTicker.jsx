@@ -25,9 +25,15 @@ const NewsTicker = () => {
       <style
         dangerouslySetInnerHTML={{
           __html:
-            '.newsTickerBrands .rfm-marquee,.newsTickerBrands .rfm-initial-child-container,.newsTickerBrands .rfm-child{align-items:flex-end !important}',
+            '.newsTickerBrands .rfm-marquee,.newsTickerBrands .rfm-initial-child-container,.newsTickerBrands .rfm-child{align-items:flex-end !important}' +
+            '.newsTickerBrands__head{color:#1c1c1c;padding-top:1.5rem;margin-bottom:1.5rem}' +
+            '@media (min-width:1000px){.newsTickerBrands__head{padding-top:2.5rem;margin-bottom:2rem}}',
         }}
       />
+      <div className="rd-section-head newsTickerBrands__head">
+        <p className="rd-kicker">Our Trusted Brand Partners</p>
+        <h2 className="rd-title">Our Premium Brand Portfolio</h2>
+      </div>
       <Marquee speed={80} gradient={false} autoFill pauseOnHover={false}>
         {brands
           .filter((brand) => {

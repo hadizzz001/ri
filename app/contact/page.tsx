@@ -124,7 +124,7 @@ export default function Home() {
               <div className="form-group row pt-2">
               <div className="col-md-5"></div>
                 <div className="col-md-2">
-                  <button type="submit" className="klaviyo_submit_button" style={{padding:"1.5em"}}>
+                  <button type="submit" className="klaviyo_submit_button">
                     Send
                   </button>
                 </div>

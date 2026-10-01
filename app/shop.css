@@ -17,22 +17,91 @@
   --rd-sale: #a3583f;
 }
 
-/* ─────────────────────────── shared ─────────────────────────── */
-.rd-btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
-  height: 48px; padding: 0 1.75rem; width: 100%;
-  background: var(--rd-ink); color: #fff !important;
-  font-size: 12px; letter-spacing: .18em; text-transform: uppercase; font-weight: 500;
-  border: 1px solid var(--rd-ink) !important; border-radius: 0; cursor: pointer;
-  transition: background .2s, color .2s, border-color .2s;
+/* ─────────────────────────── buttons ───────────────────────────
+   Pill buttons modelled on amadeussabra.com: Nunito 13px, uppercase,
+   .18em tracking and a "wipe" hover — the fill slides out to the right
+   and back in from the left. Variants only swap the custom properties.
+   Older button classes still used around the site share the same look. */
+.rd-btn,
+.pc__add,
+.myNewButtonHadiz,
+.customb,
+.klaviyo_submit_button,
+.HtmlProductAddToCart,
+.pg-add-btn,
+.Common_Button.MiniCart_Cart_CtaButton {
+  --btn-fill: var(--rd-ink);            /* the solid colour */
+  --btn-on-fill: #fff;                  /* text sitting on the solid colour */
+  --btn-color: var(--btn-on-fill);
+  --btn-color-hover: var(--btn-fill);
+  --btn-border: var(--btn-fill);
+  --btn-layer-rest: linear-gradient(var(--btn-fill), var(--btn-fill));
+  --btn-layer-hover: linear-gradient(transparent, transparent);
+  --btn-origin: right;
+  --btn-origin-hover: left;
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: .6rem;
+  width: 100%; min-height: 46px; height: auto; max-width: none; padding: .65rem 1.75rem;
+  font-family: var(--font-body) !important; font-size: 13px !important; font-weight: 400 !important;
+  line-height: 1.65 !important; letter-spacing: .18em !important; text-transform: uppercase !important;
+  text-align: center; text-decoration: none !important;
+  color: var(--btn-color) !important;
+  background-color: transparent !important;
+  background-image: var(--btn-layer-rest), var(--btn-layer-hover) !important;
+  background-size: 101% 101%, 0 101%;
+  background-position: var(--btn-origin);
+  background-repeat: no-repeat;
+  background-origin: border-box; /* fill runs under the border: no hairline gap at the rounded ends */
+  border: 1px solid var(--btn-border) !important; border-radius: 3.75rem !important;
+  box-shadow: none !important; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background-size .45s var(--btn-ease), background-position .45s step-end,
+              color .45s var(--btn-ease), border-color .45s var(--btn-ease);
 }
-.rd-btn:hover:not(:disabled) { background: #fff; color: var(--rd-ink) !important; }
-.rd-btn:disabled { opacity: .45; cursor: not-allowed; }
-.rd-btn--ghost { background: #fff; color: var(--rd-ink) !important; }
-.rd-btn--ghost:hover:not(:disabled) { background: var(--rd-ink); color: #fff !important; }
-.rd-btn--beige { background: var(--rd-beige); border-color: var(--rd-beige) !important; color: var(--rd-ink) !important; }
-.rd-btn--beige:hover:not(:disabled) { background: var(--rd-ink); border-color: var(--rd-ink) !important; color: #fff !important; }
-.rd-btn--sm { height: 40px; font-size: 11px; padding: 0 1.25rem; }
+.rd-btn:not(:disabled):hover,
+.pc__add:not(:disabled):hover,
+.myNewButtonHadiz:hover,
+.customb:hover,
+.klaviyo_submit_button:not(:disabled):hover,
+.HtmlProductAddToCart:hover,
+.pg-add-btn:hover,
+.Common_Button.MiniCart_Cart_CtaButton:hover {
+  color: var(--btn-color-hover) !important;
+  border-color: var(--btn-fill) !important;
+  background-position: var(--btn-origin-hover);
+  background-size: 0 101%, 101% 101%;
+}
+.rd-btn:focus-visible,
+.pc__add:focus-visible,
+.myNewButtonHadiz:focus-visible,
+.customb:focus-visible,
+.klaviyo_submit_button:focus-visible {
+  outline: 2px solid var(--btn-fill) !important; outline-offset: 3px;
+}
+.rd-btn:disabled,
+.klaviyo_submit_button:disabled { cursor: not-allowed; }
+.rd-btn:not(.rd-btn--ghost):disabled,
+.klaviyo_submit_button:disabled { --btn-fill: #e9e5e0; --btn-on-fill: #9b958f; }
+.rd-btn--ghost:disabled { opacity: .45; }
+
+/* outline: transparent at rest, fills on hover */
+.rd-btn--ghost,
+.customb {
+  --btn-color: var(--btn-fill);
+  --btn-color-hover: var(--btn-on-fill);
+  --btn-border: rgba(16, 5, 1, .22);
+  --btn-layer-rest: linear-gradient(transparent, transparent);
+  --btn-layer-hover: linear-gradient(var(--btn-fill), var(--btn-fill));
+  --btn-origin: left;
+  --btn-origin-hover: right;
+}
+/* for dark photos / video: white pill, turns into a white outline on hover */
+.rd-btn--light { --btn-fill: #fff; --btn-on-fill: var(--rd-ink); }
+.rd-btn--beige { --btn-fill: var(--rd-beige); --btn-on-fill: var(--rd-ink); }
+.rd-btn--auto,
+.myNewButtonHadiz,
+.customb { width: auto; }
+.rd-btn--sm { min-height: 38px; padding: .45rem 1.25rem; font-size: 12px !important; }
+/* legacy .Common_Button (mini-cart / preorder) centres itself with margin:auto */
+.Common_Button.MiniCart_Cart_CtaButton { margin: .5rem 0 0; }
 
 .rd-input {
   width: 100%; height: 48px; padding: 0 .9rem; background: #fff;
@@ -46,6 +115,34 @@ textarea.rd-input { height: auto; min-height: 120px; padding: .8rem .9rem; resiz
 .rd-success { background: var(--rd-sage); color: var(--rd-ink); font-size: 13px; padding: .7rem .9rem; }
 
 .rd-eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--rd-gray); }
+
+/* section headings: small kicker + wide-tracked uppercase title (amadeussabra.com) */
+.rd-section-head { display: flex; flex-direction: column; align-items: center; gap: .6rem; text-align: center; max-width: 980px; margin: 0 auto 2.25rem; padding: 0 1.25rem; }
+@media (min-width: 1000px) { .rd-section-head { margin-bottom: 3rem; } }
+.rd-kicker {
+  margin: 0 !important; font-family: var(--font-heading) !important; font-size: 12px !important; font-weight: 400 !important;
+  letter-spacing: .18em !important; line-height: 1.7 !important; text-transform: uppercase; color: inherit;
+}
+.rd-title {
+  margin: 0 !important; font-family: var(--font-heading) !important; font-weight: 400 !important;
+  font-size: clamp(20px, 1.07rem + .78vw, 28px) !important; line-height: 1.35 !important;
+  letter-spacing: .18em !important; text-transform: uppercase; color: inherit;
+}
+.rd-title--lg { font-size: clamp(22px, 1.15rem + .98vw, 32px) !important; line-height: 1.3 !important; }
+
+/* icon + title + text columns (core values, service highlights) */
+.rd-icon-cols { display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem 1.5rem; }
+.rd-icon-cols > * { flex: 0 1 100%; max-width: 18.75rem; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; text-align: center; }
+@media (min-width: 500px) { .rd-icon-cols > * { flex-basis: calc(50% - .75rem); } }
+@media (min-width: 700px) { .rd-icon-cols { row-gap: 2.5rem; } .rd-icon-cols > * { flex-basis: calc(33.333% - 1rem); } }
+@media (min-width: 1000px) { .rd-icon-cols { column-gap: 3.75rem; } .rd-icon-cols > * { flex-basis: calc(25% - 2.8125rem); } }
+.rd-icon-cols svg { width: 24px; height: 24px; flex: none; }
+.rd-icon-cols__text { display: flex; flex-direction: column; gap: .5rem; }
+.rd-icon-cols__title {
+  margin: 0 !important; font-family: var(--font-heading) !important; font-size: 12px !important; font-weight: 400 !important;
+  letter-spacing: .18em !important; line-height: 1.7 !important; text-transform: uppercase; color: inherit;
+}
+.rd-icon-cols__body { margin: 0 !important; font-size: 14px; line-height: 1.7; color: inherit; }
 
 /* stars */
 .rd-stars { display: inline-flex; align-items: center; gap: 2px; line-height: 1; }
@@ -115,16 +212,10 @@ textarea.rd-input { height: auto; min-height: 120px; padding: .8rem .9rem; resiz
 .pc__price-now.is-sale { color: var(--rd-sale); }
 .pc__price-was { font-size: 12px; color: var(--rd-gray); text-decoration: line-through; }
 
-/* Add-to-cart (Skin Society style: full-width, flat, uppercase) */
-.pc__add {
-  margin-top: .65rem; width: 100%; height: 42px; display: inline-flex; align-items: center; justify-content: center;
-  background: var(--rd-ink); color: #fff !important; border: 1px solid var(--rd-ink) !important; border-radius: 0;
-  font-size: 11px; letter-spacing: .18em; text-transform: uppercase; font-weight: 500 !important; cursor: pointer;
-  transition: background .2s, color .2s;
-}
-.pc__add:hover:not(:disabled) { background: #fff; color: var(--rd-ink) !important; }
-.pc__add.is-added { background: var(--rd-sage); color: var(--rd-ink) !important; border-color: var(--rd-sage) !important; }
-.pc__add:disabled { background: var(--rd-light); color: var(--rd-gray) !important; border-color: var(--rd-light) !important; cursor: not-allowed; }
+/* Add-to-cart: full-width pill (look + hover come from "buttons" above) */
+.pc__add { margin-top: .65rem; min-height: 42px; padding: .5rem 1rem; font-size: 11px !important; }
+.pc__add.is-added { --btn-fill: var(--rd-sage); --btn-on-fill: var(--rd-ink); }
+.pc__add:disabled { --btn-fill: var(--rd-light); --btn-on-fill: var(--rd-gray); cursor: not-allowed; }
 
 /* ─────────────────────────── collection page ─────────────────────────── */
 .sk { color: var(--rd-ink); }
@@ -285,6 +376,8 @@ textarea.rd-input { height: auto; min-height: 120px; padding: .8rem .9rem; resiz
   font-size: clamp(18px, 2.2vw, 26px) !important; line-height: 1.35 !important; font-weight: 400 !important; margin: 0 !important;
   letter-spacing: .02em !important; text-transform: none !important; color: var(--rd-ink) !important;
 }
+.pd__code { margin-top: -.5rem; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--rd-gray); }
+.pd__code span { margin-left: .4rem; letter-spacing: .06em; text-transform: none; color: var(--rd-ink); user-select: all; }
 .pd__rating { display: inline-flex; align-items: center; gap: .6rem; font-size: 12px; color: var(--rd-gray); background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
 .pd__rating u { text-decoration: underline; text-underline-offset: 3px; }
 .pd__price { display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap; }
@@ -313,7 +406,7 @@ textarea.rd-input { height: auto; min-height: 120px; padding: .8rem .9rem; resiz
 .pd__buy > .quantity-selector { grid-column: 1 / -1; min-width: 0; }
 @media (min-width: 480px) { .pd__buy { grid-template-columns: auto minmax(0, 1fr) auto; } .pd__buy > .quantity-selector { grid-column: auto; } }
 .pd__wish {
-  width: 48px; height: 48px; display: grid; place-items: center; background: #fff; border: 1px solid var(--rd-line) !important; cursor: pointer; color: var(--rd-ink);
+  width: 48px; height: 48px; display: grid; place-items: center; background: #fff; border: 1px solid var(--rd-line) !important; border-radius: 50%; cursor: pointer; color: var(--rd-ink);
 }
 .pd__wish:hover { border-color: var(--rd-ink) !important; }
 .pd__wish.is-active { color: var(--rd-sale); border-color: var(--rd-sale) !important; }
@@ -472,7 +565,7 @@ textarea.rd-input { height: auto; min-height: 120px; padding: .8rem .9rem; resiz
 .rd-menu__link,
 .rd-menu__nav a.rd-menu__link {
   display: block !important; padding: .7rem 0 !important; margin: 0 !important;
-  font-family: "Futura Std", sans-serif !important; font-size: 12px !important; font-weight: 300 !important;
+  font-family: var(--font-body) !important; font-size: 12px !important; font-weight: 400 !important;
   letter-spacing: .18em !important; text-transform: uppercase !important; line-height: 1.3 !important;
   color: var(--rd-ink) !important; text-decoration: none !important; border: 0 !important;
   font-stretch: normal !important; font-style: normal !important; transition: color .2s, padding-left .2s;

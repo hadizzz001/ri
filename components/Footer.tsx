@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import Subscribe from './Subscribe';
 
 
 const Footer = () => {
@@ -11,6 +12,9 @@ const Footer = () => {
 
     return (
         <footer className="bg-[#f8f8f8] text-[#222] py-10 px-4">
+
+            {/* Newsletter — a single "Subscribe now" button above the main footer */}
+            <Subscribe />
 
             {/* PC FOOTER */}
             <div className="hidden md:block">

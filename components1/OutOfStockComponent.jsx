@@ -10,7 +10,7 @@ const OutOfStockComponent = ({ itemName }) => {
     <div>
       <p className='mt-10' style={{ color: "#222", fontSize: "24px" }}>Out of Stock</p>
       <a className="Common_Button Common_Button--short MiniCart_Cart_CtaButton" href={whatsappLink} target="_blank" rel="noopener noreferrer">
-        <span style={{color:'white'}}><center>PREORDER</center></span>
+        <span>Preorder</span>
       </a>
     </div>
   );

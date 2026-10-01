@@ -7,8 +7,10 @@ import About2 from './About2';
 import Reviews from './Reviews';   
 import Map from './Map';   
 import News from './News';   
-import NewsTicker from './NewsTicker';   
-import AdsBanner from './AdsBanner';   
+import NewsTicker from './NewsTicker';
+import AdsBanner from './AdsBanner';
+import CorePhilosophy from './CorePhilosophy';
+import ServiceHighlights from './ServiceHighlights';
 
 
 
@@ -146,12 +148,14 @@ const Body = () => {
         <Carousel /> 
         <AdsBanner /> 
         <NewsTicker /> 
-        <About1 /> 
-        <About2 /> 
-        <News /> 
-        <Services /> 
-        <Reviews /> 
-        <Map /> 
+        <About1 />
+        <CorePhilosophy />
+        <About2 />
+        <News />
+        <Services />
+        <Reviews />
+        <Map />
+        <ServiceHighlights />
   
           
 

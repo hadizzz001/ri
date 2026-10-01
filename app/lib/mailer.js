@@ -67,19 +67,24 @@ async function getTransporter() {
  * @param {string}  opts.subject
  * @param {string}  opts.html
  * @param {string} [opts.replyTo]
+ * @param {string} [opts.from]      overrides the default sender
+ * @param {object} [opts.headers]   extra headers, e.g. List-Unsubscribe
+ * @param {'resend'} [opts.provider] force Resend even when SMTP is configured
  */
-export async function sendMail({ to, subject, html, replyTo }) {
+export async function sendMail({ to, subject, html, replyTo, from: fromOverride, headers, provider }) {
+  const useSmtp = provider !== 'resend' && hasSmtp();
   const from =
+    fromOverride ||
     process.env.APPOINTMENT_FROM_EMAIL ||
-    (hasSmtp()
+    (useSmtp
       ? `Rafi Daham Studio <${process.env.SMTP_USER}>`
       : 'Rafi Daham Studio <onboarding@resend.dev>');
 
   // ---- 1. SMTP
-  if (hasSmtp()) {
+  if (useSmtp) {
     const tx = await getTransporter();
     const info = await withRetry(() =>
-      tx.sendMail({ from, to, subject, html, replyTo })
+      tx.sendMail({ from, to, subject, html, replyTo, headers })
     );
     return { provider: 'smtp', id: info.messageId };
   }
@@ -106,6 +111,7 @@ export async function sendMail({ to, subject, html, replyTo }) {
             subject,
             html,
             ...(replyTo ? { reply_to: replyTo } : {}),
+            ...(headers ? { headers } : {}),
           }),
           signal: controller.signal,
         });

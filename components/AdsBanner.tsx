@@ -123,7 +123,7 @@ const AdsBanner = () => {
 
       {/* Shop Now */}
       <div className="adsBanner__cta">
-        <a href="/shop" className="myNewButtonHadiz">
+        <a href="/shop" className="rd-btn rd-btn--auto">
           Shop Now
         </a>
       </div>

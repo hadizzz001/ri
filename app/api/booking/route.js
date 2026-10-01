@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '../../lib/mongodb';
 import { sendClientConfirmation } from '../../lib/appointmentEmails';
+import { SERVICE_TYPES, bookingTotals, locationFactor } from '../../lib/bookingPrice';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,12 +22,16 @@ export async function POST(request) {
       city,
       date,
       hour,
+      serviceType,
       cart = [],
       lang = 'en',
     } = body;
 
     if (!name || !phone || !isEmail(email) || !country || !city || !date || !hour) {
       return NextResponse.json({ error: 'Missing or invalid fields' }, { status: 400 });
+    }
+    if (!SERVICE_TYPES.includes(serviceType)) {
+      return NextResponse.json({ error: 'Please choose salon or home service' }, { status: 400 });
     }
     if (!Array.isArray(cart) || cart.length === 0) {
       return NextResponse.json({ error: 'No services selected' }, { status: 400 });
@@ -41,8 +46,7 @@ export async function POST(request) {
       .find({ _id: { $in: cart.map((c) => c.id) } })
       .toArray();
 
-    const outsideLebanon = country !== 'Lebanon';
-    const priceFactor = outsideLebanon ? 4 : 1;
+    const priceFactor = locationFactor(country);
 
     const lineItems = cart
       .map((c) => {
@@ -64,8 +68,13 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Selected services not found' }, { status: 400 });
     }
 
-    const total = lineItems.reduce((a, i) => a + i.price * i.qty, 0);
-    const deposit = Number((total * 0.25).toFixed(2));
+    // Tax percentage is set from the dashboard (one document, absent = no tax)
+    const taxDoc = await db.collection('Tax').findOne({});
+    const { subtotal, homeFee, taxPercent, tax, total, deposit } = bookingTotals(lineItems, {
+      country,
+      serviceType,
+      taxPercent: taxDoc?.percent,
+    });
     const reference = makeReference();
 
     // ---- Make sure the slot is still free, and take it
@@ -94,7 +103,12 @@ export async function POST(request) {
       date, // YYYY-MM-DD
       hour, // HH:mm
       lang: lang === 'ar' ? 'ar' : 'en',
+      serviceType, // 'salon' | 'home'
       cart: lineItems,
+      subtotal,
+      homeFee,
+      taxPercent,
+      tax,
       total,
       deposit,
       status: 'pending',
@@ -104,9 +118,14 @@ export async function POST(request) {
 
     const result = await db.collection('Booking').insertOne(booking);
 
-    // Keep the legacy `Order` collection in sync
+    // Keep the legacy `Order` collection in sync (amounts as strings, as the
+    // dashboard's Prisma `Order` model reads them)
     await db.collection('Order').insertOne({
       ...booking,
+      subtotal: String(subtotal),
+      homeFee: String(homeFee),
+      taxPercent: String(taxPercent),
+      tax: String(tax),
       total: String(total),
       bookingId: result.insertedId,
     });
@@ -138,6 +157,11 @@ export async function POST(request) {
       success: true,
       reference,
       insertedId: result.insertedId,
+      serviceType,
+      subtotal,
+      homeFee,
+      taxPercent,
+      tax,
       total,
       deposit,
       cart: lineItems,

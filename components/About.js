@@ -67,7 +67,7 @@ export default function Features() {
 
         <h2 className="myparhal1 text-left mb-10"><b>A Journey of Achievements & Collaborations</b></h2>
 
-        <p className="myparhal2 text-left">
+        <div className="myparhal2 text-left">
           Throughout our journey, Rafi Daham Salon has been part of defining moments that shaped its name in the world of beauty. We have collaborated with a distinguished selection of artists and influential figures, and contributed to creative projects that gained prominent exposure in leading fashion and beauty magazines. Alongside this, we have built strong partnerships with global brands that share our passion for quality, excellence, and innovation.
 
           <br /><br />
@@ -248,7 +248,7 @@ export default function Features() {
   />
 </div>
 
-        </p>
+        </div>
 
 <hr className="custom-hr" />
         <h2 className="myparhal1 text-left mb-10"><b>Our Interviews on TV and More</b></h2>

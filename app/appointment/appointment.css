@@ -629,7 +629,8 @@
 /* ---------------- Summary panel ---------------- */
 .fr-summary {
   position: sticky;
-  top: calc(var(--header-h, 96px) + 20px); /* clears the site's sticky navbar */
+  top: calc(var(--header-offset, 96px) + 20px); /* clears the site's sticky navbar */
+  transition: top .15s ease-in-out;
   overflow: hidden;
   border: 1px solid;
   border-radius: var(--fr-radius);

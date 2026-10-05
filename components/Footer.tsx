@@ -11,11 +11,12 @@ const Footer = () => {
     const [showServices, setShowServices] = useState(false);
 
     return (
-        <footer className="bg-[#f8f8f8] text-[#222] py-10 px-4">
+        <footer className="bg-[#f8f8f8] text-[#222]">
 
-            {/* Newsletter — a single "Subscribe now" button above the main footer */}
+            {/* Newsletter — the "Stay up to date" band, edge to edge above the links */}
             <Subscribe />
 
+            <div className="px-4 pb-10">
             {/* PC FOOTER */}
             <div className="hidden md:block">
                 {/* Top Row */}
@@ -175,6 +176,7 @@ const Footer = () => {
                 <div className="text-center mt-20 mb-20">
                     <p className="text-sm uppercase">Rafi Daham {new Date().getFullYear()} ALL RIGHTS RESERVED</p>
                 </div>
+            </div>
             </div>
 
 

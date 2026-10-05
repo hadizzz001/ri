@@ -11,6 +11,7 @@ import NewsTicker from './NewsTicker';
 import AdsBanner from './AdsBanner';
 import CorePhilosophy from './CorePhilosophy';
 import ServiceHighlights from './ServiceHighlights';
+import FeaturedProducts from './FeaturedProducts';
 
 
 
@@ -145,18 +146,20 @@ const Body = () => {
 
         <div id="usp-scroll-to"></div>
 
-        <Carousel /> 
-        <AdsBanner /> 
-        <NewsTicker /> 
+        <Carousel />
+        <FeaturedProducts />
+        <AdsBanner />
+        <NewsTicker />
         <About1 />
-        <CorePhilosophy />
         <About2 />
         <News />
         <Services />
         <Reviews />
         <Map />
         <ServiceHighlights />
-  
+        {/* last section: sits right on top of the footer */}
+        <CorePhilosophy />
+
           
 
         <style
@@ -179,12 +182,6 @@ const Body = () => {
               ".sywPaymentOptions{background-color:transparent;color:#fff;padding:30px 10px;text-align:center}.sywPaymentOptions>h2{margin:0 0 25px}.sywPaymentOptions>ul{padding:0;margin:0 auto;display:flex;flex-direction:row;align-items:center;justify-content:center;list-style:none}.sywPaymentOptions>ul>li{display:flex;margin:0 4%}.sywPaymentOptions>ul>li>img{max-height:22px;min-height:12px;height:3.5vw}.sywPaymentOptions>ul>li.mastercard>img{max-height:40px;min-height:23px}.sywPaymentOptions>ul>li.apple-pay>img,.sywPaymentOptions>ul>li.amex>img{min-height:16px}@media (min-width: 811px){.sywPaymentOptions>ul>li{display:flex;margin:0 2.8%}}\n"
           }}
         />
-        <div className="sywPaymentOptions">
-          
-          
-        </div>
-
-
         <div id="EventStreamApp" />
       </>
 

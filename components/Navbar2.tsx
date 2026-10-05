@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import Cart from "../components1/Cart"
 import { useBooleanValue } from '../app/context/CartBoolContext';
 import { useCart } from '../app/context/CartContext';
@@ -39,8 +40,12 @@ const LINKS = [
 ];
 
 export default function NavBar() {
+  // The home page opens on a full-screen hero that the header sits on top of
+  const overHero = usePathname() === '/';
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const { cart } = useCart();
   const { user, favoriteIds } = useAuth();
   const { isBooleanValue, setBooleanValue } = useBooleanValue();
@@ -67,6 +72,49 @@ export default function NavBar() {
       window.removeEventListener('resize', setVar);
     };
   }, []);
+
+  // amadeussabra.com's header: solid as soon as the page leaves the top, slides
+  // away after 100px of scrolling down, and comes back on any scroll up (or
+  // when the mouse nears the top of the window).
+  useEffect(() => {
+    let fromY = 0; // the next "100px down" is measured from here
+    const finePointer = window.matchMedia('(pointer: fine)');
+
+    const onScroll = () => {
+      const y = Math.max(0, window.scrollY);
+      setScrolled(y > 10);
+      if (y - fromY > 100) {
+        fromY = y;
+        setHidden(true);
+      } else if (y < fromY) {
+        fromY = y;
+        setHidden(false);
+      }
+    };
+    const onPointerMove = (e: PointerEvent) => {
+      if (e.clientY < 100 && finePointer.matches) {
+        fromY = 0;
+        setHidden(false);
+      }
+    };
+
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('pointermove', onPointerMove);
+    };
+  }, []);
+
+  const overlayOpen = menuOpen || searchOpen;
+  const isHidden = hidden && !overlayOpen;
+  const transparent = overHero && !scrolled && !overlayOpen;
+
+  // Sticky bars on other pages (shop toolbar, checkout summary…) slide up with it
+  useEffect(() => {
+    document.documentElement.style.setProperty('--header-is-visible', isHidden ? '0' : '1');
+  }, [isHidden]);
 
   // Lock scroll + close on Escape while an overlay is open
   useEffect(() => {
@@ -104,7 +152,8 @@ export default function NavBar() {
 
       <header
         ref={headerRef}
-        className="rd-header w-full sticky top-0 z-50"
+        className={`rd-header${overHero ? ' rd-header--over-hero' : ''}${transparent ? ' is-transparent' : ''}${isHidden ? ' is-hidden' : ''}`}
+        onFocusCapture={() => setHidden(false)}
       >
         <div className="rd-header__bar">
           {/* Hamburger (+ wishlist on mobile) */}

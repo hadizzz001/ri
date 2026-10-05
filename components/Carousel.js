@@ -9,6 +9,10 @@ const VIDEO_SRC =
 const VIDEO_POSTER =
   "https://res.cloudinary.com/dgi9mfldc/video/upload/so_0,q_auto,f_auto/v1790714141/IMG_7147_epw0az.jpg";
 
+// Copy over the video — laid out like amadeussabra.com's hero
+const KICKER = "Where Artistry";
+const TITLE = "Meets Your Beauty Vision";
+
 const MyCarousel = () => {
   const heroRef = useRef(null);
   const videoRef = useRef(null);
@@ -59,10 +63,13 @@ const MyCarousel = () => {
     };
   }, []);
 
+  const goToNextSection = () => {
+    heroRef.current?.nextElementSibling?.scrollIntoView({ block: "start", behavior: "smooth" });
+  };
+
   return (
-    <div className="w-full">
-      {/* Banner Wrapper — edge to edge */}
-      <div ref={heroRef} className="homeHero relative w-full h-screen overflow-hidden">
+    <section ref={heroRef} className="homeHero" aria-label="Welcome">
+      <div className="homeHero__media">
         <canvas ref={ambientRef} className="homeHero__ambient" width="64" height="36" aria-hidden="true" />
 
         {/* Background Video */}
@@ -79,38 +86,34 @@ const MyCarousel = () => {
           disablePictureInPicture
           aria-hidden="true"
         />
+      </div>
 
-        {/* Background Graphic Overlay */}
-        <div
-          className="absolute bottom-0 right-0 z-10"
-          style={{
-            width: "550px",
-            height: "550px",
-            backgroundImage:
-              "url('https://res.cloudinary.com/dtjcqfoxc/image/upload/v1751030325/Untitled-11_lfqbgu.webp')",
-            backgroundSize: "contain",
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "bottom right",
-            opacity: 0.025,
-            pointerEvents: "none",
-            top: "31em",
-            left: "3em",
-          }}
-        />
-
-        {/* Book Appointment */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
-          <a href="/appointment" className="rd-btn rd-btn--light rd-btn--auto whitespace-nowrap">
+      <div className="homeHero__content">
+        <p className="homeHero__kicker">{KICKER}</p>
+        <p className="homeHero__title">{TITLE}</p>
+        <div className="homeHero__cta">
+          <a href="/appointment" className="rd-btn rd-btn--beige rd-btn--auto">
             Book Appointment
           </a>
         </div>
       </div>
 
+      <button type="button" className="homeHero__next" onClick={goToNextSection}>
+        <span className="sr-only">Navigate to next section</span>
+        <svg aria-hidden="true" focusable="false" fill="none" width="18" viewBox="0 0 18 16">
+          <path d="m1 4 8 8 8-8" stroke="currentColor" strokeLinecap="square" />
+        </svg>
+      </button>
+
       <style
         dangerouslySetInnerHTML={{
           __html: `
 /* #0a0a0a matches the clip's dark backdrop */
-.homeHero{background:#0a0a0a}
+.homeHero{position:relative;display:grid;background:#0a0a0a}
+.homeHero__media{grid-area:1/1;position:relative;height:100vh;height:100svh;overflow:hidden}
+/* the darkening veil amadeussabra.com lays over its footage */
+.homeHero__media::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(180deg,rgba(54,54,54,.2),rgba(4,4,4,.65) 100%)}
 .homeHero__video{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:cover}
 .homeHero__ambient{display:none}
 /* Wider screens: the whole portrait, centred, edges feathered into the glow */
@@ -121,10 +124,41 @@ const MyCarousel = () => {
     -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 12%,#000 88%,transparent 100%);
             mask-image:linear-gradient(90deg,transparent 0,#000 12%,#000 88%,transparent 100%)}
 }
+
+/* Copy: bottom-centre on phones, centred from 700px; the top padding keeps it
+   clear of the header lying over the video */
+.homeHero__content{grid-area:1/1;z-index:3;align-self:end;justify-self:center;max-width:780px;
+  margin:64px 20px;padding-top:var(--header-h,0px);text-align:center;color:#fff}
+@media (min-width:700px){.homeHero__content{align-self:center;margin:64px 32px}}
+@media (min-width:1000px){.homeHero__content{margin:64px 48px}}
+.homeHero__kicker,.homeHero__title{margin:0;font-family:var(--font-heading)!important;font-weight:400!important;
+  letter-spacing:.18em!important;text-transform:uppercase;color:#fff!important;overflow-wrap:anywhere}
+.homeHero__kicker{font-size:12px!important;line-height:1.7!important}
+.homeHero__title{margin-top:16px;font-size:clamp(22px,18.34px + .976vw,32px)!important;line-height:1.5!important}
+.homeHero__cta{display:flex;justify-content:center;margin-top:24px}
+.homeHero .rd-btn{min-height:0;padding:10.4px 28px}
+@media (min-width:1000px){.homeHero__title{margin-top:20px}.homeHero__cta{margin-top:32px}}
+@media (min-width:1150px){.homeHero__title{line-height:1.3!important}}
+
+/* round "next section" button straddling the bottom edge */
+.homeHero__next{position:absolute;z-index:3;bottom:-25px;left:calc(50% - 25px);width:50px;height:50px;
+  display:grid;place-items:center;padding:0;border:0;border-radius:9999px;cursor:pointer;
+  background:#fff;color:#1c1c1c;box-shadow:0 2px 10px rgba(28,28,28,.15)}
+.homeHero__next svg{display:block;width:16px;height:auto}
+.homeHero__next:focus-visible{outline:2px solid #1c1c1c!important;outline-offset:3px}
+@media (pointer:fine) and (prefers-reduced-motion:no-preference){
+  .homeHero__next:hover svg{animation:homeHeroArrow .35s ease-in-out forwards}
+}
+@keyframes homeHeroArrow{
+  0%{opacity:1;transform:translateY(0)}
+  50%{opacity:0;transform:translateY(100%)}
+  51%{opacity:0;transform:translateY(-100%)}
+  to{opacity:1;transform:translateY(0)}
+}
 `,
         }}
       />
-    </div>
+    </section>
   );
 };
 

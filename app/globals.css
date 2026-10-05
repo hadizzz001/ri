@@ -577,6 +577,11 @@
    margin-top: -5em;
  }
 
+ /* Home: the header is fixed over the hero (Navbar2), so nothing to pull up */
+ main.home-main {
+   margin-top: 0;
+ }
+
 
 
 

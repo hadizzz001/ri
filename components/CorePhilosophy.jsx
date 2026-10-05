@@ -77,7 +77,7 @@ const CorePhilosophy = () => (
     <style
       dangerouslySetInnerHTML={{
         __html: `
-.corePhilosophy{background:#1c1c1c;color:#fff;padding:2.5rem 1.25rem;margin:3rem 0}
+.corePhilosophy{background:#1c1c1c;color:#fff;padding:2.5rem 1.25rem;margin:0}
 .corePhilosophy *{color:#fff !important}
 .corePhilosophy__head{gap:1rem;margin-bottom:2.5rem;padding:0}
 .corePhilosophy__intro{max-width:680px;margin:.5rem 0 0 !important;font-size:14px;line-height:1.7}

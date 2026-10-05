@@ -42,7 +42,10 @@ const FullWidthImageSwiper = () => {
   
 
   return (
-    <div className="w-full h-[550px] overflow-hidden mt-10 mb-20">
+    // Same side margins as the "Rafi Daham Services" section (About2): the
+    // `container` width with a 10px gutter
+    <div className="container newsSection h-[550px] overflow-hidden mt-10 mb-20">
+      <style dangerouslySetInnerHTML={{ __html: '.container.newsSection{padding-left:10px;padding-right:10px}' }} />
 <span className="mx-4 flex flex-col justify-center mb-4">
   <h1 className="uppercase myparhal1 text-center">
     Our <b className="myBold">News</b>

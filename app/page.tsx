@@ -9,7 +9,7 @@ export default   function Home() {
  
 
   return (
-    <main  className="overflow-hidden"> 
+    <main  className="overflow-hidden home-main">
       <Body/> 
     </main>
   )

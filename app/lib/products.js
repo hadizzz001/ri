@@ -26,16 +26,38 @@ export const getProductById = cache(async (id) => {
   return toPlain(await products.findOne({ _id: new ObjectId(id) }));
 });
 
-const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** Comparison key: no whitespace or hyphens, lower-case. */
+const barcodeKey = (value) => String(value ?? '').replace(/[\s-]+/g, '').toLowerCase();
 
-/** The dashboard saves barcodes without spaces; an exact match wins, then any case. */
+/**
+ * Finds a product by barcode ignoring spaces, hyphens and case, so
+ * /product/1111-rafidaham-1111, /product/1111rafidaham1111 and the saved
+ * "1111 rafidaham 1111" all resolve to the same product.
+ */
 export const getProductByBarcode = cache(async (code) => {
-  const barcode = String(code ?? '').replace(/\s+/g, '');
-  if (!barcode) return null;
+  const key = barcodeKey(code);
+  if (!key) return null;
   const products = await productsCollection();
   const doc =
-    (await products.findOne({ barcode })) ||
-    (await products.findOne({ barcode: { $regex: `^${escapeRegExp(barcode)}$`, $options: 'i' } }));
+    (await products.findOne({ barcode: code })) ||
+    (await products.findOne({
+      $expr: {
+        $eq: [
+          {
+            $toLower: {
+              $replaceAll: {
+                input: {
+                  $replaceAll: { input: { $toString: { $ifNull: ['$barcode', ''] } }, find: ' ', replacement: '' },
+                },
+                find: '-',
+                replacement: '',
+              },
+            },
+          },
+          key,
+        ],
+      },
+    }));
   return toPlain(doc);
 });
 
@@ -88,8 +110,11 @@ export function productMetadata(product) {
   const code = product.barcode;
   const path = productPath(product);
   const title = code ? `${product.title} – ${code}` : product.title;
+  // Spaced codes are also listed compact ("1111rafidaham1111") so both spellings match.
+  const compact = code ? String(code).replace(/\s+/g, '') : '';
+  const codeText = code ? `Item code ${code}${compact !== code ? ` (${compact})` : ''}. ` : '';
   const description = truncate(
-    `${code ? `Item code ${code}. ` : ''}${plainText(product.description) || `Shop ${product.title} at ${SITE_NAME}.`}`,
+    `${codeText}${plainText(product.description) || `Shop ${product.title} at ${SITE_NAME}.`}`,
     160
   );
   const images = imagesOf(product);

@@ -209,7 +209,13 @@ export default function ProductView({ id }) {
         <div className="pd__info">
           {product.factory && <a className="pd__brand" href={`/shop?brnd=${encodeURIComponent(product.factory.trim())}`}>{product.factory}</a>}
           <h1 className="pd__title">{product.title}</h1>
-          {product.barcode && <div className="pd__code">Item code <span>{product.barcode}</span></div>}
+          {product.barcode && (
+            <div className="pd__code">
+              Item code <span>{product.barcode}</span>
+              {/* Spaced codes are also shown compact so either spelling is searchable */}
+              {/\s/.test(product.barcode) && <> ({product.barcode.replace(/\s+/g, "")})</>}
+            </div>
+          )}
 
           <button type="button" className="pd__rating" onClick={scrollToReviews}>
             <Stars value={rating.avg} />

@@ -27,7 +27,11 @@ export function isSoldOut(p) {
   return false;
 }
 
+/** Barcode as a URL slug: spaces become "-" so Google reads each part as a word. */
+export const barcodeSlug = (code) =>
+  encodeURIComponent(String(code ?? '').trim().replace(/\s+/g, '-'));
+
 /** A product's page: /product/<barcode> when it has one, else /product?id=<id>. */
 export function productPath(p) {
-  return p?.barcode ? `/product/${encodeURIComponent(p.barcode)}` : `/product?id=${p?._id}`;
+  return p?.barcode ? `/product/${barcodeSlug(p.barcode)}` : `/product?id=${p?._id}`;
 }

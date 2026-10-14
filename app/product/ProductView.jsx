@@ -298,7 +298,7 @@ export default function ProductView({ id }) {
             </Accordion>
             <Accordion title="Need advice?">
               <p>Not sure this is the right product for your hair? Message our team on WhatsApp for personalised recommendations from Rafi Daham’s stylists.</p>
-              <a className="rd-btn rd-btn--ghost rd-btn--sm" style={{ width: "auto" }} href={`https://wa.me/96178808100?text=${encodeURIComponent(`Hi, I have a question about ${product.title}`)}`} target="_blank" rel="noreferrer">Chat on WhatsApp</a>
+              <a className="rd-btn rd-btn--ghost rd-btn--sm" style={{ width: "auto" }} href={`https://wa.me/9613896074?text=${encodeURIComponent(`Hi, I have a question about ${product.title}`)}`} target="_blank" rel="noreferrer">Chat on WhatsApp</a>
             </Accordion>
           </div>
 

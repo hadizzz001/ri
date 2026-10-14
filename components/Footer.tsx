@@ -63,7 +63,7 @@ const Footer = () => {
                     <div className="flex justify-center md:justify-end gap-5">
                         <a href='https://www.instagram.com/rafidaham_hairdressing' className='colorp'>Instagram</a>
                         <a href='https://www.facebook.com/1raffidahamhairdressing/' className='colorp'>Facebook</a>
-                        <a href='https://wa.me/96178808100' className='colorp'>WhatsApp</a>
+                        <a href='https://wa.me/9613896074' className='colorp'>WhatsApp</a>
                         <a href='https://lb.linkedin.com/in/rafi-daham-aa74a492https://www.tiktok.com/@rafidaham_hairdressing' className='colorp'>Linkedin</a>
                    <a href="https://pin.it/7p9wCp9ex" className="colorp">Pinterest Hair Colorist</a>
 
@@ -159,7 +159,7 @@ const Footer = () => {
                 <div className="flex flex-wrap justify-center gap-3 pt-2">
                     <a href="https://www.instagram.com/rafidaham_hairdressing" className="colorp">Instagram</a>
                     <a href="https://www.facebook.com/1raffidahamhairdressing/" className="colorp">Facebook</a>
-                    <a href="https://wa.me/96178808100" className="colorp">WhatsApp</a>
+                    <a href="https://wa.me/9613896074" className="colorp">WhatsApp</a>
                     <a href="https://lb.linkedin.com/in/rafi-daham-aa74a492https://www.tiktok.com/@rafidaham_hairdressing" className="colorp">Linkedin</a>
                <a href="https://pin.it/7p9wCp9ex" className="colorp">Pinterest Hair Colorist</a>
 

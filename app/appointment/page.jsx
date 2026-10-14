@@ -135,7 +135,7 @@ const STRINGS = {
   },
 };
 
-const WHATSAPP_NUMBER = '96178808100';
+const WHATSAPP_NUMBER = '9613896074';
 const LOGO = 'https://res.cloudinary.com/dtjcqfoxc/image/upload/v1751030325/black_bgez4v.webp';
 
 /* ------------------------------------------------------------------ icons */

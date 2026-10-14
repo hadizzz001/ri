@@ -23,7 +23,7 @@
     {
       title: "Socials",
       links: [
-        { title: "WhatsApp", url: "https://wa.me/9619231511" },
+        { title: "WhatsApp", url: "https://wa.me/9613896074" },
         { title: "Facebook", url: "https://www.facebook.com/profile.php?id=100070231930301" },
       ],
     },
@@ -50,7 +50,7 @@
     {
       title: "الاجتماعية",
       links: [
-        { title: "واتس اب", url: "https://wa.me/96560999213" },
+        { title: "واتس اب", url: "https://wa.me/9613896074" },
         { title: "فيسبوك", url: "https://www.facebook.com/cherry.cardona" },
       ],
     },

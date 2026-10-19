@@ -7,6 +7,9 @@
  *  Step 2 — Time       (country / city, calendar, time slots)
  *  Step 3 — Confirm    (salon or home service, contact details, notes)
  *
+ * Every country and every day can be booked, 08:00 to midnight; a time is
+ * free until somebody takes it (lib/bookingOptions.js).
+ *
  * On confirm: the booking is stored in MongoDB, a confirmation email is sent
  * with Resend (plus reminder emails 2 & 1 day before via /api/booking/reminders)
  * and the client is handed over to WhatsApp with a ready-made message.
@@ -14,8 +17,10 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import './appointment.css';
+import { useAuth } from '../context/AuthContext';
 import { bookingText, buildBookingText, priceLines } from '../lib/bookingMessage';
 import { SERVICE_TYPES, bookingTotals, homeFactor, locationFactor } from '../lib/bookingPrice';
+import { COUNTRIES, LEBANON, LEBANON_CITIES, OPEN_HOURS, cleanCity, slotKey } from '../lib/bookingOptions';
 
 /* --------------------------------------------------------------------- i18n */
 
@@ -37,7 +42,7 @@ const STRINGS = {
     city: 'City',
     chooseCountry: 'Choose a country',
     chooseCity: 'Choose a city',
-    noDates: 'No dates available for this location yet.',
+    typeCity: 'Enter your city',
     noSlots: 'No free times on this day — please choose another date.',
     serviceTypeTitle: 'Salon or home service?',
     serviceTypeHints: { salon: 'Visit us at the salon', home: 'We come to your place' },
@@ -56,7 +61,7 @@ const STRINGS = {
     emptyCart: 'No services selected',
     total: 'Total',
     free: 'free',
-    deposit: 'A 25% deposit is required to confirm the appointment.',
+    deposit: (amount) => `A 25% deposit (${amount}) is required to confirm the appointment.`,
     outside: 'Out-of-Lebanon bookings are priced at the travelling rate.',
     serviceCount: (n) => `${n} service${n === 1 ? '' : 's'}`,
     errRequired: 'This field is required',
@@ -76,6 +81,9 @@ const STRINGS = {
     openWhatsApp: 'Send details on WhatsApp',
     waHint:
       "If WhatsApp didn't open automatically, tap the button above to send us your booking details.",
+    manageBefore: 'Plans changed? You can cancel it from ',
+    manageLink: 'My account',
+    manageAfter: (email) => `, signed in with ${email}.`,
   },
   ar: {
     dir: 'rtl',
@@ -94,7 +102,7 @@ const STRINGS = {
     city: 'المدينة',
     chooseCountry: 'اختر الدولة',
     chooseCity: 'اختر المدينة',
-    noDates: 'لا توجد تواريخ متاحة لهذا الموقع حالياً.',
+    typeCity: 'أدخل مدينتك',
     noSlots: 'لا توجد أوقات متاحة في هذا اليوم — يرجى اختيار تاريخ آخر.',
     serviceTypeTitle: 'في الصالون أم في المنزل؟',
     serviceTypeHints: { salon: 'زيارتنا في الصالون', home: 'نأتي إلى منزلك' },
@@ -113,7 +121,7 @@ const STRINGS = {
     emptyCart: 'لم يتم اختيار أي خدمة',
     total: 'الإجمالي',
     free: 'مجاني',
-    deposit: 'يلزم دفع 25% كعربون لتأكيد الموعد.',
+    deposit: (amount) => `يلزم دفع 25% كعربون (${amount}) لتأكيد الموعد.`,
     outside: 'الحجوزات خارج لبنان تُحتسب بسعر التنقّل.',
     serviceCount: (n) => `${n} خدمة`,
     errRequired: 'هذا الحقل مطلوب',
@@ -132,7 +140,35 @@ const STRINGS = {
     openWhatsApp: 'إرسال التفاصيل عبر واتساب',
     waHint:
       'إذا لم يُفتح واتساب تلقائياً، اضغط على الزر أعلاه لإرسال تفاصيل حجزك.',
+    manageBefore: 'هل تغيّرت خططك؟ يمكنك إلغاء الموعد من ',
+    manageLink: 'حسابي',
+    manageAfter: (email) => ` بعد تسجيل الدخول بالبريد ${email}.`,
   },
+};
+
+/** Lebanon first, then every other country, named in the page's language. */
+const countryOptions = (lang) => {
+  let names = null;
+  if (lang === 'ar') {
+    try {
+      names = new Intl.DisplayNames(['ar'], { type: 'region' });
+    } catch {
+      /* English names below */
+    }
+  }
+  const AR_NAMES = { LB: 'لبنان', PS: 'فلسطين' };
+  const label = (code, name) => (lang === 'ar' ? AR_NAMES[code] || names?.of(code) || name : name);
+  const all = COUNTRIES.map(([code, name]) => ({ value: name, label: label(code, name) }));
+  const others = all.filter((c) => c.value !== LEBANON);
+  if (lang === 'ar') others.sort((a, b) => a.label.localeCompare(b.label, 'ar'));
+  return { lebanon: all.find((c) => c.value === LEBANON), others };
+};
+
+/** Beirut first, then Lebanon's other districts in alphabetical order. */
+const lebanonCityOptions = (lang) => {
+  const [beirut, ...rest] = LEBANON_CITIES.map(([en, ar]) => ({ value: en, label: lang === 'ar' ? ar : en }));
+  if (lang === 'ar') rest.sort((a, b) => a.label.localeCompare(b.label, 'ar'));
+  return [beirut, ...rest];
 };
 
 const WHATSAPP_NUMBER = '9613896074';
@@ -298,10 +334,12 @@ export default function AppointmentPage() {
   const t = STRINGS[lang];
   const m = bookingText(lang);
 
+  const { user } = useAuth();
+
   const [step, setStep] = useState(1);
   const [services, setServices] = useState([]);
   const [loadingServices, setLoadingServices] = useState(true);
-  const [availability, setAvailability] = useState([]);
+  const [taken, setTaken] = useState(() => new Set()); // slotKey()s of booked times
 
   const [activeCat, setActiveCat] = useState('');
   const [cart, setCart] = useState({});
@@ -339,8 +377,10 @@ export default function AppointmentPage() {
 
     fetch('/api/apoint')
       .then((r) => r.json())
-      .then((json) => setAvailability(Array.isArray(json) ? json : []))
-      .catch(() => setAvailability([]));
+      .then((json) =>
+        setTaken(new Set((json?.taken || []).map((b) => slotKey(b.country, b.city, b.date, b.hour))))
+      )
+      .catch(() => setTaken(new Set()));
 
     fetch('/api/tax')
       .then((r) => r.json())
@@ -363,43 +403,26 @@ export default function AppointmentPage() {
     [services, activeCat]
   );
 
-  const countries = useMemo(
-    () => [...new Set(availability.map((a) => a?.info?.country).filter(Boolean))],
-    [availability]
-  );
+  const countryList = useMemo(() => countryOptions(lang), [lang]);
+  const cityList = useMemo(() => lebanonCityOptions(lang), [lang]);
+  const placeChosen = !!country && !!cleanCity(city);
 
-  const cities = useMemo(
-    () => [
-      ...new Set(
-        availability
-          .filter((a) => a?.info?.country === country)
-          .map((a) => a?.info?.city)
-          .filter(Boolean)
-      ),
-    ],
-    [availability, country]
-  );
-
-  /** { 'YYYY-MM-DD': ['10:00', ...] } for the picked country + city */
-  const slotsByDate = useMemo(() => {
-    const map = {};
-    availability
-      .filter((a) => a?.info?.country === country && a?.info?.city === city)
-      .forEach((a) => {
-        (a.info.dates || []).forEach((d) => {
-          const key = String(d.date).split('T')[0];
-          const free = (d.hours || []).filter((h) => !h.booked).map((h) => h.hour);
-          map[key] = [...new Set([...(map[key] || []), ...free])].sort();
-        });
-      });
-    return map;
-  }, [availability, country, city]);
+  /** Start times still free on a day ('YYYY-MM-DD') for the picked place; today's past times are gone. */
+  const freeHours = (iso) => {
+    const now = new Date();
+    const today = fmtLocalDate(now);
+    if (!placeChosen || iso < today) return [];
+    const nowTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    return OPEN_HOURS.filter(
+      (h) => (iso > today || h > nowTime) && !taken.has(slotKey(country, city, iso, h))
+    );
+  };
 
   const cartItems = useMemo(() => Object.values(cart), [cart]);
   const priceFactor = locationFactor(country);
   const totals = bookingTotals(
     cartItems.map((i) => ({ price: Number(i.price) * priceFactor, qty: i.qty })),
-    { country, serviceType, taxPercent }
+    { country, city, serviceType, taxPercent }
   );
   const totalLines = priceLines(totals, lang);
   const homeCostsMore = homeFactor('home', country) > 1;
@@ -462,9 +485,21 @@ export default function AppointmentPage() {
     setHour('');
   }, [date]);
 
+  // A signed-in client's details are filled in (the booking then also shows
+  // up under My account, where it can be cancelled)
+  useEffect(() => {
+    if (!user) return;
+    setForm((f) => ({
+      ...f,
+      name: f.name || user.name || '',
+      phone: f.phone || user.phone || '',
+      email: f.email || user.email || '',
+    }));
+  }, [user]);
+
   const canContinue = () => {
     if (step === 1) return cartItems.length > 0;
-    if (step === 2) return !!country && !!city && !!date && !!hour;
+    if (step === 2) return placeChosen && !!date && !!hour;
     return true;
   };
 
@@ -511,7 +546,7 @@ export default function AppointmentPage() {
       const payload = {
         ...form,
         country,
-        city,
+        city: result.city || city,
         date,
         hour,
         serviceType,
@@ -524,6 +559,9 @@ export default function AppointmentPage() {
         deposit: result.deposit,
         cart: result.cart,
       };
+
+      // The time is now taken (for "Book another appointment")
+      setTaken((prev) => new Set(prev).add(slotKey(country, payload.city, date, hour)));
 
       const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
         buildBookingText(payload, lang)
@@ -557,7 +595,7 @@ export default function AppointmentPage() {
     setDate('');
     setHour('');
     setServiceType('');
-    setForm({ name: '', phone: '', email: '', notes: '' });
+    setForm({ name: user?.name || '', phone: user?.phone || '', email: user?.email || '', notes: '' });
     setErrors({});
   };
 
@@ -640,6 +678,11 @@ export default function AppointmentPage() {
             {t.openWhatsApp}
           </a>
           <p className="fr-done-hint">{t.waHint}</p>
+          <p className="fr-done-hint">
+            {t.manageBefore}
+            <a href="/account?tab=appointments">{t.manageLink}</a>
+            {t.manageAfter(done.email)}
+          </p>
 
           <button type="button" className="rd-btn rd-btn--ghost fr-cta" onClick={resetAll}>
             {t.newBooking}
@@ -716,7 +759,9 @@ export default function AppointmentPage() {
           <span>{money(totals.total)}</span>
         </div>
 
-        {cartItems.length > 0 && <div className="fr-summary-note">{t.deposit}</div>}
+        {cartItems.length > 0 && totals.deposit > 0 && (
+          <div className="fr-summary-note">{t.deposit(money(totals.deposit))}</div>
+        )}
         {priceFactor > 1 && <div className="fr-summary-note">{t.outside}</div>}
 
         {step < 3 && (
@@ -856,9 +901,11 @@ export default function AppointmentPage() {
                     onChange={(e) => setCountry(e.target.value)}
                   >
                     <option value="">{t.chooseCountry}</option>
-                    {countries.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
+                    <option value={countryList.lebanon.value}>{countryList.lebanon.label}</option>
+                    <option disabled>──────────</option>
+                    {countryList.others.map((c) => (
+                      <option key={c.value} value={c.value}>
+                        {c.label}
                       </option>
                     ))}
                   </select>
@@ -866,28 +913,36 @@ export default function AppointmentPage() {
 
                 <div className="fr-field">
                   <label htmlFor="fr-city">{t.city}</label>
-                  <select
-                    id="fr-city"
-                    className="fr-input"
-                    value={city}
-                    disabled={!country}
-                    onChange={(e) => setCity(e.target.value)}
-                  >
-                    <option value="">{t.chooseCity}</option>
-                    {cities.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
+                  {country === LEBANON ? (
+                    <select
+                      id="fr-city"
+                      className="fr-input"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                    >
+                      <option value="">{t.chooseCity}</option>
+                      {cityList.map((c) => (
+                        <option key={c.value} value={c.value}>
+                          {c.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      id="fr-city"
+                      className="fr-input"
+                      value={city}
+                      disabled={!country}
+                      placeholder={country ? t.typeCity : t.chooseCity}
+                      autoComplete="address-level2"
+                      maxLength={80}
+                      onChange={(e) => setCity(e.target.value)}
+                    />
+                  )}
                 </div>
               </div>
 
-              {city && Object.keys(slotsByDate).length === 0 && (
-                <p className="fr-error">{t.noDates}</p>
-              )}
-
-              {city && Object.keys(slotsByDate).length > 0 && (
+              {placeChosen && (
                 <>
                   <h2 className="fr-h2">{t.selectTime}</h2>
                   <MiniCalendar
@@ -896,21 +951,17 @@ export default function AppointmentPage() {
                     onMonthChange={setMonth}
                     value={date}
                     onChange={setDate}
-                    isEnabled={(iso, d) => {
-                      const today = new Date();
-                      today.setHours(0, 0, 0, 0);
-                      return d >= today && (slotsByDate[iso] || []).length > 0;
-                    }}
+                    isEnabled={(iso) => freeHours(iso).length > 0}
                   />
 
                   {date && (
                     <>
                       <h2 className="fr-h2">{prettyDate(date, lang)}</h2>
-                      {(slotsByDate[date] || []).length === 0 ? (
+                      {freeHours(date).length === 0 ? (
                         <p className="fr-error">{t.noSlots}</p>
                       ) : (
                         <div className="fr-slots">
-                          {slotsByDate[date].map((h) => (
+                          {freeHours(date).map((h) => (
                             <button
                               type="button"
                               key={h}

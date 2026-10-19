@@ -1,201 +1,139 @@
 'use client';
-import { useState } from 'react';
-import Image from 'next/image';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaPinterestP, FaTiktok, FaWhatsapp } from 'react-icons/fa';
+import ServiceHighlights from './ServiceHighlights';
 import Subscribe from './Subscribe';
 
+const LOGO = 'https://res.cloudinary.com/dtjcqfoxc/image/upload/v1751030325/black_bgez4v.webp';
 
-const Footer = () => {
-    const [showPolicies, setShowPolicies] = useState(false);
-    const [showCustomerCare, setShowCustomerCare] = useState(false);
-    const [showServices, setShowServices] = useState(false);
+const ABOUT =
+    'Rafi Daham embarked on his hairstyling journey in 1994, transforming his passion for artistry and precision into a lifelong career. At Rafi Daham Salon, we believe that hair is a crown you never take off.';
 
-    return (
-        <footer className="bg-[#f8f8f8] text-[#222]">
+const QUICK_LINKS = [
+    { href: '/privacy', text: 'Privacy Policy' },
+    { href: '/term', text: 'Terms of Service' },
+    { href: '/contact', text: 'Contact us' },
+    { href: '/services', text: 'Services' },
+    { href: '/ext', text: 'Extensions' },
+];
 
-            {/* Newsletter — the "Stay up to date" band, edge to edge above the links */}
-            <Subscribe />
+const SOCIAL = [
+    { href: 'https://www.instagram.com/rafidaham_hairdressing', label: 'Instagram', Icon: FaInstagram },
+    { href: 'https://www.facebook.com/1raffidahamhairdressing/', label: 'Facebook', Icon: FaFacebookF },
+    { href: 'https://wa.me/9613896074', label: 'WhatsApp', Icon: FaWhatsapp },
+    { href: 'https://lb.linkedin.com/in/rafi-daham-aa74a492', label: 'Linkedin', Icon: FaLinkedinIn },
+    { href: 'https://www.tiktok.com/@rafidaham_hairdressing', label: 'TikTok', Icon: FaTiktok },
+    { href: 'https://pin.it/7p9wCp9ex', label: 'Pinterest Hair Colorist', Icon: FaPinterestP },
+];
 
-            <div className="px-4 pb-10">
-            {/* PC FOOTER */}
-            <div className="hidden md:block">
-                {/* Top Row */}
-                <div className="max-w-[1300px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-sm border-b border-[#c5c5c5] pb-8 items-center mt-20">
-                    {/* Policies */}
-                    <div className="flex flex-col items-center">
-                        <div className="text-left">
-                            <p className="mb-3 myfp">Policies</p>
-                            <ul className="space-y-2">
-                                <li><a href="/privacy" className="colorp">Privacy Policy</a></li>
-                                <li><a href="/term" className="colorp">Terms of Service</a></li>
-                            </ul>
-                        </div>
+/**
+ * End of every page, laid out like amadeussabra.com's: the four service
+ * promises, the "Stay up to date" newsletter band, then the dark footer —
+ * logo, About, Quick Links and Newsletter columns spread across the width,
+ * a row of social icons and the copyright line.
+ */
+const Footer = () => (
+    <footer className="rdFooter">
+        <ServiceHighlights />
+
+        {/* Newsletter — the "Stay up to date" band, edge to edge above the links */}
+        <Subscribe />
+
+        <div className="rdFooter__main">
+            <div className="rdFooter__inner">
+                <div className="rdFooter__blocks">
+                    <div className="rdFooter__block rdFooter__block--image">
+                        <img className="rdFooter__logo" src={LOGO} alt="Rafi Daham" width={160} height={160} loading="lazy" />
                     </div>
 
-                    {/* Customer Care */}
-                    <div className="flex flex-col items-center">
-                        <div className="text-left">
-                            <p className="myfp mb-3">Customer Care</p>
-                            <ul className="space-y-2">
-                                <li><a href="/contact" className="colorp">Contact us</a></li>
-                            </ul>
-                        </div>
+                    <div className="rdFooter__block rdFooter__block--text">
+                        <p className="rdFooter__heading">About Rafi Daham</p>
+                        <p className="rdFooter__about">{ABOUT}</p>
                     </div>
 
-                    {/* Services */}
-                    <div className="flex flex-col items-center">
-                        <div className="text-left">
-                            <p className="myfp mb-3">Services</p>
-                            <ul className="space-y-2">
-                                <li><a href="/services" className="colorp">Services</a></li>
-                                <li><a href="/ext" className="colorp">Extensions</a></li>
-                            </ul>
-                        </div>
+                    <div className="rdFooter__block rdFooter__block--links">
+                        <p className="rdFooter__heading">Quick Links</p>
+                        <ul className="rdFooter__links">
+                            {QUICK_LINKS.map((item) => (
+                                <li key={item.href}>
+                                    <a href={item.href} className="rdFooter__link">{item.text}</a>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
-                </div>
 
-                {/* Middle Row */}
-                <div className="max-w-8xl mx-auto grid grid-cols-1 md:grid-cols-3 items-center   mb-10">
-                    <div></div>
-                    <div className="flex justify-center">
-                        <img src="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1751030325/black_bgez4v.webp" alt="Logo" width={70} />
-                    </div>
-                    <div className="flex justify-center md:justify-end gap-5">
-                        <a href='https://www.instagram.com/rafidaham_hairdressing' className='colorp'>Instagram</a>
-                        <a href='https://www.facebook.com/1raffidahamhairdressing/' className='colorp'>Facebook</a>
-                        <a href='https://wa.me/9613896074' className='colorp'>WhatsApp</a>
-                        <a href='https://lb.linkedin.com/in/rafi-daham-aa74a492https://www.tiktok.com/@rafidaham_hairdressing' className='colorp'>Linkedin</a>
-                   <a href="https://pin.it/7p9wCp9ex" className="colorp">Pinterest Hair Colorist</a>
-
+                    <div className="rdFooter__block rdFooter__block--newsletter">
+                        <Subscribe variant="footer" />
                     </div>
                 </div>
 
-                <hr id='myhrbar' className="my-4" />
+                <ul className="rdFooter__social">
+                    {SOCIAL.map(({ href, label, Icon }) => (
+                        <li key={label}>
+                            <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label} title={label}>
+                                <Icon aria-hidden="true" />
+                            </a>
+                        </li>
+                    ))}
+                </ul>
 
-                {/* Bottom Row */}
-                <div className="text-center mt-20 mb-20">
-                    <p className="text-sm uppercase">Rafi Daham {new Date().getFullYear()} ALL RIGHTS RESERVED</p>
-                </div>
-            </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            {/* MOBILE FOOTER */}
-            <div id='mymobfoot' className="block md:hidden text-sm space-y-6 mt-20 mb-20">
-                {/* Reusable toggle section */}
-                {[
-                    {
-                        label: 'Policies',
-                        isOpen: showPolicies,
-                        setOpen: setShowPolicies,
-                        items: [
-                            { href: '/privacy', text: 'Privacy Policy' },
-                            { href: '/term', text: 'Terms of Service' },
-                        ],
-                    },
-                    {
-                        label: 'Customer Care',
-                        isOpen: showCustomerCare,
-                        setOpen: setShowCustomerCare,
-                        items: [
-                            { href: '/contact', text: 'Contact Us' },
-                        ],
-                    },
-                    {
-                        label: 'Services',
-                        isOpen: showServices,
-                        setOpen: setShowServices,
-                        items: [
-                            { href: '/services', text: 'Services' },
-                            { href: '/ext', text: 'Extensions' },
-                        ],
-                    },
-                ].map(({ label, isOpen, setOpen, items }, index) => (
-                    <div key={index}>
-                        <div
-                            className="flex justify-between items-center cursor-pointer"
-                            onClick={() => setOpen(!isOpen)}
-                        >
-                            <p className="myfp">{label}</p>
-                            <div
-                                className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : 'rotate-0'
-                                    }`}
-                            >
-                                <FaChevronDown />
-                            </div>
-                        </div>
-                        <div
-                            className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
-                                }`}
-                        >
-                            <ul className="mt-2 space-y-2 ">
-                                {items.map((item, i) => (
-                                    <li key={i}>
-                                        <a href={item.href} className="colorp">
-                                            {item.text}
-                                        </a>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                          <hr id='myhrbar1' className="my-4" />
-                    </div>
-                ))}
-
-                {/* Social Links */}
-                <div className="flex flex-wrap justify-center gap-3 pt-2">
-                    <a href="https://www.instagram.com/rafidaham_hairdressing" className="colorp">Instagram</a>
-                    <a href="https://www.facebook.com/1raffidahamhairdressing/" className="colorp">Facebook</a>
-                    <a href="https://wa.me/9613896074" className="colorp">WhatsApp</a>
-                    <a href="https://lb.linkedin.com/in/rafi-daham-aa74a492https://www.tiktok.com/@rafidaham_hairdressing" className="colorp">Linkedin</a>
-               <a href="https://pin.it/7p9wCp9ex" className="colorp">Pinterest Hair Colorist</a>
-
-                </div>
-
-                 <hr id='myhrbar1' className="my-4" />
-
-                {/* Logo */}
-                <div className="flex justify-center mt-6">
-                    <img src="https://res.cloudinary.com/dtjcqfoxc/image/upload/v1751030325/black_bgez4v.webp" alt="Logo" width={70} />
-                </div>
-
-                {/* Copyright */}
-                <div className="text-center mt-20 mb-20">
-                    <p className="text-sm uppercase">Rafi Daham {new Date().getFullYear()} ALL RIGHTS RESERVED</p>
+                <div className="rdFooter__aside">
+                    <p className="rdFooter__copy">Rafi Daham {new Date().getFullYear()} ALL RIGHTS RESERVED</p>
                 </div>
             </div>
-            </div>
+        </div>
 
+        <style
+            dangerouslySetInnerHTML={{
+                __html: `
+/* Colours, type and spacing follow amadeussabra.com's footer (Prestige theme,
+   colour scheme 3). globals.css makes every link white, every border
+   transparent and every list a bulleted one, hence the !important rules. */
+.rdFooter__main{background:#1c1c1c;color:#fff;padding:40px 0 64px} /* bottom: clears the chat / booking buttons fixed at the bottom */
+@media(min-width:1000px){.rdFooter__main{padding-top:64px}}
+.rdFooter__inner{display:grid;row-gap:40px;margin:0 20px}
+@media(min-width:700px){.rdFooter__inner{margin:0 32px}}
+@media(min-width:1000px){.rdFooter__inner{row-gap:48px;margin:0 48px}}
 
+/* phones: stacked; from 700px: one row, spread out — the About and Newsletter
+   columns take the spare width, the logo and links keep theirs */
+.rdFooter__blocks{display:grid;justify-content:start;align-items:start;gap:40px}
+@media(min-width:700px){
+  .rdFooter__blocks{display:flex;flex-wrap:wrap;justify-content:space-between;gap:48px}
+  .rdFooter__block{flex:auto}
+  .rdFooter__block--image,.rdFooter__block--links{flex-grow:0;max-width:14rem}
+  .rdFooter__block--text{flex-basis:14rem;max-width:24rem}
+  .rdFooter__block--newsletter{flex-basis:14rem;max-width:18rem}
+}
+@media(min-width:1150px){.rdFooter__blocks{column-gap:60px}}
+@media(min-width:1400px){.rdFooter__blocks{column-gap:80px}}
+.rdFooter__block{display:grid;align-content:start;gap:16px}
+@media(min-width:700px){.rdFooter__block{gap:20px}}
+.rdFooter__logo{display:block;width:160px;max-width:100%;height:auto;filter:brightness(0) invert(1)}
 
+.rdFooter__heading,.rdFooter__copy{margin:0!important;font-family:var(--font-heading)!important;font-weight:400!important;
+  letter-spacing:.18em!important;text-transform:uppercase;overflow-wrap:anywhere}
+.rdFooter__heading{font-size:12px!important;line-height:1.7!important;color:#fff!important}
+.rdFooter__about{margin:0!important;font-size:14px;line-height:1.65;color:rgba(255,255,255,.65)!important}
+.rdFooter__links{display:grid;gap:10px;margin:0;padding:0}
+.rdFooter :is(ul,li){list-style:none!important}
+.rdFooter a.rdFooter__link{font-size:14px!important;line-height:1.65;color:rgba(255,255,255,.65)!important;
+  text-decoration:none!important;transition:color .2s ease-in-out}
+.rdFooter a.rdFooter__link:hover{color:#fff!important}
 
+.rdFooter__social{display:flex;flex-wrap:wrap;align-items:center;gap:12px 32px;margin:0;padding:0}
+.rdFooter__social a{position:relative;display:block;color:#fff!important;opacity:.65;transition:opacity .2s}
+.rdFooter__social a:hover{color:#fff!important;opacity:1}
+.rdFooter__social a::before{content:"";position:absolute;inset:-8px} /* bigger tap target */
+.rdFooter__social svg{display:block;width:20px;height:20px}
 
-
-
-
-
-
-
-
-
-
-
-
-        </footer>
-    );
-};
+/* copyright: centred on phones, at the start of the row from 1000px */
+.rdFooter__aside{display:grid;justify-content:center;text-align:center}
+@media(min-width:1000px){.rdFooter__aside{justify-content:start;text-align:start}}
+.rdFooter__copy{font-size:11px!important;line-height:1.7!important;color:rgba(255,255,255,.65)!important}
+`,
+            }}
+        />
+    </footer>
+);
 
 export default Footer;

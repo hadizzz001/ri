@@ -39,9 +39,12 @@ const LINKS = [
   ['/contact', 'Contact Us'],
 ];
 
+// Pages that open on a full-width banner the header sits on top of
+const OVER_HERO_PATHS = ['/', '/shop'];
+
 export default function NavBar() {
-  // The home page opens on a full-screen hero that the header sits on top of
-  const overHero = usePathname() === '/';
+  const pathname = usePathname();
+  const overHero = OVER_HERO_PATHS.includes(pathname);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -156,9 +159,9 @@ export default function NavBar() {
         onFocusCapture={() => setHidden(false)}
       >
         <div className="rd-header__bar">
-          {/* Hamburger (+ wishlist on mobile) */}
+          {/* Hamburger (+ wishlist on mobile); computers get the link row below instead */}
           <div className="rd-header__left">
-            <button type="button" onClick={() => setMenuOpen(true)} aria-label="Open menu" className="nav-btn">
+            <button type="button" onClick={() => setMenuOpen(true)} aria-label="Open menu" className="nav-btn rd-header__menu-btn">
               <Ico.Menu />
               <span className="rd-header__menu-label">Menu</span>
             </button>
@@ -194,6 +197,17 @@ export default function NavBar() {
             </button>
           </div>
         </div>
+
+        {/* Computers: the menu as a centred row under the logo (as on amadeussabra.com) */}
+        <nav className="rd-header__nav" aria-label="Main">
+          <ul>
+            {LINKS.map(([href, label]) => (
+              <li key={href}>
+                <a href={href} aria-current={href === pathname ? 'page' : undefined}>{label}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </header>
 
       {/* Menu drawer — slides in from the left. Rendered outside <header> so its

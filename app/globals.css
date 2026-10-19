@@ -636,11 +636,6 @@
  }
 
 
- #mymobfoot {
-   display: none !important;
- }
-
-
  @media (max-width: 768px) {
    .SiteFooterSitemap .column {
      background: #f8f8f8 !important;
@@ -652,10 +647,6 @@
 
    .gradient-top-overlay {
      height: 30px;
-   }
-
-   #mymobfoot {
-     display: block !important;
    }
 
 
@@ -854,37 +845,6 @@
    color: #fff !important;
  }
 
- .colorp {
-   color: #777 !important;
-   font-size: 13px !important;
- }
-
- .myfp {
-   font-size: 17px !important;
-   line-height: 1.6 !important;
- }
-
-
- #myhrbar {
-   background-color: #fafafa !important;
-   color: var(#d1d1d1, #fff) !important;
-   border-top: 1px solid #d1d1d1 !important;
-   margin-top: 40px !important;
-   padding: 5px 0 !important;
-   position: relative !important;
-   font-weight: 400 !important;
-   font-size: .8rem !important;
- }
-
- #myhrbar1 {
-   background-color: #fafafa !important;
-   color: var(#d1d1d1, #fff) !important;
-   border-top: 1px solid #d1d1d1 !important;
-   padding: 5px 0 !important;
-   position: relative !important;
-   font-weight: 400 !important;
-   font-size: .8rem !important;
- }
 
 
 

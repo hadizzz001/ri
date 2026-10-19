@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 
 // Service promises strip (amadeussabra.com style): all four side by side on
-// larger screens, a swipeable one-at-a-time carousel on phones.
+// larger screens, a swipeable one-at-a-time carousel on phones. It opens the
+// footer on every page, right above the "Stay up to date" newsletter band.
 
 const Icon = ({ children }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -138,7 +139,7 @@ const ServiceHighlights = () => {
       <style
         dangerouslySetInnerHTML={{
           __html: `
-.serviceHighlights{background:#fff;color:#1c1c1c;border-top:1px solid #dddddd !important;padding:2.5rem 1.25rem;margin-top:2rem}
+.serviceHighlights{background:#fff;color:#1c1c1c;border-top:1px solid #dddddd !important;padding:2.5rem 1.25rem}
 .serviceHighlights *{color:#1c1c1c}
 .serviceHighlights__track{max-width:1360px;margin:0 auto}
 .serviceHighlights__dots{display:none}

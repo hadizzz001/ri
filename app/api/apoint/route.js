@@ -1,57 +1,36 @@
-import clientPromise from '../../lib/mongodb'; // Adjust path as needed
+import clientPromise from '../../lib/mongodb';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-const todayISO = () => new Date().toISOString().slice(0, 10);
+/** "YYYY-MM-DD" of yesterday (UTC), so every time zone's "today" is included. */
+const sinceISO = () => {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+};
 
+/**
+ * Booking is open every day for every country (see lib/bookingOptions.js), so
+ * the booking page only needs the times already taken by upcoming bookings:
+ * { taken: [{ country, city, date, hour }] }. Cancelled bookings free theirs.
+ */
 export async function GET() {
   try {
-    const client = await clientPromise; // Connect to MongoDB
+    const client = await clientPromise;
     const db = client.db('test');
 
-    const data = await db.collection('Appointment').find({}).toArray();
-
-    // Slots already taken by real bookings (upcoming only)
-    const bookings = await db
+    const taken = await db
       .collection('Booking')
       .find(
-        { date: { $gte: todayISO() }, status: { $ne: 'cancelled' } },
-        { projection: { country: 1, city: 1, date: 1, hour: 1 } }
+        { date: { $gte: sinceISO() }, status: { $ne: 'cancelled' } },
+        { projection: { _id: 0, country: 1, city: 1, date: 1, hour: 1 } }
       )
       .toArray();
 
-    const taken = new Set(
-      bookings.map((b) => `${b.country}|${b.city}|${b.date}|${b.hour}`)
-    );
-
-    // Merge the live bookings into the availability payload
-    const merged = data.map((doc) => {
-      const info = doc.info || {};
-      return {
-        ...doc,
-        info: {
-          ...info,
-          dates: (info.dates || []).map((d) => {
-            const day = String(d.date).split('T')[0];
-            return {
-              ...d,
-              date: day,
-              hours: (d.hours || []).map((h) => ({
-                ...h,
-                booked:
-                  !!h.booked ||
-                  taken.has(`${info.country}|${info.city}|${day}|${h.hour}`),
-              })),
-            };
-          }),
-        },
-      };
-    });
-
-    return NextResponse.json(merged);
+    return NextResponse.json({ taken });
   } catch (error) {
-    console.error('Error fetching data from MongoDB:', error);
+    console.error('Error fetching booked times:', error);
     return NextResponse.json({ error: 'Failed to fetch data' }, { status: 500 });
   }
 }

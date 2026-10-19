@@ -2,12 +2,22 @@
 
 import React, { useEffect, useRef, useState } from "react";
 
-// Portrait montage. Cloudinary delivers it as H.264 MP4: the uploaded .mov is
-// HEVC, which Chrome / Firefox on Android and Windows cannot play.
+// Both clips are delivered by Cloudinary as H.264 MP4: the uploaded .mov files
+// are HEVC, which Chrome / Firefox on Android and Windows cannot play.
+// Phones and tablets: the portrait montage.
 const VIDEO_SRC =
   "https://res.cloudinary.com/dgi9mfldc/video/upload/q_auto/v1790714141/IMG_7147_epw0az.mp4";
 const VIDEO_POSTER =
   "https://res.cloudinary.com/dgi9mfldc/video/upload/so_0,q_auto,f_auto/v1790714141/IMG_7147_epw0az.jpg";
+// Computers: the landscape film, edge to edge.
+const DESKTOP_VIDEO_SRC =
+  "https://res.cloudinary.com/dgi9mfldc/video/upload/q_auto/v1792417191/IMG_7607_xt9low.mp4";
+const DESKTOP_VIDEO_POSTER =
+  "https://res.cloudinary.com/dgi9mfldc/video/upload/so_0,q_auto,f_auto/v1792417191/IMG_7607_xt9low.jpg";
+// The browser picks the clip from these when the page loads (and again when the
+// window crosses over, see below); the styles use the same pair of queries.
+const DESKTOP_MEDIA = "(min-width: 1000px) and (orientation: landscape)";
+const MOBILE_MEDIA = "(max-width: 999.98px), (orientation: portrait)";
 
 // Slides cycled over the video, like the slideshow of amadeussabra.com's hero
 const SLIDES = [
@@ -68,9 +78,25 @@ const MyCarousel = () => {
   // The countdown starts once hydrated: a ring ending before then would go unheard
   useEffect(() => setAutoplay(true), []);
 
+  // A <source>'s media query is only read when the video loads: reload when
+  // the window switches between the computer and phone layouts.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return undefined;
+
+    const desktop = window.matchMedia(DESKTOP_MEDIA);
+    const reload = () => {
+      video.load();
+      video.play()?.catch(() => {});
+    };
+    desktop.addEventListener?.("change", reload);
+    return () => desktop.removeEventListener?.("change", reload);
+  }, []);
+
   // Wide screens show the whole portrait clip centred; a tiny canvas mirrors
   // the playing frame and is blurred behind it, so the sides glow with the
-  // scene's colours (no second download, always in sync).
+  // scene's colours (no second download, always in sync). Computers play the
+  // landscape clip full width instead, so they skip it.
   useEffect(() => {
     const hero = heroRef.current;
     const video = videoRef.current;
@@ -78,6 +104,7 @@ const MyCarousel = () => {
     if (!hero || !video || !canvas) return undefined;
 
     const wide = window.matchMedia("(min-aspect-ratio: 3/4)");
+    const desktop = window.matchMedia(DESKTOP_MEDIA);
     const ctx = canvas.getContext("2d");
     let frame = 0;
     let last = 0;
@@ -95,7 +122,7 @@ const MyCarousel = () => {
 
     const update = () => {
       cancelAnimationFrame(frame);
-      if (wide.matches && visible) frame = requestAnimationFrame(draw);
+      if (wide.matches && !desktop.matches && visible) frame = requestAnimationFrame(draw);
     };
 
     const observer = new IntersectionObserver(([entry]) => {
@@ -104,12 +131,14 @@ const MyCarousel = () => {
     });
     observer.observe(hero);
     wide.addEventListener?.("change", update);
+    desktop.addEventListener?.("change", update);
     update();
 
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
       wide.removeEventListener?.("change", update);
+      desktop.removeEventListener?.("change", update);
     };
   }, []);
 
@@ -159,11 +188,11 @@ const MyCarousel = () => {
       <div className="homeHero__media">
         <canvas ref={ambientRef} className="homeHero__ambient" width="64" height="36" aria-hidden="true" />
 
-        {/* Background Video */}
+        {/* Background video: the portrait clip on phones and tablets, the
+            landscape one on computers. Each poster is the video's CSS
+            background (below), as a poster attribute can't follow the layout. */}
         <video
           ref={videoRef}
-          src={VIDEO_SRC}
-          poster={VIDEO_POSTER}
           className="homeHero__video"
           muted
           playsInline
@@ -172,7 +201,10 @@ const MyCarousel = () => {
           loop
           disablePictureInPicture
           aria-hidden="true"
-        />
+        >
+          <source src={VIDEO_SRC} type="video/mp4" media={MOBILE_MEDIA} />
+          <source src={DESKTOP_VIDEO_SRC} type="video/mp4" />
+        </video>
       </div>
 
       {SLIDES.map((slide, index) => (
@@ -232,7 +264,8 @@ const MyCarousel = () => {
 /* the darkening veil amadeussabra.com lays over its footage */
 .homeHero__media::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
   background:linear-gradient(180deg,rgba(54,54,54,.2),rgba(4,4,4,.65) 100%)}
-.homeHero__video{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:cover}
+.homeHero__video{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:cover;
+  background:url(${VIDEO_POSTER}) center/cover no-repeat}
 .homeHero__ambient{display:none}
 /* Wider screens: the whole portrait, centred, edges feathered into the glow */
 @media (min-aspect-ratio:3/4){
@@ -241,6 +274,12 @@ const MyCarousel = () => {
   .homeHero__video{width:auto;max-width:100%;aspect-ratio:1080/1906;margin:0 auto;
     -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 12%,#000 88%,transparent 100%);
             mask-image:linear-gradient(90deg,transparent 0,#000 12%,#000 88%,transparent 100%)}
+}
+/* Computers: the landscape clip fills the hero edge to edge */
+@media ${DESKTOP_MEDIA}{
+  .homeHero__ambient{display:none}
+  .homeHero__video{width:100%;max-width:none;aspect-ratio:auto;margin:0;
+    background-image:url(${DESKTOP_VIDEO_POSTER});-webkit-mask-image:none;mask-image:none}
 }
 
 /* Copy: bottom-centre on phones (leaving room for the dots below it), centred

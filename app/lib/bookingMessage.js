@@ -5,6 +5,7 @@
  *
  * Plain data + pure helpers only — safe to import from client and server.
  */
+import { DEPOSIT_RATE, isLebanon } from './bookingPrice.js';
 
 export const BOOKING_MESSAGE = {
   en: {
@@ -109,12 +110,23 @@ export function priceLines(booking, lang = 'en') {
   ].filter(Boolean);
 }
 
+/**
+ * Deposit asked to confirm the booking: bookings outside Lebanon only (0 for
+ * the rest, older Lebanese bookings included, whatever amount they stored).
+ */
+export const bookingDeposit = (booking) =>
+  isLebanon(booking.country) ? 0 : Number(booking.deposit ?? Number(booking.total) * DEPOSIT_RATE) || 0;
+
+/** The note on prices goes with bookings outside Lebanon only. */
+export const showsPriceNote = (booking) => !isLebanon(booking.country);
+
 /** The full plain-text message, as sent on WhatsApp. */
 export function buildBookingText(booking, lang = 'en') {
   const t = bookingText(lang);
   const items = booking.cart || [];
   const minutes = cartDuration(items);
   const serviceType = t.serviceTypes[booking.serviceType];
+  const deposit = bookingDeposit(booking);
 
   const services = items.map((i) => {
     const qty = Number(i.qty) || 1;
@@ -141,15 +153,13 @@ export function buildBookingText(booking, lang = 'en') {
     '',
     ...priceLines(booking, lang).map(([label, amount]) => `${label}: ${amount}`),
     `${t.total}: ${money(booking.total)}`,
-    `${t.deposit}: ${money(booking.deposit ?? Number(booking.total) * 0.25)}`,
+    deposit ? `${t.deposit}: ${money(deposit)}` : null,
     booking.notes ? `${t.notes}: ${booking.notes}` : null,
     '',
     t.welcome,
     '',
     t.thanks,
-    '',
-    `*${t.noteTitle}*`,
-    ...t.noteLines,
+    ...(showsPriceNote(booking) ? ['', `*${t.noteTitle}*`, ...t.noteLines] : []),
   ]
     .filter((line) => line !== null)
     .join('\n');

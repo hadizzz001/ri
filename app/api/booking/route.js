@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '../../lib/mongodb';
+import { getCurrentUser } from '../../lib/auth';
 import { sendClientConfirmation } from '../../lib/appointmentEmails';
-import { SERVICE_TYPES, bookingTotals, locationFactor } from '../../lib/bookingPrice';
+import { SERVICE_TYPES, bookingTotals, isLebanon, locationFactor } from '../../lib/bookingPrice';
+import { OPEN_HOURS, cleanCity, isCountry, isLebanonCity } from '../../lib/bookingOptions';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,6 +11,15 @@ const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || ''));
 
 const makeReference = () =>
   'RD-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+
+/** "YYYY-MM-DD" of yesterday (UTC): the earliest date accepted, so every time zone's "today" passes. */
+const earliestDate = () => {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+};
+
+const isDate = (v) => /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(`${v}T00:00:00Z`));
 
 export async function POST(request) {
   try {
@@ -18,17 +29,24 @@ export async function POST(request) {
       phone,
       email,
       notes = '',
-      country,
-      city,
       date,
       hour,
       serviceType,
       cart = [],
       lang = 'en',
     } = body;
+    const country = String(body.country || '').trim();
+    const city = cleanCity(body.city);
 
     if (!name || !phone || !isEmail(email) || !country || !city || !date || !hour) {
       return NextResponse.json({ error: 'Missing or invalid fields' }, { status: 400 });
+    }
+    // Every country and every day is open, 08:00–23:30; the choices must still be real ones
+    if (!isCountry(country) || city.length > 80 || (isLebanon(country) && !isLebanonCity(city))) {
+      return NextResponse.json({ error: 'Please choose your country and city' }, { status: 400 });
+    }
+    if (!isDate(date) || date < earliestDate() || !OPEN_HOURS.includes(hour)) {
+      return NextResponse.json({ error: 'Please choose another date and time' }, { status: 400 });
     }
     if (!SERVICE_TYPES.includes(serviceType)) {
       return NextResponse.json({ error: 'Please choose salon or home service' }, { status: 400 });
@@ -68,29 +86,31 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Selected services not found' }, { status: 400 });
     }
 
-    // Tax percentage is set from the dashboard (one document, absent = no tax)
+    // Tax percentage is set from the dashboard (one document, absent = no
+    // tax); Beirut is tax free and only bookings abroad take a deposit
     const taxDoc = await db.collection('Tax').findOne({});
     const { subtotal, homeFee, taxPercent, tax, total, deposit } = bookingTotals(lineItems, {
       country,
+      city,
       serviceType,
       taxPercent: taxDoc?.percent,
     });
     const reference = makeReference();
 
-    // ---- Make sure the slot is still free, and take it
-    const taken = await db.collection('Booking').findOne({
-      country,
-      city,
-      date,
-      hour,
-      status: { $ne: 'cancelled' },
-    });
+    // ---- Make sure the slot is still free (the city in any letter case), and take it
+    const taken = await db.collection('Booking').findOne(
+      { country, city, date, hour, status: { $ne: 'cancelled' } },
+      { collation: { locale: 'en', strength: 2 } }
+    );
     if (taken) {
       return NextResponse.json(
         { error: 'This time slot has just been taken. Please pick another one.' },
         { status: 409 }
       );
     }
+
+    // A signed-in client sees the booking (and can cancel it) under My account
+    const user = await getCurrentUser().catch(() => null);
 
     const booking = {
       reference,
@@ -113,6 +133,7 @@ export async function POST(request) {
       deposit,
       status: 'pending',
       remindersSent: [], // e.g. [2, 1]
+      ...(user ? { userId: user._id } : {}),
       createdAt: new Date(),
     };
 
@@ -130,18 +151,6 @@ export async function POST(request) {
       bookingId: result.insertedId,
     });
 
-    // Flag the hour as booked inside the Appointment availability document
-    await db.collection('Appointment').updateOne(
-      { 'info.country': country, 'info.city': city },
-      { $set: { 'info.dates.$[d].hours.$[h].booked': true } },
-      {
-        arrayFilters: [
-          { 'd.date': { $regex: `^${date}` } },
-          { 'h.hour': hour },
-        ],
-      }
-    );
-
     // ---- Email (never block the booking if the provider fails).
     // Only the client gets an email; the salon receives the booking
     // details through the WhatsApp handoff.
@@ -157,6 +166,7 @@ export async function POST(request) {
       success: true,
       reference,
       insertedId: result.insertedId,
+      city,
       serviceType,
       subtotal,
       homeFee,

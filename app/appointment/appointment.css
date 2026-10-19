@@ -545,8 +545,12 @@
   color: #cfc8c0;
   cursor: default;
 }
+/* bookable days sit on the brand beige; the picked one turns dark */
 .fr-cal-day.has-slots:not(.is-on) {
-  box-shadow: inset 0 0 0 1px var(--fr-line);
+  background: #cab8ac;
+}
+.fr-cal-day.has-slots:not(.is-on):hover {
+  background: #bba696;
 }
 .fr-cal-day.is-on {
   background: var(--fr-ink);

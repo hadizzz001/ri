@@ -17,7 +17,9 @@ import { AuthProvider } from '../app/context/AuthContext'
  * the root layout so the layout stays a server component (page metadata).
  */
 export default function SiteShell({ children }: { children: React.ReactNode }) {
-  const isHome = usePathname() === '/'
+  const pathname = usePathname()
+  // These open on a full-width banner under the header and lay themselves out
+  const fullBleed = pathname === '/' || pathname === '/shop'
 
   return (
     <ClientWrapper>
@@ -29,7 +31,7 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
             <Navbar2 />
             <WhatsAppIcon />
             <Appoint />
-            {isHome ? children : <main className="site-container">{children}</main>}
+            {fullBleed ? children : <main className="site-container">{children}</main>}
             <Footer />
           </BooleanProvider>
         </CartProvider>

@@ -10,7 +10,6 @@ import News from './News';
 import NewsTicker from './NewsTicker';
 import AdsBanner from './AdsBanner';
 import CorePhilosophy from './CorePhilosophy';
-import ServiceHighlights from './ServiceHighlights';
 import FeaturedProducts from './FeaturedProducts';
 
 
@@ -156,7 +155,6 @@ const Body = () => {
         <Services />
         <Reviews />
         <Map />
-        <ServiceHighlights />
         {/* last section: sits right on top of the footer */}
         <CorePhilosophy />
 

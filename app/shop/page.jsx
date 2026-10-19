@@ -1,5 +1,12 @@
 "use client";
 
+/**
+ * Shop, laid out like amadeussabra.com/collections/all: a banner under the
+ * (transparent) header, a sticky toolbar (filter · product count · sort ·
+ * grid density), filters in collapsible groups — a sidebar on computers, a
+ * drawer on phones — and 3 products per row.
+ */
+
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ProductCard from "../../components1/shop/ProductCard";
@@ -17,36 +24,69 @@ const SORT_OPTIONS = [
   ["oldest", "Date, old to new"],
 ];
 
-/* ────────── small pieces ────────── */
+// Banner: a still from the home page film
+const bannerSrc = (w) =>
+  `https://res.cloudinary.com/dgi9mfldc/video/upload/so_1,q_auto,f_auto,w_${w}/v1792417191/IMG_7607_xt9low.jpg`;
+
+/* ────────── icons ────────── */
 
 const Chevron = () => (
-  <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth="1.2"><path d="M1 1l4 4 4-4" /></svg>
+  <svg className="shp-chevron" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+    <path d="m1 3 4 4 4-4" stroke="currentColor" strokeLinecap="square" />
+  </svg>
 );
 const Cross = () => (
-  <svg viewBox="0 0 10 10" stroke="currentColor" strokeWidth="1.3" fill="none"><path d="M1 1l8 8M9 1L1 9" /></svg>
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path d="m1 1 14 14M1 15 15 1" stroke="currentColor" strokeWidth="1.5" />
+  </svg>
 );
-const Tick = () => (
-  <svg viewBox="0 0 10 10" fill="none" stroke="#fff" strokeWidth="1.6"><path d="M1.5 5.2l2.3 2.3L8.5 2.5" /></svg>
+const Arrow = ({ back }) => (
+  <svg viewBox="0 0 16 18" fill="none" aria-hidden="true" style={back ? { transform: "scaleX(-1)" } : undefined}>
+    <path d="m5 17 8-8-8-8" stroke="currentColor" strokeLinecap="square" />
+  </svg>
 );
 
-function FilterGroup({ title, defaultOpen = true, children, scroll = false }) {
+/** Grid density buttons: phones show 1 or 2 per row, computers 2, 3 or 4. */
+const LAYOUTS = {
+  mobile: [
+    ["large", "Show larger product images", "M0 0h18v18H0z"],
+    ["medium", "Show smaller product images", "M0 0h8v8H0zM0 10h8v8H0zM10 0h8v8h-8zM10 10h8v8h-8z"],
+  ],
+  desktop: [
+    ["large", "Show larger product images", "M0 0h8v8H0zM0 10h8v8H0zM10 0h8v8h-8zM10 10h8v8h-8z"],
+    ["medium", "Show smaller product images", "M0 0h4v4H0zM0 7h4v4H0zM0 14h4v4H0zM7 0h4v4H7zM7 7h4v4H7zM7 14h4v4H7zM14 0h4v4h-4zM14 7h4v4h-4zM14 14h4v4h-4z"],
+    ["compact", "Show compact product images", "M0 0h18v2H0zm0 4h18v2H0zm0 4h18v2H0zm0 4h18v2H0zm0 4h18v2H0z"],
+  ],
+};
+
+/* ────────── filters ────────── */
+
+function FacetGroup({ title, defaultOpen = false, children }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="fg">
-      <button type="button" className={`fg__head ${open ? "is-open" : ""}`} onClick={() => setOpen(!open)} aria-expanded={open}>
-        {title}
+    <div className="shp-acc">
+      <button type="button" className="shp-acc__toggle" aria-expanded={open} onClick={() => setOpen(!open)}>
+        <span>{title}</span>
         <Chevron />
       </button>
-      {open && <div className={`fg__body ${scroll ? "is-scroll" : ""}`}>{children}</div>}
+      {open && <div className="shp-acc__content">{children}</div>}
     </div>
   );
 }
 
 function Check({ label, checked, onChange }) {
   return (
-    <label className="chk">
+    <label className="shp-check">
       <input type="checkbox" checked={checked} onChange={onChange} />
-      <span className="chk__box"><Tick /></span>
+      <span>{label}</span>
+    </label>
+  );
+}
+
+function Toggle({ label, checked, onChange }) {
+  return (
+    <label className="shp-switch">
+      <input type="checkbox" role="switch" checked={checked} onChange={onChange} />
       <span>{label}</span>
     </label>
   );
@@ -65,18 +105,107 @@ function PriceRange({ bounds, value, onCommit }) {
   const commit = () => onCommit([Math.min(lo, hi), Math.max(lo, hi)]);
 
   return (
-    <div className="price-range">
-      <div className="price-range__slider">
-        <div className="price-range__track" />
-        <div className="price-range__fill" style={{ left: `${pct(Math.min(lo, hi))}%`, right: `${100 - pct(Math.max(lo, hi))}%` }} />
-        <input type="range" min={bounds.min} max={bounds.max} value={lo} onChange={(e) => setLo(+e.target.value)} onMouseUp={commit} onTouchEnd={commit} onKeyUp={commit} />
-        <input type="range" min={bounds.min} max={bounds.max} value={hi} onChange={(e) => setHi(+e.target.value)} onMouseUp={commit} onTouchEnd={commit} onKeyUp={commit} />
+    <div className="shp-range">
+      <div
+        className="shp-range__track"
+        style={{ "--lo": `${pct(Math.min(lo, hi))}%`, "--hi": `${pct(Math.max(lo, hi))}%` }}
+      >
+        <input type="range" aria-label="From price" min={bounds.min} max={bounds.max} value={lo} onChange={(e) => setLo(+e.target.value)} onMouseUp={commit} onTouchEnd={commit} onKeyUp={commit} />
+        <input type="range" aria-label="To price" min={bounds.min} max={bounds.max} value={hi} onChange={(e) => setHi(+e.target.value)} onMouseUp={commit} onTouchEnd={commit} onKeyUp={commit} />
       </div>
-      <div className="price-range__inputs">
-        <input className="rd-input" type="number" value={lo} min={bounds.min} max={bounds.max} onChange={(e) => setLo(+e.target.value)} onBlur={commit} aria-label="Min price" />
+      <div className="shp-range__inputs">
+        <label className="shp-range__field">
+          <span>$</span>
+          <input type="number" inputMode="numeric" aria-label="From price" value={lo} min={bounds.min} max={bounds.max} onChange={(e) => setLo(+e.target.value)} onBlur={commit} />
+        </label>
         <span>to</span>
-        <input className="rd-input" type="number" value={hi} min={bounds.min} max={bounds.max} onChange={(e) => setHi(+e.target.value)} onBlur={commit} aria-label="Max price" />
+        <label className="shp-range__field">
+          <span>$</span>
+          <input type="number" inputMode="numeric" aria-label="To price" value={hi} min={bounds.min} max={bounds.max} onChange={(e) => setHi(+e.target.value)} onBlur={commit} />
+        </label>
       </div>
+    </div>
+  );
+}
+
+/* ────────── toolbar pieces ────────── */
+
+/** "Sort by": a dropdown on computers, a sheet from the bottom on phones. */
+function SortMenu({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onPointer = (e) => {
+      if (!ref.current?.contains(e.target)) setOpen(false);
+    };
+    const onKey = (e) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div className="shp-toolbar__cell" ref={ref}>
+      <button type="button" className="shp-toolbar__btn" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen(!open)}>
+        Sort by
+        <Chevron />
+      </button>
+      {open && (
+        <div className="shp-sort">
+          <div className="shp-sort__backdrop" onClick={() => setOpen(false)} />
+          <div className="shp-sort__panel">
+            <div className="shp-sort__head">
+              <p>Sort by</p>
+              <button type="button" aria-label="Close" onClick={() => setOpen(false)}>
+                <Cross />
+              </button>
+            </div>
+            <ul className="shp-sort__list" role="listbox" aria-label="Sort by">
+              {SORT_OPTIONS.map(([v, l]) => (
+                <li key={v}>
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={v === value}
+                    onClick={() => {
+                      onChange(v);
+                      setOpen(false);
+                    }}
+                  >
+                    {l}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LayoutSwitch({ device, value, onChange }) {
+  return (
+    <div className={`shp-toolbar__layouts shp-toolbar__layouts--${device}`}>
+      {LAYOUTS[device].map(([v, label, d]) => (
+        <button
+          key={v}
+          type="button"
+          className={`shp-toolbar__btn${v === value ? " is-active" : ""}`}
+          aria-label={label}
+          aria-pressed={v === value}
+          onClick={() => onChange(v)}
+        >
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <path fill="currentColor" d={d} />
+          </svg>
+        </button>
+      ))}
     </div>
   );
 }
@@ -84,27 +213,34 @@ function PriceRange({ bounds, value, onCommit }) {
 function Pager({ page, totalPages, onChange }) {
   if (totalPages <= 1) return null;
   const pages = [];
-  const push = (p) => pages.push(p);
   const win = 2;
-  push(1);
-  if (page - win > 2) push("…");
-  for (let p = Math.max(2, page - win); p <= Math.min(totalPages - 1, page + win); p++) push(p);
-  if (page + win < totalPages - 1) push("…");
-  if (totalPages > 1) push(totalPages);
+  pages.push(1);
+  if (page - win > 2) pages.push("…");
+  for (let p = Math.max(2, page - win); p <= Math.min(totalPages - 1, page + win); p++) pages.push(p);
+  if (page + win < totalPages - 1) pages.push("…");
+  pages.push(totalPages);
 
   return (
-    <nav className="sk__pager" aria-label="Pagination">
-      <button disabled={page === 1} onClick={() => onChange(page - 1)} aria-label="Previous page">
-        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M9 2L4 7l5 5" /></svg>
-      </button>
+    <nav className="shp-pager" aria-label="Pagination">
+      {page > 1 && (
+        <button type="button" onClick={() => onChange(page - 1)} aria-label="Previous page">
+          <Arrow back />
+        </button>
+      )}
       {pages.map((p, i) =>
-        p === "…" ? <span key={`e${i}`} style={{ padding: "0 .3rem", color: "var(--rd-gray)" }}>…</span> : (
-          <button key={p} className={p === page ? "is-current" : ""} onClick={() => onChange(p)} aria-current={p === page ? "page" : undefined}>{p}</button>
+        p === "…" ? (
+          <span key={`gap${i}`}>…</span>
+        ) : (
+          <button key={p} type="button" onClick={() => onChange(p)} aria-current={p === page ? "page" : undefined} aria-label={`Page ${p}`}>
+            {p}
+          </button>
         )
       )}
-      <button disabled={page === totalPages} onClick={() => onChange(page + 1)} aria-label="Next page">
-        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M5 2l5 5-5 5" /></svg>
-      </button>
+      {page < totalPages && (
+        <button type="button" onClick={() => onChange(page + 1)} aria-label="Next page">
+          <Arrow />
+        </button>
+      )}
     </nav>
   );
 }
@@ -136,6 +272,10 @@ function ShopInner() {
   const [products, setProducts] = useState(null);
   const [loading, setLoading] = useState(true);
   const [drawer, setDrawer] = useState(false);
+  const [layout, setLayout] = useState({ mobile: "medium", desktop: "medium" });
+
+  const bannerRef = useRef(null);
+  const shownPage = useRef(page);
 
   const q = searchParams.get("q") || "";
 
@@ -189,8 +329,25 @@ function ShopInner() {
   }, [page, sort, q, selCats, selSubs, selBrands, selSizes, inStock, onSale, price]);
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
-  useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [page]);
-  useEffect(() => { document.body.style.overflow = drawer ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [drawer]);
+
+  // A new page of results starts at the toolbar, below the banner
+  useEffect(() => {
+    if (shownPage.current === page) return;
+    shownPage.current = page;
+    const banner = bannerRef.current;
+    if (banner) window.scrollTo({ top: banner.offsetTop + banner.offsetHeight, behavior: "smooth" });
+  }, [page]);
+
+  useEffect(() => {
+    document.body.style.overflow = drawer ? "hidden" : "";
+    if (!drawer) return undefined;
+    const onKey = (e) => e.key === "Escape" && setDrawer(false);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [drawer]);
 
   const toggle = (setter) => (val) => { setPage(1); setter((prev) => (prev.includes(val) ? prev.filter((x) => x !== val) : [...prev, val])); };
   const toggleCat = toggle(setSelCats), toggleSub = toggle(setSelSubs), toggleBrand = toggle(setSelBrands), toggleSize = toggle(setSelSizes);
@@ -210,119 +367,141 @@ function ShopInner() {
   const clearAll = () => { setSelCats([]); setSelSubs([]); setSelBrands([]); setSelSizes([]); setInStock(false); setOnSale(false); setPrice([null, null]); setPage(1); };
 
   const heading = q ? `Search: “${q}”` : selCats.length === 1 ? selCats[0] : selBrands.length === 1 ? selBrands[0] : "Shop";
+  const countLabel = `${totalItems} product${totalItems === 1 ? "" : "s"}`;
 
+  // Groups start closed, as on amadeussabra.com, unless something in them is picked
   const Filters = (
-    <>
-      <FilterGroup title="Availability">
-        <Check label="In stock" checked={inStock} onChange={() => { setPage(1); setInStock(!inStock); }} />
-        <Check label="On sale" checked={onSale} onChange={() => { setPage(1); setOnSale(!onSale); }} />
-      </FilterGroup>
+    <div className="shp-facets__list">
+      <FacetGroup title="Availability" defaultOpen={inStock || onSale}>
+        <Toggle label="In stock only" checked={inStock} onChange={() => { setPage(1); setInStock(!inStock); }} />
+        <Toggle label="On sale only" checked={onSale} onChange={() => { setPage(1); setOnSale(!onSale); }} />
+      </FacetGroup>
       {bounds.max > bounds.min && (
-        <FilterGroup title="Price">
+        <FacetGroup title="Price" defaultOpen={price[0] != null || price[1] != null}>
           <PriceRange bounds={bounds} value={price} onCommit={(v) => { setPage(1); setPrice(v[0] <= bounds.min && v[1] >= bounds.max ? [null, null] : v); }} />
-        </FilterGroup>
+        </FacetGroup>
       )}
       {categories.length > 0 && (
-        <FilterGroup title="Category" scroll>
+        <FacetGroup title="Category" defaultOpen={selCats.length > 0}>
           {categories.map((c) => <Check key={c.id || c.name} label={c.name} checked={selCats.includes(c.name)} onChange={() => toggleCat(c.name)} />)}
-        </FilterGroup>
+        </FacetGroup>
       )}
       {subs.length > 0 && (
-        <FilterGroup title="Product type" scroll defaultOpen={false}>
+        <FacetGroup title="Product type" defaultOpen={selSubs.length > 0}>
           {subs.map((c) => <Check key={c.id || c.name} label={c.name} checked={selSubs.includes(c.name)} onChange={() => toggleSub(c.name)} />)}
-        </FilterGroup>
+        </FacetGroup>
       )}
       {brands.length > 0 && (
-        <FilterGroup title="Brand" scroll>
+        <FacetGroup title="Brand" defaultOpen={selBrands.length > 0}>
           {brands.map((c) => <Check key={c.id || c.name} label={c.name} checked={selBrands.includes(c.name)} onChange={() => toggleBrand(c.name)} />)}
-        </FilterGroup>
+        </FacetGroup>
       )}
       {allSizes.length > 0 && (
-        <FilterGroup title="Size" defaultOpen={false}>
+        <FacetGroup title="Size" defaultOpen={selSizes.length > 0}>
           {allSizes.map((s) => <Check key={s} label={s} checked={selSizes.includes(s)} onChange={() => toggleSize(s)} />)}
-        </FilterGroup>
+        </FacetGroup>
       )}
-    </>
+    </div>
   );
 
   return (
-    <div className="sk">
-      <header className="sk__head">
-        <nav className="sk__crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><span>{heading}</span></nav>
-        <h1 className="sk__title">{heading}</h1>
-        <p className="sk__desc">Professional haircare and beauty essentials, hand-picked by Rafi Daham. 100% genuine products.</p>
-      </header>
-
-      <div className="sk__toolbar">
-        <div className="sk__toolbar-l">
-          <button type="button" className="sk__filter-btn" onClick={() => setDrawer(true)}>
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 4h13M1.5 8h13M1.5 12h13" /><circle cx="5" cy="4" r="1.4" fill="#fff" /><circle cx="11" cy="8" r="1.4" fill="#fff" /><circle cx="6.5" cy="12" r="1.4" fill="#fff" /></svg>
-            Filter{chips.length ? ` (${chips.length})` : ""}
-          </button>
-          <span className="sk__count">{loading && products === null ? "Loading…" : `${totalItems} item${totalItems === 1 ? "" : "s"}`}</span>
+    <main className="shp">
+      {/* ── banner (the header lies over it) ── */}
+      <section className="shp-banner" ref={bannerRef}>
+        <img
+          className="shp-banner__img"
+          src={bannerSrc(1920)}
+          srcSet={[800, 1200, 1920].map((w) => `${bannerSrc(w)} ${w}w`).join(", ")}
+          sizes="100vw"
+          alt=""
+          fetchPriority="high"
+        />
+        <div className="shp-banner__content">
+          <h1 className="shp-banner__title">{heading}</h1>
+          <p className="shp-banner__desc">Professional haircare and beauty essentials, hand-picked by Rafi Daham. 100% genuine products.</p>
         </div>
-        <label className="sk__sort">
-          <span>Sort</span>
-          <select value={sort} onChange={(e) => { setPage(1); setSort(e.target.value); }} aria-label="Sort by">
-            {SORT_OPTIONS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-          </select>
-        </label>
+      </section>
+
+      {/* ── toolbar ── */}
+      <div className="shp-toolbar">
+        <div className="shp-toolbar__buttons">
+          <div className="shp-toolbar__cell shp-toolbar__cell--filter">
+            <button type="button" className="shp-toolbar__btn" onClick={() => setDrawer(true)}>
+              Filter{chips.length ? ` (${chips.length})` : ""}
+            </button>
+          </div>
+          <SortMenu value={sort} onChange={(v) => { setPage(1); setSort(v); }} />
+        </div>
+        <p className="shp-toolbar__count">{loading && products === null ? "Loading…" : countLabel}</p>
+        <LayoutSwitch device="mobile" value={layout.mobile} onChange={(v) => setLayout((l) => ({ ...l, mobile: v }))} />
+        <LayoutSwitch device="desktop" value={layout.desktop} onChange={(v) => setLayout((l) => ({ ...l, desktop: v }))} />
       </div>
 
-      <div className="sk__layout">
-        <aside className="sk__aside" aria-label="Filters">{Filters}</aside>
+      <div className="shp-body">
+        <div className="shp-collection">
+          <aside className="shp-facets" aria-label="Filters">{Filters}</aside>
 
-        {drawer && (
-          <>
-            <div className="sk__backdrop" onClick={() => setDrawer(false)} />
-            <aside className="sk__aside is-drawer" aria-label="Filters">
-              <div className="sk__drawer-head">
-                <h3>Filters</h3>
-                <button onClick={() => setDrawer(false)} aria-label="Close filters"><svg width="18" height="18" viewBox="0 0 10 10" stroke="currentColor" strokeWidth="1.2" fill="none"><path d="M1 1l8 8M9 1L1 9" /></svg></button>
+          <section className="shp-main" aria-label="Products">
+            {chips.length > 0 && (
+              <div className="shp-chips">
+                {chips.map((c) => (
+                  <button key={`${c.k}-${c.v}`} type="button" className="shp-chip" onClick={c.rm} aria-label={`Remove filter: ${c.label}`}>
+                    {c.label}
+                    <Cross />
+                  </button>
+                ))}
+                <button type="button" className="shp-chips__clear" onClick={clearAll}>Clear all</button>
               </div>
-              {Filters}
-              <div className="sk__drawer-foot">
-                <button className="rd-btn rd-btn--ghost" onClick={clearAll}>Clear</button>
-                <button className="rd-btn" onClick={() => setDrawer(false)}>Show {totalItems} results</button>
+            )}
+
+            {products === null ? (
+              <div className="shp-grid" data-mobile={layout.mobile} data-desktop={layout.desktop}>
+                {Array.from({ length: 6 }).map((_, i) => <div key={i} className="shp-skel" />)}
               </div>
-            </aside>
-          </>
-        )}
+            ) : products.length === 0 ? (
+              <div className="shp-empty">
+                <p>No products match your selection.</p>
+                {chips.length > 0 && <button type="button" className="rd-btn rd-btn--sm rd-btn--auto" onClick={clearAll}>Clear filters</button>}
+              </div>
+            ) : (
+              <div className={`shp-grid${loading ? " is-loading" : ""}`} data-mobile={layout.mobile} data-desktop={layout.desktop}>
+                {products.map((p) => <ProductCard key={p._id} product={p} variant="collection" />)}
+              </div>
+            )}
 
-        <section>
-          {chips.length > 0 && (
-            <div className="sk__active">
-              {chips.map((c) => (
-                <button key={`${c.k}-${c.v}`} className="sk__chip" onClick={c.rm}>{c.label}<Cross /></button>
-              ))}
-              <button className="sk__clear" onClick={clearAll}>Clear all</button>
-            </div>
-          )}
-
-          {products === null ? (
-            <div className="sk__grid">{Array.from({ length: 8 }).map((_, i) => <div key={i} className="sk__skel" />)}</div>
-          ) : products.length === 0 ? (
-            <div className="sk__empty">
-              <p>No products match your selection.</p>
-              {chips.length > 0 && <button className="rd-btn rd-btn--sm" style={{ width: "auto", marginTop: "1rem" }} onClick={clearAll}>Clear filters</button>}
-            </div>
-          ) : (
-            <div className={`sk__grid ${loading ? "is-loading" : ""}`}>
-              {products.map((p) => <ProductCard key={p._id} product={p} />)}
-            </div>
-          )}
-
-          <Pager page={page} totalPages={totalPages} onChange={setPage} />
-        </section>
+            <Pager page={page} totalPages={totalPages} onChange={setPage} />
+          </section>
+        </div>
       </div>
 
-    </div>
+      {/* ── filters drawer (phones and tablets) ── */}
+      {drawer && (
+        <div className="shp-drawer" role="dialog" aria-modal="true" aria-label="Filters">
+          <div className="shp-drawer__backdrop" onClick={() => setDrawer(false)} />
+          <div className="shp-drawer__panel">
+            <div className="shp-drawer__head">
+              <p>Filters</p>
+              <button type="button" onClick={() => setDrawer(false)} aria-label="Close filters">
+                <Cross />
+              </button>
+            </div>
+            <div className="shp-drawer__body">{Filters}</div>
+            <div className="shp-drawer__foot">
+              {chips.length > 0 && <button type="button" className="rd-btn rd-btn--ghost" onClick={clearAll}>Clear all</button>}
+              <button type="button" className="rd-btn" onClick={() => setDrawer(false)}>
+                View results{loading ? "" : ` (${totalItems})`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </main>
   );
 }
 
 export default function ShopPage() {
   return (
-    <Suspense fallback={<div className="sk" style={{ minHeight: "60vh" }} />}>
+    <Suspense fallback={<main className="shp" style={{ minHeight: "100vh" }} />}>
       <ShopInner />
     </Suspense>
   );

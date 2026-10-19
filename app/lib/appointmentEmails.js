@@ -5,7 +5,15 @@
  * password) when SMTP_USER/SMTP_PASS are set, and falls back to Resend.
  */
 import { sendMail } from './mailer.js';
-import { bookingText, cartDuration, longDate, money, priceLines } from './bookingMessage.js';
+import {
+  bookingDeposit,
+  bookingText,
+  cartDuration,
+  longDate,
+  money,
+  priceLines,
+  showsPriceNote,
+} from './bookingMessage.js';
 
 export const SALON_EMAIL = process.env.SALON_EMAIL || 'rafidahamhair@gmail.com';
 export const SALON_PHONE = process.env.SALON_PHONE || '9613896074';
@@ -21,20 +29,30 @@ const T = {
     dir: 'ltr',
     confirmSubject: 'Your booking has been received — Rafi Daham Hair Beauty Salon',
     reminderSubject: 'Reminder: your appointment at Rafi Daham Hair Repair Studio',
+    cancelSubject: 'Your appointment has been cancelled — Rafi Daham Hair Repair Studio',
     hi: (n) => `Hi ${n},`,
     reminderIntro: (days) =>
       `This is a friendly reminder that your appointment is in ${days} ${days === 1 ? 'day' : 'days'}.`,
+    cancelTitle: 'Your appointment has been cancelled',
+    cancelIntro: (n) =>
+      `Hi ${n}, as you asked, we have cancelled the appointment below. We hope to see you another time.`,
     footer:
-      'Need to reschedule or cancel? Just reply to this email or message us on WhatsApp.',
+      'Need to reschedule or cancel? Reply to this email, message us on WhatsApp, or cancel it from My account on our website.',
+    cancelFooter: `Want to book again? Choose a new time at ${BRAND.site}/appointment`,
   },
   ar: {
     dir: 'rtl',
     confirmSubject: 'تم استلام حجزك — صالون رافي دهام للشعر والتجميل',
     reminderSubject: 'تذكير: موعدك في صالون رافي دهام',
+    cancelSubject: 'تم إلغاء موعدك — صالون رافي دهام',
     hi: (n) => `مرحباً ${n}،`,
     reminderIntro: (days) =>
       `تذكير بأن موعدك بعد ${days === 1 ? 'يوم واحد' : `${days} أيام`}.`,
-    footer: 'لتغيير أو إلغاء الموعد، يرجى الرد على هذا البريد أو مراسلتنا عبر واتساب.',
+    cancelTitle: 'تم إلغاء موعدك',
+    cancelIntro: (n) => `مرحباً ${n}، بناءً على طلبك ألغينا الموعد التالي. نأمل أن نراك في وقت آخر.`,
+    footer:
+      'لتغيير أو إلغاء الموعد، يرجى الرد على هذا البريد أو مراسلتنا عبر واتساب أو إلغاؤه من حسابي على موقعنا.',
+    cancelFooter: `لحجز موعد جديد: ${BRAND.site}/appointment`,
   },
 };
 
@@ -73,8 +91,13 @@ function row(label, value, strong) {
   </tr>`;
 }
 
-function buildBody(booking, lang, { title, intro }) {
+/**
+ * The booking laid out as an email. A cancellation (`cancelled`) leaves out
+ * the welcome lines and the note on prices.
+ */
+function buildBody(booking, lang, { title, intro, footer, cancelled = false }) {
   const t = T[lang] || T.en;
+  const deposit = bookingDeposit(booking);
   const m = bookingText(lang);
   const items = booking.cart || [];
   const minutes = cartDuration(items);
@@ -113,7 +136,7 @@ function buildBody(booking, lang, { title, intro }) {
   const totalsHtml = `<table style="${tableStyle}">${[
     ...priceLines(booking, lang).map(([label, amount]) => row(label, amount)),
     row(m.total, money(booking.total), true),
-    row(m.deposit, money(booking.deposit ?? Number(booking.total) * 0.25)),
+    deposit ? row(m.deposit, money(deposit)) : '',
   ].join('')}</table>`;
 
   const notesHtml = booking.notes
@@ -122,11 +145,16 @@ function buildBody(booking, lang, { title, intro }) {
       </div>`
     : '';
 
-  const closingHtml = `
+  const closingHtml = cancelled
+    ? ''
+    : `
     <p style="margin:24px 0 0;font-size:14px;line-height:1.6">${m.welcome}</p>
     <p style="margin:12px 0 0;font-size:14px;line-height:1.6;font-weight:600">${m.thanks}</p>`;
 
-  const priceNoteHtml = `
+  const priceNoteHtml =
+    cancelled || !showsPriceNote(booking)
+      ? ''
+      : `
     <div style="background:#faf7f0;border:1px solid #e9dfc7;border-radius:12px;padding:16px;margin-top:24px">
       <div style="font-size:13px;font-weight:700;margin-bottom:8px">${m.noteTitle}</div>
       ${m.noteLines
@@ -139,7 +167,7 @@ function buildBody(booking, lang, { title, intro }) {
     title,
     intro,
     bodyHtml: detailsHtml + servicesHtml + totalsHtml + notesHtml + closingHtml + priceNoteHtml,
-    footer: t.footer,
+    footer: footer ?? t.footer,
   });
 }
 
@@ -172,4 +200,54 @@ export async function sendClientReminder(booking, daysBefore) {
     subject: t.reminderSubject,
     html,
   });
+}
+
+/**
+ * A client cancelled from their account: they get a confirmation in their
+ * language and the salon gets the details (in English, replies go to the
+ * client). Each email is sent even if the other one fails.
+ *
+ * @returns {Promise<{client: boolean, salon: boolean}>} which emails went out
+ */
+export async function sendCancellationEmails(booking) {
+  const lang = booking.lang === 'ar' ? 'ar' : 'en';
+  const t = T[lang];
+  const cancelledAt = new Date(booking.cancelledAt || Date.now()).toLocaleString('en-GB', {
+    timeZone: 'Asia/Beirut',
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
+
+  const results = await Promise.allSettled([
+    sendMail({
+      to: booking.email,
+      subject: t.cancelSubject,
+      html: buildBody(booking, lang, {
+        title: t.cancelTitle,
+        intro: t.cancelIntro(esc(booking.name)),
+        footer: t.cancelFooter,
+        cancelled: true,
+      }),
+    }),
+    sendMail({
+      to: SALON_EMAIL,
+      replyTo: booking.email,
+      subject: `Appointment cancelled — ${booking.reference} · ${longDate(booking.date, 'en')} ${booking.hour}`,
+      html: buildBody(booking, 'en', {
+        title: 'Appointment cancelled by the client',
+        intro: `${esc(booking.name)} cancelled this appointment from their account on the website (${cancelledAt}, Beirut time). The time is free again for new bookings.`,
+        footer: 'Sent automatically by the booking system on the website.',
+        cancelled: true,
+      }),
+    }),
+  ]);
+
+  const [client, salon] = results.map((r, i) => {
+    if (r.status === 'rejected') {
+      console.error(`Cancellation email to the ${i ? 'salon' : 'client'} failed:`, r.reason?.message || r.reason);
+      return false;
+    }
+    return !r.value?.skipped;
+  });
+  return { client, salon };
 }

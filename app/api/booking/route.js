@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import clientPromise from '../../lib/mongodb';
 import { getCurrentUser } from '../../lib/auth';
 import { sendClientConfirmation } from '../../lib/appointmentEmails';
-import { SERVICE_TYPES, bookingTotals, isLebanon, locationFactor } from '../../lib/bookingPrice';
-import { OPEN_HOURS, cleanCity, isCountry, isLebanonCity } from '../../lib/bookingOptions';
+import { SERVICE_TYPES, bookingTotals, locationFactor } from '../../lib/bookingPrice';
+import { OPEN_HOURS, isCity } from '../../lib/bookingOptions';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,13 +36,13 @@ export async function POST(request) {
       lang = 'en',
     } = body;
     const country = String(body.country || '').trim();
-    const city = cleanCity(body.city);
+    const city = String(body.city || '').trim();
 
     if (!name || !phone || !isEmail(email) || !country || !city || !date || !hour) {
       return NextResponse.json({ error: 'Missing or invalid fields' }, { status: 400 });
     }
-    // Every country and every day is open, 08:00–23:30; the choices must still be real ones
-    if (!isCountry(country) || city.length > 80 || (isLebanon(country) && !isLebanonCity(city))) {
+    // Lebanon, KSA and Kuwait are open every day, 08:00–23:30; the choices must still be real ones
+    if (!isCity(country, city)) {
       return NextResponse.json({ error: 'Please choose your country and city' }, { status: 400 });
     }
     if (!isDate(date) || date < earliestDate() || !OPEN_HOURS.includes(hour)) {

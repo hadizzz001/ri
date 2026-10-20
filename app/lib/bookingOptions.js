@@ -4,11 +4,11 @@
  *
  *  - Every day is open, 08:00 to midnight: a start time every 30 minutes,
  *    the last one at 23:30. A time stays free until somebody books it.
- *  - Every country can be chosen. Inside Lebanon the city comes from the list
- *    below (Beirut is tax free, see bookingPrice.js); elsewhere it is typed in.
+ *  - The countries are Lebanon, KSA and Kuwait, and the city is picked from
+ *    the country's list below (Beirut is tax free, see bookingPrice.js).
  *
- * Country names are stored in English (bookings, emails, pricing rules); the
- * Arabic page shows the browser's Arabic names for the same codes.
+ * Places are stored by their English names (bookings, emails, pricing rules);
+ * the Arabic page shows their Arabic names.
  * Plain data + pure helpers only — safe to import from client and server.
  */
 
@@ -29,108 +29,130 @@ export const OPEN_HOURS = Array.from(
 
 export const LEBANON = 'Lebanon';
 
-/** [ISO code, English name], alphabetical. */
-export const COUNTRIES = [
-  ["AF", "Afghanistan"], ["AX", "Åland Islands"], ["AL", "Albania"], ["DZ", "Algeria"],
-  ["AS", "American Samoa"], ["AD", "Andorra"], ["AO", "Angola"], ["AI", "Anguilla"],
-  ["AG", "Antigua and Barbuda"], ["AR", "Argentina"], ["AM", "Armenia"], ["AW", "Aruba"],
-  ["AU", "Australia"], ["AT", "Austria"], ["AZ", "Azerbaijan"], ["BS", "Bahamas"], ["BH", "Bahrain"],
-  ["BD", "Bangladesh"], ["BB", "Barbados"], ["BY", "Belarus"], ["BE", "Belgium"], ["BZ", "Belize"],
-  ["BJ", "Benin"], ["BM", "Bermuda"], ["BT", "Bhutan"], ["BO", "Bolivia"], ["BA", "Bosnia and Herzegovina"],
-  ["BW", "Botswana"], ["BR", "Brazil"], ["VG", "British Virgin Islands"], ["BN", "Brunei"],
-  ["BG", "Bulgaria"], ["BF", "Burkina Faso"], ["BI", "Burundi"], ["KH", "Cambodia"], ["CM", "Cameroon"],
-  ["CA", "Canada"], ["CV", "Cape Verde"], ["BQ", "Caribbean Netherlands"], ["KY", "Cayman Islands"],
-  ["CF", "Central African Republic"], ["TD", "Chad"], ["CL", "Chile"], ["CN", "China"],
-  ["CX", "Christmas Island"], ["CC", "Cocos (Keeling) Islands"], ["CO", "Colombia"], ["KM", "Comoros"],
-  ["CG", "Congo"], ["CK", "Cook Islands"], ["CR", "Costa Rica"], ["CI", "Côte d'Ivoire"], ["HR", "Croatia"],
-  ["CU", "Cuba"], ["CW", "Curaçao"], ["CY", "Cyprus"], ["CZ", "Czechia"], ["DK", "Denmark"],
-  ["DJ", "Djibouti"], ["DM", "Dominica"], ["DO", "Dominican Republic"], ["CD", "DR Congo"],
-  ["EC", "Ecuador"], ["EG", "Egypt"], ["SV", "El Salvador"], ["GQ", "Equatorial Guinea"], ["ER", "Eritrea"],
-  ["EE", "Estonia"], ["SZ", "Eswatini"], ["ET", "Ethiopia"], ["FK", "Falkland Islands"],
-  ["FO", "Faroe Islands"], ["FJ", "Fiji"], ["FI", "Finland"], ["FR", "France"], ["GF", "French Guiana"],
-  ["PF", "French Polynesia"], ["GA", "Gabon"], ["GM", "Gambia"], ["GE", "Georgia"], ["DE", "Germany"],
-  ["GH", "Ghana"], ["GI", "Gibraltar"], ["GR", "Greece"], ["GL", "Greenland"], ["GD", "Grenada"],
-  ["GP", "Guadeloupe"], ["GU", "Guam"], ["GT", "Guatemala"], ["GG", "Guernsey"], ["GN", "Guinea"],
-  ["GW", "Guinea-Bissau"], ["GY", "Guyana"], ["HT", "Haiti"], ["HN", "Honduras"], ["HK", "Hong Kong"],
-  ["HU", "Hungary"], ["IS", "Iceland"], ["IN", "India"], ["ID", "Indonesia"], ["IR", "Iran"], ["IQ", "Iraq"],
-  ["IE", "Ireland"], ["IM", "Isle of Man"], ["IT", "Italy"], ["JM", "Jamaica"], ["JP", "Japan"],
-  ["JE", "Jersey"], ["JO", "Jordan"], ["KZ", "Kazakhstan"], ["KE", "Kenya"], ["KI", "Kiribati"],
-  ["XK", "Kosovo"], ["KW", "Kuwait"], ["KG", "Kyrgyzstan"], ["LA", "Laos"], ["LV", "Latvia"],
-  ["LB", "Lebanon"], ["LS", "Lesotho"], ["LR", "Liberia"], ["LY", "Libya"], ["LI", "Liechtenstein"],
-  ["LT", "Lithuania"], ["LU", "Luxembourg"], ["MO", "Macau"], ["MG", "Madagascar"], ["MW", "Malawi"],
-  ["MY", "Malaysia"], ["MV", "Maldives"], ["ML", "Mali"], ["MT", "Malta"], ["MH", "Marshall Islands"],
-  ["MQ", "Martinique"], ["MR", "Mauritania"], ["MU", "Mauritius"], ["YT", "Mayotte"], ["MX", "Mexico"],
-  ["FM", "Micronesia"], ["MD", "Moldova"], ["MC", "Monaco"], ["MN", "Mongolia"], ["ME", "Montenegro"],
-  ["MS", "Montserrat"], ["MA", "Morocco"], ["MZ", "Mozambique"], ["MM", "Myanmar"], ["NA", "Namibia"],
-  ["NR", "Nauru"], ["NP", "Nepal"], ["NL", "Netherlands"], ["NC", "New Caledonia"], ["NZ", "New Zealand"],
-  ["NI", "Nicaragua"], ["NE", "Niger"], ["NG", "Nigeria"], ["NU", "Niue"], ["NF", "Norfolk Island"],
-  ["KP", "North Korea"], ["MK", "North Macedonia"], ["MP", "Northern Mariana Islands"], ["NO", "Norway"],
-  ["OM", "Oman"], ["PK", "Pakistan"], ["PW", "Palau"], ["PS", "Palestine"], ["PA", "Panama"],
-  ["PG", "Papua New Guinea"], ["PY", "Paraguay"], ["PE", "Peru"], ["PH", "Philippines"],
-  ["PN", "Pitcairn Islands"], ["PL", "Poland"], ["PT", "Portugal"], ["PR", "Puerto Rico"], ["QA", "Qatar"],
-  ["RE", "Réunion"], ["RO", "Romania"], ["RU", "Russia"], ["RW", "Rwanda"], ["BL", "Saint Barthélemy"],
-  ["SH", "Saint Helena"], ["KN", "Saint Kitts and Nevis"], ["LC", "Saint Lucia"], ["MF", "Saint Martin"],
-  ["PM", "Saint Pierre and Miquelon"], ["VC", "Saint Vincent and the Grenadines"], ["WS", "Samoa"],
-  ["SM", "San Marino"], ["ST", "São Tomé and Príncipe"], ["SA", "Saudi Arabia"], ["SN", "Senegal"],
-  ["RS", "Serbia"], ["SC", "Seychelles"], ["SL", "Sierra Leone"], ["SG", "Singapore"],
-  ["SX", "Sint Maarten"], ["SK", "Slovakia"], ["SI", "Slovenia"], ["SB", "Solomon Islands"],
-  ["SO", "Somalia"], ["ZA", "South Africa"], ["KR", "South Korea"], ["SS", "South Sudan"], ["ES", "Spain"],
-  ["LK", "Sri Lanka"], ["SD", "Sudan"], ["SR", "Suriname"], ["SJ", "Svalbard and Jan Mayen"],
-  ["SE", "Sweden"], ["CH", "Switzerland"], ["SY", "Syria"], ["TW", "Taiwan"], ["TJ", "Tajikistan"],
-  ["TZ", "Tanzania"], ["TH", "Thailand"], ["TL", "Timor-Leste"], ["TG", "Togo"], ["TK", "Tokelau"],
-  ["TO", "Tonga"], ["TT", "Trinidad and Tobago"], ["TN", "Tunisia"], ["TR", "Türkiye"],
-  ["TM", "Turkmenistan"], ["TC", "Turks and Caicos Islands"], ["TV", "Tuvalu"], ["UG", "Uganda"],
-  ["UA", "Ukraine"], ["AE", "United Arab Emirates"], ["GB", "United Kingdom"], ["US", "United States"],
-  ["UY", "Uruguay"], ["VI", "US Virgin Islands"], ["UZ", "Uzbekistan"], ["VU", "Vanuatu"],
-  ["VA", "Vatican City"], ["VE", "Venezuela"], ["VN", "Vietnam"], ["WF", "Wallis and Futuna"],
-  ["EH", "Western Sahara"], ["YE", "Yemen"], ["ZM", "Zambia"], ["ZW", "Zimbabwe"],
-];
-
-const COUNTRY_NAMES = new Set(COUNTRIES.map(([, name]) => name));
-export const isCountry = (name) => COUNTRY_NAMES.has(name);
-
-/** Lebanon: Beirut and the 25 districts, each named after its main town. */
-export const LEBANON_CITIES = [
+/** Lebanon: Beirut, then the cities and main towns of every district. */
+const LEBANON_CITIES = [
   ['Beirut', 'بيروت'],
-  ['Akkar', 'عكار'],
+  ['Adma', 'أدما'],
+  ['Ajaltoun', 'عجلتون'],
   ['Aley', 'عاليه'],
+  ['Amchit', 'عمشيت'],
+  ['Amioun', 'أميون'],
+  ['Anfeh', 'أنفه'],
+  ['Anjar', 'عنجر'],
+  ['Antelias', 'أنطلياس'],
+  ['Aramoun', 'عرمون'],
+  ['Arsal', 'عرسال'],
   ['Baabda', 'بعبدا'],
+  ['Baakleen', 'بعقلين'],
   ['Baalbek', 'بعلبك'],
+  ['Bar Elias', 'برالياس'],
+  ['Barja', 'برجا'],
   ['Batroun', 'البترون'],
+  ['Bchamoun', 'بشامون'],
   ['Bcharre', 'بشري'],
+  ['Bebnine', 'ببنين'],
+  ['Beit Mery', 'بيت مري'],
+  ['Beiteddine', 'بيت الدين'],
+  ['Bhamdoun', 'بحمدون'],
+  ['Bikfaya', 'بكفيا'],
   ['Bint Jbeil', 'بنت جبيل'],
+  ['Bourj el Barajneh', 'برج البراجنة'],
+  ['Bourj Hammoud', 'برج حمود'],
+  ['Broummana', 'برمانا'],
   ['Byblos (Jbeil)', 'جبيل'],
-  ['Chouf', 'الشوف'],
+  ['Chebaa', 'شبعا'],
+  ['Chekka', 'شكا'],
+  ['Chhim', 'شحيم'],
+  ['Chiyah', 'الشياح'],
+  ['Chmestar', 'شمسطار'],
+  ['Choueifat', 'الشويفات'],
+  ['Chtaura', 'شتورة'],
+  ['Damour', 'الدامور'],
+  ['Dbayeh', 'ضبية'],
+  ['Deir el Ahmar', 'دير الأحمر'],
+  ['Deir el Qamar', 'دير القمر'],
+  ['Dekwaneh', 'الدكوانة'],
+  ['Dhour el Choueir', 'ضهور الشوير'],
+  ['Douma', 'دوما'],
+  ['Ehden', 'إهدن'],
+  ['El Mina', 'الميناء'],
+  ['Fanar', 'الفنار'],
+  ['Faraya', 'فاريا'],
+  ['Furn el Chebbak', 'فرن الشباك'],
+  ['Ghazieh', 'الغازية'],
+  ['Ghazir', 'غزير'],
+  ['Ghobeiry', 'الغبيري'],
+  ['Hadath', 'الحدث'],
+  ['Halba', 'حلبا'],
+  ['Hammana', 'حمانا'],
+  ['Haret Hreik', 'حارة حريك'],
+  ['Harissa', 'حريصا'],
   ['Hasbaya', 'حاصبيا'],
+  ['Hasroun', 'حصرون'],
+  ['Hazmieh', 'الحازمية'],
   ['Hermel', 'الهرمل'],
+  ['Jal el Dib', 'جل الديب'],
+  ['Jdeideh', 'الجديدة'],
   ['Jezzine', 'جزين'],
-  ['Jounieh (Keserwan)', 'جونية (كسروان)'],
-  ['Koura', 'الكورة'],
+  ['Jiyeh', 'الجية'],
+  ['Joub Jannine', 'جب جنين'],
+  ['Jounieh', 'جونية'],
+  ['Kahaleh', 'الكحالة'],
+  ['Kfar Roummane', 'كفررمان'],
+  ['Kfardebian', 'كفرذبيان'],
+  ['Kfarshima', 'كفرشيما'],
+  ['Khiam', 'الخيام'],
+  ['Kousba', 'كوسبا'],
+  ['Machghara', 'مشغرة'],
+  ['Maghdoucheh', 'مغدوشة'],
+  ['Majdal Anjar', 'مجدل عنجر'],
+  ['Mansourieh', 'المنصورية'],
   ['Marjayoun', 'مرجعيون'],
-  ['Metn', 'المتن'],
-  ['Minieh-Danniyeh', 'المنية - الضنية'],
+  ['Minieh', 'المنية'],
+  ['Moukhtara', 'المختارة'],
+  ['Naameh', 'الناعمة'],
   ['Nabatieh', 'النبطية'],
+  ['Naqoura', 'الناقورة'],
+  ['Qab Elias', 'قب الياس'],
+  ['Qana', 'قانا'],
+  ['Qaraoun', 'القرعون'],
+  ['Qartaba', 'قرطبا'],
+  ['Qobayat', 'القبيات'],
+  ['Rabieh', 'الرابية'],
+  ['Ras Baalbek', 'رأس بعلبك'],
   ['Rashaya', 'راشيا'],
+  ['Rayak', 'رياق'],
+  ['Saadnayel', 'سعدنايل'],
+  ['Saghbine', 'صغبين'],
+  ['Sarafand', 'الصرفند'],
   ['Sidon (Saida)', 'صيدا'],
+  ['Sin el Fil', 'سن الفيل'],
+  ['Sir el Danniyeh', 'سير الضنية'],
+  ['Sofar', 'صوفر'],
+  ['Tabarja', 'طبرجا'],
+  ['Tannourine', 'تنورين'],
+  ['Tebnine', 'تبنين'],
   ['Tripoli', 'طرابلس'],
   ['Tyre (Sour)', 'صور'],
-  ['West Bekaa', 'البقاع الغربي'],
   ['Zahle', 'زحلة'],
+  ['Zalka', 'الزلقا'],
   ['Zgharta', 'زغرتا'],
+  ['Zouk Mikael', 'ذوق مكايل'],
+  ['Zouk Mosbeh', 'ذوق مصبح'],
 ];
 
-const LEBANON_CITY_NAMES = new Set(LEBANON_CITIES.map(([en]) => en));
-export const isLebanonCity = (name) => LEBANON_CITY_NAMES.has(name);
+/** The countries that can be booked and their cities, capital first: [English, Arabic]. */
+export const COUNTRIES = [
+  { name: LEBANON, ar: 'لبنان', cities: LEBANON_CITIES },
+  { name: 'KSA', ar: 'السعودية', cities: [['Riyadh', 'الرياض'], ['Jeddah', 'جدة']] },
+  { name: 'Kuwait', ar: 'الكويت', cities: [['Kuwait City', 'مدينة الكويت']] },
+];
 
-/**
- * A typed city as saved: trimmed, spaces collapsed, and capitalised when it
- * was typed all in lowercase ("new york" → "New York"; "McAllen" stays).
- */
-export const cleanCity = (city) => {
-  const s = String(city ?? '').trim().replace(/\s+/g, ' ');
-  return s === s.toLowerCase() ? s.replace(/(^|[\s-])(\p{L})/gu, (_, sep, ch) => sep + ch.toUpperCase()) : s;
-};
+/** A country's [English, Arabic] cities ([] for a country that can't be booked). */
+export const citiesOf = (country) => COUNTRIES.find((c) => c.name === country)?.cities ?? [];
+
+export const isCity = (country, city) => citiesOf(country).some(([en]) => en === city);
 
 /** Key of a booked time; the city is compared without regard to case. */
 export const slotKey = (country, city, date, hour) =>
-  [country, cleanCity(city).toLowerCase(), date, hour].join('|');
+  [country, String(city ?? '').toLowerCase(), date, hour].join('|');

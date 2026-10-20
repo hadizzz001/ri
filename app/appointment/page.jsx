@@ -7,8 +7,8 @@
  *  Step 2 — Time       (country / city, calendar, time slots)
  *  Step 3 — Confirm    (salon or home service, contact details, notes)
  *
- * Every country and every day can be booked, 08:00 to midnight; a time is
- * free until somebody takes it (lib/bookingOptions.js).
+ * Lebanon, KSA and Kuwait can be booked every day, 08:00 to midnight; a time
+ * is free until somebody takes it (lib/bookingOptions.js).
  *
  * On confirm: the booking is stored in MongoDB, a confirmation email is sent
  * with Resend (plus reminder emails 2 & 1 day before via /api/booking/reminders)
@@ -20,7 +20,7 @@ import './appointment.css';
 import { useAuth } from '../context/AuthContext';
 import { bookingText, buildBookingText, priceLines } from '../lib/bookingMessage';
 import { SERVICE_TYPES, bookingTotals, homeFactor, locationFactor } from '../lib/bookingPrice';
-import { COUNTRIES, LEBANON, LEBANON_CITIES, OPEN_HOURS, cleanCity, slotKey } from '../lib/bookingOptions';
+import { COUNTRIES, OPEN_HOURS, citiesOf, slotKey } from '../lib/bookingOptions';
 
 /* --------------------------------------------------------------------- i18n */
 
@@ -42,7 +42,6 @@ const STRINGS = {
     city: 'City',
     chooseCountry: 'Choose a country',
     chooseCity: 'Choose a city',
-    typeCity: 'Enter your city',
     noSlots: 'No free times on this day — please choose another date.',
     serviceTypeTitle: 'Salon or home service?',
     serviceTypeHints: { salon: 'Visit us at the salon', home: 'We come to your place' },
@@ -102,7 +101,6 @@ const STRINGS = {
     city: 'المدينة',
     chooseCountry: 'اختر الدولة',
     chooseCity: 'اختر المدينة',
-    typeCity: 'أدخل مدينتك',
     noSlots: 'لا توجد أوقات متاحة في هذا اليوم — يرجى اختيار تاريخ آخر.',
     serviceTypeTitle: 'في الصالون أم في المنزل؟',
     serviceTypeHints: { salon: 'زيارتنا في الصالون', home: 'نأتي إلى منزلك' },
@@ -146,29 +144,15 @@ const STRINGS = {
   },
 };
 
-/** Lebanon first, then every other country, named in the page's language. */
-const countryOptions = (lang) => {
-  let names = null;
-  if (lang === 'ar') {
-    try {
-      names = new Intl.DisplayNames(['ar'], { type: 'region' });
-    } catch {
-      /* English names below */
-    }
-  }
-  const AR_NAMES = { LB: 'لبنان', PS: 'فلسطين' };
-  const label = (code, name) => (lang === 'ar' ? AR_NAMES[code] || names?.of(code) || name : name);
-  const all = COUNTRIES.map(([code, name]) => ({ value: name, label: label(code, name) }));
-  const others = all.filter((c) => c.value !== LEBANON);
-  if (lang === 'ar') others.sort((a, b) => a.label.localeCompare(b.label, 'ar'));
-  return { lebanon: all.find((c) => c.value === LEBANON), others };
-};
+/** Lebanon, KSA and Kuwait, named in the page's language. */
+const countryOptions = (lang) =>
+  COUNTRIES.map(({ name, ar }) => ({ value: name, label: lang === 'ar' ? ar : name }));
 
-/** Beirut first, then Lebanon's other districts in alphabetical order. */
-const lebanonCityOptions = (lang) => {
-  const [beirut, ...rest] = LEBANON_CITIES.map(([en, ar]) => ({ value: en, label: lang === 'ar' ? ar : en }));
-  if (lang === 'ar') rest.sort((a, b) => a.label.localeCompare(b.label, 'ar'));
-  return [beirut, ...rest];
+/** A country's cities: the capital first, then the rest in alphabetical order. */
+const cityOptions = (country, lang) => {
+  const [capital, ...rest] = citiesOf(country).map(([en, ar]) => ({ value: en, label: lang === 'ar' ? ar : en }));
+  rest.sort((a, b) => a.label.localeCompare(b.label, lang));
+  return capital ? [capital, ...rest] : [];
 };
 
 const WHATSAPP_NUMBER = '9613896074';
@@ -404,8 +388,8 @@ export default function AppointmentPage() {
   );
 
   const countryList = useMemo(() => countryOptions(lang), [lang]);
-  const cityList = useMemo(() => lebanonCityOptions(lang), [lang]);
-  const placeChosen = !!country && !!cleanCity(city);
+  const cityList = useMemo(() => cityOptions(country, lang), [country, lang]);
+  const placeChosen = !!country && !!city;
 
   /** Start times still free on a day ('YYYY-MM-DD') for the picked place; today's past times are gone. */
   const freeHours = (iso) => {
@@ -901,9 +885,7 @@ export default function AppointmentPage() {
                     onChange={(e) => setCountry(e.target.value)}
                   >
                     <option value="">{t.chooseCountry}</option>
-                    <option value={countryList.lebanon.value}>{countryList.lebanon.label}</option>
-                    <option disabled>──────────</option>
-                    {countryList.others.map((c) => (
+                    {countryList.map((c) => (
                       <option key={c.value} value={c.value}>
                         {c.label}
                       </option>
@@ -913,32 +895,20 @@ export default function AppointmentPage() {
 
                 <div className="fr-field">
                   <label htmlFor="fr-city">{t.city}</label>
-                  {country === LEBANON ? (
-                    <select
-                      id="fr-city"
-                      className="fr-input"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                    >
-                      <option value="">{t.chooseCity}</option>
-                      {cityList.map((c) => (
-                        <option key={c.value} value={c.value}>
-                          {c.label}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      id="fr-city"
-                      className="fr-input"
-                      value={city}
-                      disabled={!country}
-                      placeholder={country ? t.typeCity : t.chooseCity}
-                      autoComplete="address-level2"
-                      maxLength={80}
-                      onChange={(e) => setCity(e.target.value)}
-                    />
-                  )}
+                  <select
+                    id="fr-city"
+                    className="fr-input"
+                    value={city}
+                    disabled={!country}
+                    onChange={(e) => setCity(e.target.value)}
+                  >
+                    <option value="">{t.chooseCity}</option>
+                    {cityList.map((c) => (
+                      <option key={c.value} value={c.value}>
+                        {c.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 

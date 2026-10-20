@@ -11,8 +11,8 @@ const sinceISO = () => {
 };
 
 /**
- * Booking is open every day for every country (see lib/bookingOptions.js), so
- * the booking page only needs the times already taken by upcoming bookings:
+ * Booking is open every day in Lebanon, KSA and Kuwait (lib/bookingOptions.js),
+ * so the booking page only needs the times already taken by upcoming bookings:
  * { taken: [{ country, city, date, hour }] }. Cancelled bookings free theirs.
  */
 export async function GET() {

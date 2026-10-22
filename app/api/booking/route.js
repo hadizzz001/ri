@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { ObjectId } from 'mongodb';
 import clientPromise from '../../lib/mongodb';
 import { getCurrentUser } from '../../lib/auth';
 import { sendClientConfirmation } from '../../lib/appointmentEmails';
@@ -58,10 +59,15 @@ export async function POST(request) {
     const client = await clientPromise;
     const db = client.db('test');
 
-    // ---- Re-price server side from the DB so prices can never be tampered with
+    // ---- Re-price server side from the DB so prices can never be tampered with.
+    // Seeded services have readable string ids, services added from the
+    // dashboard have ObjectIds, so each id is looked up in both forms.
+    const ids = cart.map((c) => String(c.id));
     const services = await db
       .collection('Product')
-      .find({ _id: { $in: cart.map((c) => c.id) } })
+      .find({
+        _id: { $in: [...ids, ...ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id))] },
+      })
       .toArray();
 
     const priceFactor = locationFactor(country);

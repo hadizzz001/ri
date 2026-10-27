@@ -153,6 +153,10 @@ export const citiesOf = (country) => COUNTRIES.find((c) => c.name === country)?.
 
 export const isCity = (country, city) => citiesOf(country).some(([en]) => en === city);
 
-/** Key of a booked time; the city is compared without regard to case. */
-export const slotKey = (country, city, date, hour) =>
-  [country, String(city ?? '').toLowerCase(), date, hour].join('|');
+/**
+ * Key of a booked time. Each date + time can be booked once in total (any
+ * country or city): as soon as it is booked it disappears for every client.
+ * country / city are kept in the signature for the existing callers.
+ */
+// eslint-disable-next-line no-unused-vars
+export const slotKey = (country, city, date, hour) => [date, hour].join('|');

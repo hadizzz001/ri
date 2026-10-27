@@ -11,6 +11,8 @@ import ClientWrapper from './ClientWrapper'
 import { CartProvider } from '../app/context/CartContext'
 import { BooleanProvider } from '../app/context/CartBoolContext'
 import { AuthProvider } from '../app/context/AuthContext'
+import { LanguageProvider } from '../app/context/LanguageContext'
+import LanguageSwitcher from './LanguageSwitcher'
 
 /**
  * Everything inside <body>: providers, site chrome and the page. Kept out of
@@ -23,8 +25,10 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
 
   return (
     <ClientWrapper>
+      <LanguageProvider>
       <GifLoader />
       <BodyStyleController />
+      <LanguageSwitcher />
       <AuthProvider>
         <CartProvider>
           <BooleanProvider>
@@ -36,6 +40,7 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
           </BooleanProvider>
         </CartProvider>
       </AuthProvider>
+      </LanguageProvider>
     </ClientWrapper>
   )
 }

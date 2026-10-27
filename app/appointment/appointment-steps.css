@@ -1,0 +1,78 @@
+/* ---------------- 3-language switch (EN / AR / FR) ---------------- */
+.fr-lang-track.is-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.fr-lang-track.is-3 .fr-lang-thumb {
+  width: 33.3333%;
+}
+.fr-lang-track.is-3.is-pos-0 .fr-lang-thumb {
+  transform: none;
+}
+.fr-lang-track.is-3.is-pos-1 .fr-lang-thumb {
+  transform: translateX(100%);
+}
+.fr-lang-track.is-3.is-pos-2 .fr-lang-thumb {
+  transform: translateX(200%);
+}
+
+/* ---------------- Step 1: team preference ---------------- */
+.fr-staff {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  max-width: 640px;
+}
+.fr-booking .fr-staff-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 28px 18px 24px;
+  border: 1px solid var(--fr-line, #e5e5e5);
+  border-radius: 16px;
+  background: #fff;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.fr-booking .fr-staff-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.07);
+}
+.fr-booking .fr-staff-card.is-on {
+  border-color: var(--fr-ink, #0d0d0d);
+  box-shadow: inset 0 0 0 1px var(--fr-ink, #0d0d0d);
+}
+.fr-staff-avatar {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #f4efe9;
+  color: #ab695d;
+}
+.fr-staff-avatar svg {
+  width: 38px;
+  height: 38px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.fr-staff-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+.fr-staff-hint {
+  color: var(--fr-muted, #737373);
+  font-size: 13px;
+  line-height: 1.45;
+}
+@media (max-width: 480px) {
+  .fr-staff {
+    grid-template-columns: 1fr;
+  }
+}

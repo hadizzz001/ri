@@ -8,6 +8,9 @@ import { OPEN_HOURS, isCity } from '../../lib/bookingOptions';
 
 export const dynamic = 'force-dynamic';
 
+/** First booking step: does the client want a hijab-wearing team member? */
+const STAFF_OPTIONS = ['hijab', 'regular'];
+
 const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || ''));
 
 const makeReference = () =>
@@ -35,6 +38,7 @@ export async function POST(request) {
       serviceType,
       cart = [],
       lang = 'en',
+      staff,
     } = body;
     const country = String(body.country || '').trim();
     const city = String(body.city || '').trim();
@@ -48,6 +52,9 @@ export async function POST(request) {
     }
     if (!isDate(date) || date < earliestDate() || !OPEN_HOURS.includes(hour)) {
       return NextResponse.json({ error: 'Please choose another date and time' }, { status: 400 });
+    }
+    if (!STAFF_OPTIONS.includes(staff)) {
+      return NextResponse.json({ error: 'Please choose your preference (Hijab or not)' }, { status: 400 });
     }
     if (!SERVICE_TYPES.includes(serviceType)) {
       return NextResponse.json({ error: 'Please choose salon or home service' }, { status: 400 });
@@ -105,7 +112,7 @@ export async function POST(request) {
 
     // ---- Make sure the slot is still free (the city in any letter case), and take it
     const taken = await db.collection('Booking').findOne(
-      { country, city, date, hour, status: { $ne: 'cancelled' } },
+      { date, hour, status: { $ne: 'cancelled' } },
       { collation: { locale: 'en', strength: 2 } }
     );
     if (taken) {
@@ -128,7 +135,8 @@ export async function POST(request) {
       city,
       date, // YYYY-MM-DD
       hour, // HH:mm
-      lang: lang === 'ar' ? 'ar' : 'en',
+      lang: ['ar', 'fr'].includes(lang) ? lang : 'en',
+      staff, // 'hijab' | 'regular' — shown as the team column on the dashboard
       serviceType, // 'salon' | 'home'
       cart: lineItems,
       subtotal,
@@ -137,7 +145,7 @@ export async function POST(request) {
       tax,
       total,
       deposit,
-      status: 'pending',
+      status: 'confirmed', // booked = confirmed, the time is taken right away
       remindersSent: [], // e.g. [2, 1]
       ...(user ? { userId: user._id } : {}),
       createdAt: new Date(),

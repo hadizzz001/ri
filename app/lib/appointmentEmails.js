@@ -54,6 +54,21 @@ const T = {
       'لتغيير أو إلغاء الموعد، يرجى الرد على هذا البريد أو مراسلتنا عبر واتساب أو إلغاؤه من حسابي على موقعنا.',
     cancelFooter: `لحجز موعد جديد: ${BRAND.site}/appointment`,
   },
+  fr: {
+    dir: 'ltr',
+    confirmSubject: 'Votre réservation a été reçue — Rafi Daham Hair Beauty Salon',
+    reminderSubject: 'Rappel : votre rendez-vous chez Rafi Daham Hair Repair Studio',
+    cancelSubject: 'Votre rendez-vous a été annulé — Rafi Daham Hair Repair Studio',
+    hi: (n) => `Bonjour ${n},`,
+    reminderIntro: (days) =>
+      `Petit rappel : votre rendez-vous a lieu dans ${days} ${days === 1 ? 'jour' : 'jours'}.`,
+    cancelTitle: 'Votre rendez-vous a été annulé',
+    cancelIntro: (n) =>
+      `Bonjour ${n}, comme demandé, nous avons annulé le rendez-vous ci-dessous. Au plaisir de vous revoir.`,
+    footer:
+      'Besoin de modifier ou d’annuler ? Répondez à cet e-mail, écrivez-nous sur WhatsApp ou annulez depuis Mon compte sur notre site.',
+    cancelFooter: `Envie de réserver à nouveau ? Choisissez un créneau sur ${BRAND.site}/appointment`,
+  },
 };
 
 /** Client-typed values (name, notes…) must not be able to inject markup. */
@@ -173,7 +188,7 @@ function buildBody(booking, lang, { title, intro, footer, cancelled = false }) {
 
 /** Confirmation email sent to the client right after booking. */
 export async function sendClientConfirmation(booking) {
-  const lang = booking.lang === 'ar' ? 'ar' : 'en';
+  const lang = T[booking.lang] ? booking.lang : 'en';
   const t = T[lang];
   const html = buildBody(booking, lang, {
     title: bookingText(lang).received,
@@ -188,7 +203,7 @@ export async function sendClientConfirmation(booking) {
 
 /** Reminder email sent 2 days and 1 day before the appointment. */
 export async function sendClientReminder(booking, daysBefore) {
-  const lang = booking.lang === 'ar' ? 'ar' : 'en';
+  const lang = T[booking.lang] ? booking.lang : 'en';
   const t = T[lang];
   const html = buildBody(booking, lang, {
     title: t.hi(esc(booking.name)),
@@ -210,7 +225,7 @@ export async function sendClientReminder(booking, daysBefore) {
  * @returns {Promise<{client: boolean, salon: boolean}>} which emails went out
  */
 export async function sendCancellationEmails(booking) {
-  const lang = booking.lang === 'ar' ? 'ar' : 'en';
+  const lang = T[booking.lang] ? booking.lang : 'en';
   const t = T[lang];
   const cancelledAt = new Date(booking.cancelledAt || Date.now()).toLocaleString('en-GB', {
     timeZone: 'Asia/Beirut',

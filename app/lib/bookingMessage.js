@@ -71,7 +71,47 @@ export const BOOKING_MESSAGE = {
   },
 };
 
-export const bookingText = (lang) => BOOKING_MESSAGE[lang === 'ar' ? 'ar' : 'en'];
+BOOKING_MESSAGE.fr = {
+  received: 'Votre réservation a bien été reçue par le salon Rafi Daham Hair Beauty.',
+  details: 'Détails de la réservation :',
+  reference: 'Référence',
+  name: 'Nom',
+  phone: 'Téléphone',
+  email: 'E-mail',
+  location: 'Lieu',
+  staff: 'Préférence',
+  staffs: { hijab: 'Hijab', regular: 'Sans préférence' },
+  serviceType: 'Type de service',
+  serviceTypes: { salon: 'Au salon', home: 'À domicile' },
+  date: 'Date',
+  time: 'Heure',
+  duration: 'Durée',
+  services: 'Services',
+  subtotal: 'Sous-total',
+  homeFee: 'Service à domicile (×2)',
+  tax: 'Taxe',
+  total: 'Total',
+  deposit: 'Acompte de confirmation (25 %)',
+  notes: 'Remarques',
+  mins: 'min',
+  welcome: 'Nous avons hâte de vous accueillir et de vous offrir une expérience exceptionnelle.',
+  thanks: 'Merci d’avoir choisi Rafi Daham.',
+  noteTitle: '🌟 NOTE IMPORTANTE SUR LES PRIX ET SERVICES',
+  noteLines: [
+    'TOUS LES PRIX CI-DESSUS S’APPLIQUENT AUX SERVICES RÉALISÉS DANS NOTRE SALON DE LUXE.',
+    'LES SERVICES RÉALISÉS HORS DU SALON AU LIBAN SONT MAJORÉS DE 100 %.',
+    'LES SERVICES RÉALISÉS HORS DU LIBAN SONT MAJORÉS DE 300 %.',
+  ],
+};
+BOOKING_MESSAGE.en.staff = 'Preference';
+BOOKING_MESSAGE.en.staffs = { hijab: 'Hijab', regular: 'No preference' };
+BOOKING_MESSAGE.ar.staff = 'التفضيل';
+BOOKING_MESSAGE.ar.staffs = { hijab: 'محجبة', regular: 'بدون تفضيل' };
+
+export const bookingText = (lang) => BOOKING_MESSAGE[lang] || BOOKING_MESSAGE.en;
+
+const LOCALES = { en: 'en-GB', ar: 'ar-EG', fr: 'fr-FR' };
+export const localeOf = (lang) => LOCALES[lang] || LOCALES.en;
 
 export const money = (n) => `$${Number(n || 0).toFixed(2)}`;
 
@@ -80,7 +120,7 @@ export const longDate = (isoDate, lang = 'en') => {
   try {
     const [y, m, d] = String(isoDate).split('-').map(Number);
     return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString(
-      lang === 'ar' ? 'ar-EG' : 'en-GB',
+      localeOf(lang),
       { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }
     );
   } catch {
@@ -143,6 +183,7 @@ export function buildBookingText(booking, lang = 'en') {
     `${t.phone}: ${booking.phone}`,
     `${t.email}: ${booking.email}`,
     `${t.location}: ${booking.city}, ${booking.country}`,
+    t.staffs[booking.staff] ? `${t.staff}: ${t.staffs[booking.staff]}` : null,
     serviceType ? `${t.serviceType}: ${serviceType}` : null,
     `${t.date}: ${longDate(booking.date, lang)}`,
     `${t.time}: ${booking.hour}`,

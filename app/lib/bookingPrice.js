@@ -33,7 +33,9 @@ export const homeFactor = (serviceType, country) =>
 
 /** The dashboard's tax percentage, or 0 in Beirut. */
 export const taxPercentFor = ({ country, city }, dashboardPercent) =>
-  isLebanon(country) && city === TAX_FREE_CITY ? 0 : Math.max(0, Number(dashboardPercent) || 0);
+  !country || !city || (isLebanon(country) && city === TAX_FREE_CITY)
+    ? 0
+    : Math.max(0, Number(dashboardPercent) || 0);
 
 /** Share of the total paid upfront: 25% abroad, nothing inside Lebanon (or before a country is picked). */
 export const depositRate = (country) => (country && !isLebanon(country) ? DEPOSIT_RATE : 0);

@@ -9,7 +9,7 @@ import { OPEN_HOURS, isCity } from '../../lib/bookingOptions';
 export const dynamic = 'force-dynamic';
 
 /** First booking step: does the client want a hijab-wearing team member? */
-const STAFF_OPTIONS = ['hijab', 'regular'];
+const STAFF_OPTIONS = ['hijab', 'rafi', 'regular'];
 
 const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || ''));
 
@@ -54,7 +54,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Please choose another date and time' }, { status: 400 });
     }
     if (!STAFF_OPTIONS.includes(staff)) {
-      return NextResponse.json({ error: 'Please choose your preference (Hijab or not)' }, { status: 400 });
+      return NextResponse.json({ error: 'Please choose your preference (Hijab, Rafi or General)' }, { status: 400 });
     }
     if (!SERVICE_TYPES.includes(serviceType)) {
       return NextResponse.json({ error: 'Please choose salon or home service' }, { status: 400 });

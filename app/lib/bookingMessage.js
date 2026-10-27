@@ -80,7 +80,7 @@ BOOKING_MESSAGE.fr = {
   email: 'E-mail',
   location: 'Lieu',
   staff: 'Préférence',
-  staffs: { hijab: 'Hijab', regular: 'Sans préférence' },
+  staffs: { hijab: 'Hijab', rafi: 'Rafi', regular: 'Général' },
   serviceType: 'Type de service',
   serviceTypes: { salon: 'Au salon', home: 'À domicile' },
   date: 'Date',
@@ -104,9 +104,9 @@ BOOKING_MESSAGE.fr = {
   ],
 };
 BOOKING_MESSAGE.en.staff = 'Preference';
-BOOKING_MESSAGE.en.staffs = { hijab: 'Hijab', regular: 'No preference' };
+BOOKING_MESSAGE.en.staffs = { hijab: 'Hijab', rafi: 'Rafi', regular: 'General' };
 BOOKING_MESSAGE.ar.staff = 'التفضيل';
-BOOKING_MESSAGE.ar.staffs = { hijab: 'محجبة', regular: 'بدون تفضيل' };
+BOOKING_MESSAGE.ar.staffs = { hijab: 'محجبة', rafi: 'رافي', regular: 'عام' };
 
 export const bookingText = (lang) => BOOKING_MESSAGE[lang] || BOOKING_MESSAGE.en;
 

@@ -38,7 +38,8 @@ const STRINGS = {
     staffSub: 'Who would you like to take care of you?',
     staffs: {
       hijab: ['Hijab', 'A hijab-wearing team member will take care of you'],
-      regular: ['No preference', 'Any available team member'],
+      rafi: ['Rafi', 'Rafi Daham will take care of you personally'],
+      regular: ['General', 'Any available team member'],
     },
     errStaff: 'Please choose an option',
     selectDetails: 'Your details',
@@ -107,9 +108,10 @@ const STRINGS = {
     staffSub: 'من تفضّلين أن تهتمّ بك؟',
     staffs: {
       hijab: ['محجبة', 'ستهتمّ بك موظفة محجبة'],
-      regular: ['بدون تفضيل', 'أي عضو متاح من الفريق'],
+      rafi: ['رافي', 'سيهتمّ بك رافي دهام شخصياً'],
+      regular: ['عام', 'أي عضو متاح من الفريق'],
     },
-    errStaff: 'يرجى اختيار أحد الخيارين',
+    errStaff: 'يرجى اختيار أحد الخيارات',
     selectDetails: 'معلوماتك',
     selectServices: 'اختر الخدمات',
     stepOf: (s, n, l) => `الخطوة ${s} من ${n} — ${l}`,
@@ -175,7 +177,8 @@ const STRINGS = {
     staffSub: 'Qui souhaitez-vous pour s’occuper de vous ?',
     staffs: {
       hijab: ['Hijab', 'Une membre de l’équipe portant le hijab s’occupera de vous'],
-      regular: ['Sans préférence', 'Tout membre disponible de l’équipe'],
+      rafi: ['Rafi', 'Rafi Daham s’occupera de vous personnellement'],
+      regular: ['Général', 'Tout membre disponible de l’équipe'],
     },
     errStaff: 'Veuillez choisir une option',
     selectDetails: 'Vos coordonnées',
@@ -309,6 +312,12 @@ const StaffIcon = ({ type }) =>
       <path d="M12 3c-4 0-7 3.2-7 7.4V21h14V10.4C19 6.2 16 3 12 3z" />
       <circle cx="12" cy="10.5" r="3.2" />
       <path d="M8.5 21c.6-2.6 1.9-4 3.5-4s2.9 1.4 3.5 4" />
+    </svg>
+  ) : type === 'rafi' ? (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="8" r="3.6" />
+      <path d="M5 20.5c.6-4 3.3-6.4 7-6.4s6.4 2.4 7 6.4" />
+      <path d="M17.5 3.5l.7 1.4 1.5.2-1.1 1 .3 1.5-1.4-.7-1.4.7.3-1.5-1.1-1 1.5-.2z" />
     </svg>
   ) : (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -972,7 +981,7 @@ export default function AppointmentPage() {
           {step === 1 && (
             <>
               <div className="fr-staff" role="group" aria-label={t.selectStaff}>
-                {['hijab', 'regular'].map((type) => (
+                {['hijab', 'rafi', 'regular'].map((type) => (
                   <button
                     type="button"
                     key={type}

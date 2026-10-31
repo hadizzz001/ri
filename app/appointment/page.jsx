@@ -24,7 +24,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { bookingText, buildBookingText, localeOf, priceLines } from '../lib/bookingMessage';
 import { SERVICE_TYPES, bookingTotals, homeFactor, locationFactor } from '../lib/bookingPrice';
-import { COUNTRIES, OPEN_HOURS, citiesOf, slotKey } from '../lib/bookingOptions';
+import { DEFAULT_SETTINGS, citiesOf, hoursFor, normalizeSettings, slotKey } from '../lib/bookingOptions';
+import { worldCountryOptions } from '../lib/worldCountries';
 
 /* --------------------------------------------------------------------- i18n */
 
@@ -52,9 +53,11 @@ const STRINGS = {
     added: 'Added',
     mins: 'mins',
     from: 'from',
-    country: 'Country',
+    country: 'Appointment country',
     city: 'City',
-    chooseCountry: 'Choose a country',
+    chooseCountry: 'Choose the appointment country',
+    clientCountry: 'Your country (where you are from)',
+    chooseClientCountry: 'Choose your country',
     chooseCity: 'Choose a city',
     noSlots: 'No free times on this day — please choose another date.',
     serviceTypeTitle: 'Salon or home service?',
@@ -91,7 +94,7 @@ const STRINGS = {
     time: 'Time',
     location: 'Location',
     newBooking: 'Book another appointment',
-    reminderNote: 'You will get a reminder email 2 days and 1 day before.',
+    reminderNote: 'You will get a reminder email 2 days, 1 day and 1 hour before.',
     openWhatsApp: 'Send details on WhatsApp',
     waHint:
       "If WhatsApp didn't open automatically, tap the button above to send us your booking details.",
@@ -122,9 +125,11 @@ const STRINGS = {
     added: 'تمت الإضافة',
     mins: 'دقيقة',
     from: 'من',
-    country: 'الدولة',
+    country: 'دولة الموعد',
     city: 'المدينة',
-    chooseCountry: 'اختر الدولة',
+    chooseCountry: 'اختر دولة الموعد',
+    clientCountry: 'بلدك (من أين أنت)',
+    chooseClientCountry: 'اختر بلدك',
     chooseCity: 'اختر المدينة',
     noSlots: 'لا توجد أوقات متاحة في هذا اليوم — يرجى اختيار تاريخ آخر.',
     serviceTypeTitle: 'في الصالون أم في المنزل؟',
@@ -160,7 +165,7 @@ const STRINGS = {
     time: 'الوقت',
     location: 'الموقع',
     newBooking: 'حجز موعد آخر',
-    reminderNote: 'ستصلك رسالة تذكير قبل يومين وقبل يوم من الموعد.',
+    reminderNote: 'ستصلك رسالة تذكير قبل يومين وقبل يوم وقبل ساعة من الموعد.',
     openWhatsApp: 'إرسال التفاصيل عبر واتساب',
     waHint:
       'إذا لم يُفتح واتساب تلقائياً، اضغط على الزر أعلاه لإرسال تفاصيل حجزك.',
@@ -191,9 +196,11 @@ const STRINGS = {
     added: 'Ajouté',
     mins: 'min',
     from: 'à partir de',
-    country: 'Pays',
+    country: 'Pays du rendez-vous',
     city: 'Ville',
-    chooseCountry: 'Choisissez un pays',
+    chooseCountry: 'Choisissez le pays du rendez-vous',
+    clientCountry: 'Votre pays (d’où vous venez)',
+    chooseClientCountry: 'Choisissez votre pays',
     chooseCity: 'Choisissez une ville',
     noSlots: 'Aucun créneau libre ce jour-là — veuillez choisir une autre date.',
     serviceTypeTitle: 'Au salon ou à domicile ?',
@@ -230,7 +237,7 @@ const STRINGS = {
     time: 'Heure',
     location: 'Lieu',
     newBooking: 'Prendre un autre rendez-vous',
-    reminderNote: 'Vous recevrez un rappel par e-mail 2 jours et 1 jour avant.',
+    reminderNote: 'Vous recevrez un rappel par e-mail 2 jours, 1 jour et 1 heure avant.',
     openWhatsApp: 'Envoyer les détails sur WhatsApp',
     waHint:
       'Si WhatsApp ne s’est pas ouvert, touchez le bouton ci-dessus pour nous envoyer votre réservation.',
@@ -240,13 +247,16 @@ const STRINGS = {
   },
 };
 
-/** Lebanon, KSA and Kuwait, named in the page's language. */
-const countryOptions = (lang) =>
-  COUNTRIES.map(({ name, ar }) => ({ value: name, label: lang === 'ar' ? ar : name }));
+/** The appointment countries managed from the dashboard, named in the page's language. */
+const countryOptions = (lang, countries) =>
+  countries.map(({ name, ar }) => ({ value: name, label: lang === 'ar' && ar ? ar : name }));
 
 /** A country's cities: the capital first, then the rest in alphabetical order. */
-const cityOptions = (country, lang) => {
-  const [capital, ...rest] = citiesOf(country).map(([en, ar]) => ({ value: en, label: lang === 'ar' ? ar : en }));
+const cityOptions = (country, lang, countries) => {
+  const [capital, ...rest] = citiesOf(country, countries).map(([en, ar]) => ({
+    value: en,
+    label: lang === 'ar' && ar ? ar : en,
+  }));
   rest.sort((a, b) => a.label.localeCompare(b.label, lang));
   return capital ? [capital, ...rest] : [];
 };
@@ -456,6 +466,8 @@ export default function AppointmentPage() {
   const [cart, setCart] = useState({});
 
   const [country, setCountry] = useState('');
+  const [clientCountry, setClientCountry] = useState('');
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS); // days, hours & countries from the dashboard
   const [city, setCity] = useState('');
   const [month, setMonth] = useState(() => {
     const n = new Date();
@@ -488,9 +500,10 @@ export default function AppointmentPage() {
 
     fetch('/api/apoint')
       .then((r) => r.json())
-      .then((json) =>
-        setTaken(new Set((json?.taken || []).map((b) => slotKey(b.country, b.city, b.date, b.hour))))
-      )
+      .then((json) => {
+        setTaken(new Set((json?.taken || []).map((b) => slotKey(b.country, b.city, b.date, b.hour))));
+        if (json?.settings) setSettings(normalizeSettings(json.settings));
+      })
       .catch(() => setTaken(new Set()));
 
     fetch('/api/tax')
@@ -507,6 +520,7 @@ export default function AppointmentPage() {
         .then((json) => {
           const next = new Set((json?.taken || []).map((b) => slotKey(b.country, b.city, b.date, b.hour)));
           setTaken(next);
+          if (json?.settings) setSettings(normalizeSettings(json.settings));
         })
         .catch(() => {});
     const id = setInterval(refresh, 30000);
@@ -538,8 +552,9 @@ export default function AppointmentPage() {
     [services, activeCat]
   );
 
-  const countryList = useMemo(() => countryOptions(lang), [lang]);
-  const cityList = useMemo(() => cityOptions(country, lang), [country, lang]);
+  const countryList = useMemo(() => countryOptions(lang, settings.countries), [lang, settings]);
+  const cityList = useMemo(() => cityOptions(country, lang, settings.countries), [country, lang, settings]);
+  const worldList = useMemo(() => worldCountryOptions(lang), [lang]);
   const placeChosen = !!country && !!city;
 
   /** Start times still free on a day ('YYYY-MM-DD') for the picked place; today's past times are gone. */
@@ -548,7 +563,7 @@ export default function AppointmentPage() {
     const today = fmtLocalDate(now);
     if (!placeChosen || iso < today) return [];
     const nowTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    return OPEN_HOURS.filter(
+    return hoursFor(settings, iso).filter(
       (h) => (iso > today || h > nowTime) && !taken.has(slotKey(country, city, iso, h))
     );
   };
@@ -639,6 +654,7 @@ export default function AppointmentPage() {
     else if (form.phone.replace(/\D/g, '').length < 6) e.phone = t.errPhone;
     if (!form.email.trim()) e.email = t.errRequired;
     else if (!isEmail(form.email)) e.email = t.errEmail;
+    if (!clientCountry) e.clientCountry = t.errRequired;
     if (!placeChosen || !date || !hour) e.time = t.errTime;
     return e;
   };
@@ -666,7 +682,7 @@ export default function AppointmentPage() {
     if (cartItems.length === 0) e.cart = t.errCart;
     setErrors(e);
     if (e.staff) goTo(1);
-    else if (['name', 'phone', 'email', 'time'].some((k) => e[k])) goTo(2);
+    else if (['name', 'phone', 'email', 'clientCountry', 'time'].some((k) => e[k])) goTo(2);
     return Object.keys(e).length === 0;
   };
 
@@ -680,6 +696,7 @@ export default function AppointmentPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
+          clientCountry,
           country,
           city,
           date,
@@ -1067,6 +1084,23 @@ export default function AppointmentPage() {
 
 
               <h2 className="fr-h2">{t.location}</h2>
+              <div className="fr-field" style={{ marginBottom: 12 }}>
+                <label htmlFor="fr-client-country">{t.clientCountry}</label>
+                <select
+                  id="fr-client-country"
+                  className={`fr-input ${errors.clientCountry ? 'has-error' : ''}`}
+                  value={clientCountry}
+                  onChange={(e) => setClientCountry(e.target.value)}
+                >
+                  <option value="">{t.chooseClientCountry}</option>
+                  {worldList.map((c) => (
+                    <option key={c.value} value={c.value}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+                {errors.clientCountry && <p className="fr-error">{errors.clientCountry}</p>}
+              </div>
               <div className="fr-fields">
                 <div className="fr-field">
                   <label htmlFor="fr-country">{t.country}</label>

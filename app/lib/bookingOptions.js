@@ -141,17 +141,114 @@ const LEBANON_CITIES = [
   ['Zouk Mosbeh', 'ذوق مصبح'],
 ];
 
-/** The countries that can be booked and their cities, capital first: [English, Arabic]. */
+/**
+ * The default appointment countries and their cities, capital first:
+ * [English, Arabic]. The dashboard's Booking Schedule page can change them
+ * (stored in BookingSettings, see normalizeSettings below).
+ */
 export const COUNTRIES = [
-  { name: LEBANON, ar: 'لبنان', cities: LEBANON_CITIES },
-  { name: 'KSA', ar: 'السعودية', cities: [['Riyadh', 'الرياض'], ['Jeddah', 'جدة']] },
-  { name: 'Kuwait', ar: 'الكويت', cities: [['Kuwait City', 'مدينة الكويت']] },
+  { name: LEBANON, ar: 'لبنان', timeZone: 'Asia/Beirut', cities: LEBANON_CITIES },
+  { name: 'KSA', ar: 'السعودية', timeZone: 'Asia/Riyadh', cities: [['Riyadh', 'الرياض'], ['Jeddah', 'جدة']] },
+  { name: 'Kuwait', ar: 'الكويت', timeZone: 'Asia/Kuwait', cities: [['Kuwait City', 'مدينة الكويت']] },
 ];
 
 /** A country's [English, Arabic] cities ([] for a country that can't be booked). */
-export const citiesOf = (country) => COUNTRIES.find((c) => c.name === country)?.cities ?? [];
+export const citiesOf = (country, countries = COUNTRIES) =>
+  countries.find((c) => c.name === country)?.cities ?? [];
 
-export const isCity = (country, city) => citiesOf(country).some(([en]) => en === city);
+export const isCity = (country, city, countries = COUNTRIES) =>
+  citiesOf(country, countries).some(([en]) => en === city);
+
+/* ------------------------------------------------ managed schedule */
+
+/** Weekly hours, Sunday first (JS getDay()): every day 08:00 – midnight by default. */
+export const DEFAULT_WEEKLY = Array.from({ length: 7 }, () => ({ open: true, from: '08:00', until: '24:00' }));
+
+const isTime = (v) => typeof v === 'string' && /^(([01]\d|2[0-3]):[0-5]\d|24:00)$/.test(v);
+const isIso = (v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v);
+
+/**
+ * The schedule saved from the dashboard (BookingSettings document), with the
+ * defaults for anything missing: { countries, weekly, overrides }.
+ * Same rules as dash/app/utils/bookingSchedule.ts.
+ */
+export function normalizeSettings(raw) {
+  const countries = (Array.isArray(raw?.countries) ? raw.countries : [])
+    .map((c) => ({
+      name: String(c?.name || '').trim(),
+      ar: String(c?.ar || '').trim(),
+      timeZone: String(c?.timeZone || 'Asia/Beirut'),
+      cities: (Array.isArray(c?.cities) ? c.cities : [])
+        .map((x) => (Array.isArray(x) ? [String(x[0] || '').trim(), String(x[1] || '').trim()] : [String(x || '').trim(), '']))
+        .filter((x) => x[0]),
+    }))
+    .filter((c) => c.name && c.cities.length);
+  const weekly = DEFAULT_WEEKLY.map((def, i) => {
+    const w = Array.isArray(raw?.weekly) ? raw.weekly[i] : null;
+    if (!w) return { ...def };
+    return { open: w.open !== false, from: isTime(w.from) ? w.from : def.from, until: isTime(w.until) ? w.until : def.until };
+  });
+  const overrides = (Array.isArray(raw?.overrides) ? raw.overrides : [])
+    .filter((o) => isIso(o?.date))
+    .map((o) => ({
+      date: o.date,
+      closed: !!o.closed,
+      from: isTime(o.from) ? o.from : '08:00',
+      until: isTime(o.until) ? o.until : '24:00',
+    }));
+  return { countries: countries.length ? countries : COUNTRIES, weekly, overrides };
+}
+
+export const DEFAULT_SETTINGS = normalizeSettings(null);
+
+const toMin = (h) => Number(h.slice(0, 2)) * 60 + Number(h.slice(3, 5));
+
+/** Start times between two "HH:MM" (until excluded), every 30 minutes. */
+export function slotsBetween(from, until) {
+  const out = [];
+  for (let m = toMin(from); m + SLOT_MINUTES <= toMin(until); m += SLOT_MINUTES)
+    out.push(`${pad(Math.floor(m / 60))}:${pad(m % 60)}`);
+  return out;
+}
+
+/** The open start times of a date ("YYYY-MM-DD"): a specific date first, else its weekday. */
+export function hoursFor(settings, iso) {
+  const s = settings || DEFAULT_SETTINGS;
+  const o = s.overrides.find((x) => x.date === iso);
+  if (o) return o.closed ? [] : slotsBetween(o.from, o.until);
+  const [y, m, d] = iso.split('-').map(Number);
+  const day = s.weekly[new Date(y, m - 1, d).getDay()];
+  return day?.open ? slotsBetween(day.from, day.until) : [];
+}
+
+/** The time zone of an appointment country (Beirut when unknown). */
+export const timeZoneOf = (country, countries = COUNTRIES) =>
+  countries.find((c) => c.name === country)?.timeZone || 'Asia/Beirut';
+
+/** The moment (ms since epoch) of "YYYY-MM-DD" "HH:mm" in a time zone. */
+export function appointmentTime(date, hour, timeZone = 'Asia/Beirut') {
+  const [y, mo, d] = date.split('-').map(Number);
+  const [h, mi] = hour.split(':').map(Number);
+  const guess = Date.UTC(y, mo - 1, d, h, mi);
+  const offsetAt = (ms) => {
+    const p = Object.fromEntries(
+      new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        hourCycle: 'h23',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+        .formatToParts(new Date(ms))
+        .map((x) => [x.type, x.value])
+    );
+    return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute) - ms;
+  };
+  const first = guess - offsetAt(guess);
+  return guess - offsetAt(first);
+}
 
 /**
  * Key of a booked time. Each date + time can be booked once in total (any

@@ -1,5 +1,7 @@
 import clientPromise from '../../lib/mongodb';
 import { NextResponse } from 'next/server';
+import { getBookingSettings } from '../../lib/bookingSettings';
+import { maybeRunHourReminders } from '../../lib/hourReminders';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,9 +13,9 @@ const sinceISO = () => {
 };
 
 /**
- * Booking is open every day in Lebanon, KSA and Kuwait (lib/bookingOptions.js),
- * so the booking page only needs the times already taken by upcoming bookings:
- * { taken: [{ country, city, date, hour }] }. Cancelled bookings free theirs.
+ * What the booking page needs: the times already taken by upcoming bookings
+ * ({ country, city, date, hour }, cancelled ones free theirs) and the
+ * schedule managed from the dashboard (countries, days & hours).
  */
 export async function GET() {
   try {
@@ -28,7 +30,10 @@ export async function GET() {
       )
       .toArray();
 
-    return NextResponse.json({ taken });
+    // Backup for the scheduler: send any due "in 1 hour" reminders
+    await maybeRunHourReminders(db);
+
+    return NextResponse.json({ taken, settings: await getBookingSettings(db) });
   } catch (error) {
     console.error('Error fetching booked times:', error);
     return NextResponse.json({ error: 'Failed to fetch data' }, { status: 500 });

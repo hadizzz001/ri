@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '../../../lib/mongodb';
 import { sendClientReminder } from '../../../lib/appointmentEmails';
+import { runHourReminders } from '../../../lib/hourReminders';
 
 export const dynamic = 'force-dynamic';
 
@@ -72,7 +73,14 @@ export async function GET(request) {
       }
     }
 
-    return NextResponse.json({ success: true, processed: report.length, report });
+    // Bookings that just came inside Resend's scheduling window get their
+    // "in 1 hour" reminder scheduled
+    const hour = await runHourReminders(db).catch((e) => {
+      console.error('1-hour reminder scheduling failed:', e?.message || e);
+      return [];
+    });
+
+    return NextResponse.json({ success: true, processed: report.length, report, hour });
   } catch (error) {
     console.error('Reminder cron error:', error);
     return NextResponse.json({ error: 'Reminder job failed' }, { status: 500 });

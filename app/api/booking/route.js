@@ -4,7 +4,9 @@ import clientPromise from '../../lib/mongodb';
 import { getCurrentUser } from '../../lib/auth';
 import { sendClientConfirmation } from '../../lib/appointmentEmails';
 import { SERVICE_TYPES, bookingTotals, locationFactor } from '../../lib/bookingPrice';
-import { OPEN_HOURS, isCity } from '../../lib/bookingOptions';
+import { hoursFor, isCity } from '../../lib/bookingOptions';
+import { getBookingSettings } from '../../lib/bookingSettings';
+import { scheduleHourReminder } from '../../lib/hourReminders';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,15 +44,25 @@ export async function POST(request) {
     } = body;
     const country = String(body.country || '').trim();
     const city = String(body.city || '').trim();
+    const clientCountry = String(body.clientCountry || '').trim();
 
     if (!name || !phone || !isEmail(email) || !country || !city || !date || !hour) {
       return NextResponse.json({ error: 'Missing or invalid fields' }, { status: 400 });
     }
-    // Lebanon, KSA and Kuwait are open every day, 08:00–23:30; the choices must still be real ones
-    if (!isCity(country, city)) {
+    // Country names come from the browser's own list, so only the shape is checked
+    if (!clientCountry || clientCountry.length > 80) {
+      return NextResponse.json({ error: 'Please choose the country you are from' }, { status: 400 });
+    }
+
+    const client = await clientPromise;
+    const db = client.db('test');
+
+    // The countries, days and hours are managed from the dashboard
+    const settings = await getBookingSettings(db);
+    if (!isCity(country, city, settings.countries)) {
       return NextResponse.json({ error: 'Please choose your country and city' }, { status: 400 });
     }
-    if (!isDate(date) || date < earliestDate() || !OPEN_HOURS.includes(hour)) {
+    if (!isDate(date) || date < earliestDate() || !hoursFor(settings, date).includes(hour)) {
       return NextResponse.json({ error: 'Please choose another date and time' }, { status: 400 });
     }
     if (!STAFF_OPTIONS.includes(staff)) {
@@ -62,9 +74,6 @@ export async function POST(request) {
     if (!Array.isArray(cart) || cart.length === 0) {
       return NextResponse.json({ error: 'No services selected' }, { status: 400 });
     }
-
-    const client = await clientPromise;
-    const db = client.db('test');
 
     // ---- Re-price server side from the DB so prices can never be tampered with.
     // Seeded services have readable string ids, services added from the
@@ -133,6 +142,7 @@ export async function POST(request) {
       notes,
       country,
       city,
+      clientCountry, // where the client is from (any country)
       date, // YYYY-MM-DD
       hour, // HH:mm
       lang: ['ar', 'fr'].includes(lang) ? lang : 'en',
@@ -152,6 +162,11 @@ export async function POST(request) {
     };
 
     const result = await db.collection('Booking').insertOne(booking);
+
+    // Resend delivers the "in 1 hour" reminder to the client and the salon
+    await scheduleHourReminder(db, { ...booking, _id: result.insertedId }, settings).catch((e) =>
+      console.error('Scheduling the 1-hour reminder failed:', e?.message || e)
+    );
 
     // Keep the legacy `Order` collection in sync (amounts as strings, as the
     // dashboard's Prisma `Order` model reads them)

@@ -70,8 +70,10 @@ async function getTransporter() {
  * @param {string} [opts.from]      overrides the default sender
  * @param {object} [opts.headers]   extra headers, e.g. List-Unsubscribe
  * @param {'resend'} [opts.provider] force Resend even when SMTP is configured
+ * @param {string} [opts.scheduledAt] ISO date: Resend delivers it then (forces Resend)
  */
-export async function sendMail({ to, subject, html, replyTo, from: fromOverride, headers, provider }) {
+export async function sendMail({ to, subject, html, replyTo, from: fromOverride, headers, provider, scheduledAt }) {
+  if (scheduledAt) provider = 'resend';
   const useSmtp = provider !== 'resend' && hasSmtp();
   const from =
     fromOverride ||
@@ -112,6 +114,7 @@ export async function sendMail({ to, subject, html, replyTo, from: fromOverride,
             html,
             ...(replyTo ? { reply_to: replyTo } : {}),
             ...(headers ? { headers } : {}),
+            ...(scheduledAt ? { scheduled_at: scheduledAt } : {}),
           }),
           signal: controller.signal,
         });
@@ -137,6 +140,21 @@ export async function sendMail({ to, subject, html, replyTo, from: fromOverride,
     '\n         Set SMTP_USER + SMTP_PASS or RESEND_API_KEY in .env'
   );
   return { provider: 'none', skipped: true };
+}
+
+/** Cancels an email scheduled on Resend (ignored when already sent / unknown). */
+export async function cancelScheduledEmail(id) {
+  if (!id || !process.env.RESEND_API_KEY) return false;
+  try {
+    const res = await fetch(`https://api.resend.com/emails/${id}/cancel`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}` },
+    });
+    return res.ok;
+  } catch (e) {
+    console.error('Resend cancel failed:', e?.message || e);
+    return false;
+  }
 }
 
 /** Quick connection check used by scripts/test-email.js */

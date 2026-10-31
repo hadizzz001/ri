@@ -6,8 +6,9 @@
  *  - Outside Lebanon every service is priced at the travelling rate (×4).
  *  - Home service costs double inside Lebanon; abroad the travelling rate
  *    already covers coming to the client.
- *  - Tax — a percentage set in the dashboard — is added on top, for salon
- *    and home service alike, except in Beirut, which is tax free.
+ *  - Tax — a percentage set in the dashboard — is added on top for home
+ *    service only (salon bookings are tax free), except in Beirut, which
+ *    is always tax free.
  *  - Bookings outside Lebanon are confirmed with a 25% deposit of the taxed
  *    total; bookings inside Lebanon need none.
  *
@@ -50,7 +51,8 @@ export function bookingTotals(items, { country, city, serviceType, taxPercent })
     items.reduce((a, i) => a + Number(i.price) * (Number(i.qty) || 1), 0)
   );
   const homeFee = round2(subtotal * (homeFactor(serviceType, country) - 1));
-  const rate = taxPercentFor({ country, city }, taxPercent);
+  // Tax applies to home service only — salon bookings are tax free.
+  const rate = serviceType === 'home' ? taxPercentFor({ country, city }, taxPercent) : 0;
   const tax = round2(((subtotal + homeFee) * rate) / 100);
   const total = round2(subtotal + homeFee + tax);
 

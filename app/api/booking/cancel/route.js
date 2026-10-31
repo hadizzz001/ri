@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import clientPromise from '../../../lib/mongodb';
 import { getCurrentUser } from '../../../lib/auth';
 import { sendCancellationEmails } from '../../../lib/appointmentEmails';
+import { cancelHourReminder } from '../../../lib/hourReminders';
 import { cancellableFrom, ownBookingsFilter, shapeBooking } from '../../../lib/clientBookings';
 
 export const dynamic = 'force-dynamic';
@@ -47,6 +48,9 @@ export async function POST(request) {
       return NextResponse.json({ error: 'This appointment is already cancelled.' }, { status: 409 });
     }
     await db.collection('Order').updateMany({ bookingId: _id }, { $set: change });
+    await cancelHourReminder(db, booking).catch((e) =>
+      console.error('Cancelling the 1-hour reminder failed:', e?.message || e)
+    );
 
     // Emails never undo the cancellation; the response says which went out
     const cancelled = { ...booking, ...change };

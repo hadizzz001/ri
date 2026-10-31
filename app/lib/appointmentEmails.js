@@ -29,6 +29,8 @@ const T = {
     dir: 'ltr',
     confirmSubject: 'Your booking has been received — Rafi Daham Hair Beauty Salon',
     reminderSubject: 'Reminder: your appointment at Rafi Daham Hair Repair Studio',
+    hourSubject: 'Your appointment is in 1 hour — Rafi Daham Hair Repair Studio',
+    hourIntro: (hour) => `See you soon! Your appointment starts in about 1 hour, at ${hour}.`,
     cancelSubject: 'Your appointment has been cancelled — Rafi Daham Hair Repair Studio',
     hi: (n) => `Hi ${n},`,
     reminderIntro: (days) =>
@@ -44,6 +46,8 @@ const T = {
     dir: 'rtl',
     confirmSubject: 'تم استلام حجزك — صالون رافي دهام للشعر والتجميل',
     reminderSubject: 'تذكير: موعدك في صالون رافي دهام',
+    hourSubject: 'موعدك بعد ساعة — صالون رافي دهام',
+    hourIntro: (hour) => `نراك قريباً! يبدأ موعدك بعد ساعة تقريباً، الساعة ${hour}.`,
     cancelSubject: 'تم إلغاء موعدك — صالون رافي دهام',
     hi: (n) => `مرحباً ${n}،`,
     reminderIntro: (days) =>
@@ -58,6 +62,8 @@ const T = {
     dir: 'ltr',
     confirmSubject: 'Votre réservation a été reçue — Rafi Daham Hair Beauty Salon',
     reminderSubject: 'Rappel : votre rendez-vous chez Rafi Daham Hair Repair Studio',
+    hourSubject: 'Votre rendez-vous est dans 1 heure — Rafi Daham Hair Repair Studio',
+    hourIntro: (hour) => `À très vite ! Votre rendez-vous commence dans environ 1 heure, à ${hour}.`,
     cancelSubject: 'Votre rendez-vous a été annulé — Rafi Daham Hair Repair Studio',
     hi: (n) => `Bonjour ${n},`,
     reminderIntro: (days) =>
@@ -215,6 +221,53 @@ export async function sendClientReminder(booking, daysBefore) {
     subject: t.reminderSubject,
     html,
   });
+}
+
+/**
+ * 1 hour before the appointment: a reminder to the client (in their
+ * language) and one to the salon (in English). Each is sent even if the
+ * other fails.
+ *
+ * @returns {Promise<{client: boolean, salon: boolean}>}
+ */
+export async function sendHourReminders(booking, { scheduledAt } = {}) {
+  const lang = T[booking.lang] ? booking.lang : 'en';
+  const t = T[lang];
+  const when = scheduledAt ? { scheduledAt } : {};
+  const jobs = [
+    booking.email
+      ? sendMail({
+          ...when,
+          to: booking.email,
+          subject: t.hourSubject,
+          html: buildBody(booking, lang, { title: t.hi(esc(booking.name)), intro: t.hourIntro(esc(booking.hour)) }),
+        })
+      : Promise.reject(new Error('no client email')),
+    sendMail({
+      ...when,
+      to: SALON_EMAIL,
+      ...(booking.email ? { replyTo: booking.email } : {}),
+      subject: `In 1 hour: ${booking.name} — ${booking.hour} · ${booking.city}${booking.reference ? ` · ${booking.reference}` : ''}`,
+      html: buildBody(booking, 'en', {
+        title: `Appointment in 1 hour — ${esc(booking.hour)}`,
+        intro: `${esc(booking.name)} (<span dir="ltr">${esc(booking.phone)}</span>)${
+          booking.clientCountry ? `, from ${esc(booking.clientCountry)},` : ''
+        } is booked at ${esc(booking.hour)} in ${esc(booking.city)}, ${esc(booking.country)}.`,
+        footer: 'Sent automatically by the booking system on the website.',
+        cancelled: true,
+      }),
+    }),
+  ];
+  const settled = await Promise.allSettled(jobs);
+  const [client, salon] = settled.map((r, i) => {
+    if (r.status === 'rejected') {
+      console.error(`1-hour reminder to the ${i ? 'salon' : 'client'} failed:`, r.reason?.message || r.reason);
+      return false;
+    }
+    return !r.value?.skipped;
+  });
+  const ids = settled.map((r) => (r.status === 'fulfilled' && r.value?.provider === 'resend' ? r.value.id : null)).filter(Boolean);
+  return { client, salon, ids };
 }
 
 /**

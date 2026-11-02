@@ -126,7 +126,7 @@ export async function POST(request) {
     );
     if (taken) {
       return NextResponse.json(
-        { error: 'This time slot has just been taken. Please pick another one.' },
+        { error: 'This time slot has just been taken. Please pick another one.', code: 'taken' },
         { status: 409 }
       );
     }
@@ -182,7 +182,8 @@ export async function POST(request) {
 
     // ---- Email (never block the booking if the provider fails).
     // Only the client gets an email; the salon receives the booking
-    // details through the WhatsApp handoff.
+    // details on WhatsApp, which the booking page opens as soon as this
+    // answers (app/appointment/page.jsx).
     const emailResults = { client: false };
     try {
       await sendClientConfirmation(booking);

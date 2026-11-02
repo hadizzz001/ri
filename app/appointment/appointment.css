@@ -741,8 +741,9 @@
 .fr-booking .fr-cta {
   margin-top: 16px;
 }
+/* WhatsApp green, deep enough for white text (5:1) */
 .fr-booking .fr-cta--wa {
-  --btn-fill: #25d366;
+  --btn-fill: #0b7d45;
   --btn-on-fill: #fff;
   gap: 10px;
 }
@@ -750,6 +751,19 @@
   flex: none;
   width: 18px;
   height: 18px;
+}
+
+/* "Last step: you will send your booking to us on WhatsApp." under Confirm */
+.fr-booking .fr-wa-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+}
+.fr-wa-hint svg {
+  flex: none;
+  margin-top: 2px;
+  color: #0b7d45;
 }
 
 /* ---------------- Mobile bottom bar ---------------- */

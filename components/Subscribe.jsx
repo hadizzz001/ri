@@ -163,7 +163,7 @@ const STYLES = `
 .rdNews__input:focus{border-color:#1c1c1c!important}
 .rdNews__input.has-error{border-color:#b42318!important}
 .rdNews__input:-webkit-autofill{-webkit-text-fill-color:#1c1c1c;-webkit-box-shadow:0 0 0 40px #fff inset;caret-color:#1c1c1c}
-.rdNews__hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;opacity:0}
+.rdNews__hp{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);opacity:0;pointer-events:none}
 .rdNews__error{font-size:12.5px;text-align:left;color:#b42318!important}
 
 .rdNews--footer{display:grid;align-content:start;gap:16px}

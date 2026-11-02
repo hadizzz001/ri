@@ -14,7 +14,8 @@
  *
  * On confirm: the booking is stored in MongoDB, a confirmation email is sent
  * with Resend (plus reminder emails 2 & 1 day before via /api/booking/reminders)
- * and the client is handed over to WhatsApp with a ready-made message.
+ * and WhatsApp opens by itself with the booking written out for the salon
+ * (see openWhatsAppTab / handleConfirm for how pop-up blockers are avoided).
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -86,18 +87,23 @@ const STRINGS = {
     errCart: 'Please select at least one service',
     errServiceType: 'Please choose salon or home service',
     errTime: 'Please choose the place, date and time',
-    doneTitle: 'Appointment requested!',
-    doneText:
-      'We have emailed your confirmation. WhatsApp is opening so you can finalise the details with us.',
+    errTaken: 'Sorry, this time has just been booked by someone else. Please choose another time.',
+    errNetwork: 'Connection problem. Please try again.',
+    errGeneric: 'Something went wrong. Please try again.',
+    waNote: 'After you confirm, WhatsApp opens with your booking written out. Just press Send.',
+    waOpening: 'Opening WhatsApp…',
+    doneTitle: 'Appointment booked!',
+    doneText: 'Thank you for booking with us.',
+    doneEmailed: 'Your confirmation is on its way to your email.',
     ref: 'Reference',
     date: 'Date',
     time: 'Time',
     location: 'Location',
     newBooking: 'Book another appointment',
     reminderNote: 'You will get a reminder email 2 days, 1 day and 1 hour before.',
-    openWhatsApp: 'Send details on WhatsApp',
+    openWhatsApp: 'Open WhatsApp again',
     waHint:
-      "If WhatsApp didn't open automatically, tap the button above to send us your booking details.",
+      'Didn’t press Send in WhatsApp? Tap the button above: our team receives your booking from that message.',
     manageBefore: 'Plans changed? You can cancel it from ',
     manageLink: 'My account',
     manageAfter: (email) => `, signed in with ${email}.`,
@@ -158,17 +164,23 @@ const STRINGS = {
     errCart: 'يرجى اختيار خدمة واحدة على الأقل',
     errServiceType: 'يرجى اختيار الخدمة في الصالون أو في المنزل',
     errTime: 'يرجى اختيار المكان والتاريخ والوقت',
-    doneTitle: 'تم إرسال طلب الموعد!',
-    doneText: 'أرسلنا لك التأكيد عبر البريد. سيتم فتح واتساب لإتمام التفاصيل معنا.',
+    errTaken: 'عذراً، تمّ حجز هذا الوقت للتوّ. يرجى اختيار وقت آخر.',
+    errNetwork: 'مشكلة في الاتصال. يرجى المحاولة مجدداً.',
+    errGeneric: 'حدث خطأ ما. يرجى المحاولة مجدداً.',
+    waNote: 'بعد التأكيد يُفتح واتساب وحجزك مكتوب مسبقاً، فقط اضغط «إرسال».',
+    waOpening: 'جارٍ فتح واتساب…',
+    doneTitle: 'تمّ حجز موعدك!',
+    doneText: 'شكراً لحجزك معنا.',
+    doneEmailed: 'رسالة التأكيد في طريقها إلى بريدك الإلكتروني.',
     ref: 'رقم الحجز',
     date: 'التاريخ',
     time: 'الوقت',
     location: 'الموقع',
     newBooking: 'حجز موعد آخر',
     reminderNote: 'ستصلك رسالة تذكير قبل يومين وقبل يوم وقبل ساعة من الموعد.',
-    openWhatsApp: 'إرسال التفاصيل عبر واتساب',
+    openWhatsApp: 'فتح واتساب مجدداً',
     waHint:
-      'إذا لم يُفتح واتساب تلقائياً، اضغط على الزر أعلاه لإرسال تفاصيل حجزك.',
+      'لم تضغط «إرسال» في واتساب؟ اضغط على الزر أعلاه، فبهذه الرسالة يصل حجزك إلى فريقنا.',
     manageBefore: 'هل تغيّرت خططك؟ يمكنك إلغاء الموعد من ',
     manageLink: 'حسابي',
     manageAfter: (email) => ` بعد تسجيل الدخول بالبريد ${email}.`,
@@ -229,18 +241,23 @@ const STRINGS = {
     errCart: 'Veuillez choisir au moins un service',
     errServiceType: 'Veuillez choisir salon ou domicile',
     errTime: 'Veuillez choisir le lieu, la date et l’heure',
-    doneTitle: 'Rendez-vous demandé !',
-    doneText:
-      'Nous vous avons envoyé la confirmation par e-mail. WhatsApp s’ouvre pour finaliser les détails avec nous.',
+    errTaken: 'Désolé, ce créneau vient d’être réservé par quelqu’un d’autre. Veuillez en choisir un autre.',
+    errNetwork: 'Problème de connexion. Veuillez réessayer.',
+    errGeneric: 'Une erreur est survenue. Veuillez réessayer.',
+    waNote: 'Après confirmation, WhatsApp s’ouvre avec votre réservation déjà rédigée : appuyez simplement sur Envoyer.',
+    waOpening: 'Ouverture de WhatsApp…',
+    doneTitle: 'Rendez-vous réservé !',
+    doneText: 'Merci d’avoir réservé chez nous.',
+    doneEmailed: 'Votre confirmation est en route vers votre boîte e-mail.',
     ref: 'Référence',
     date: 'Date',
     time: 'Heure',
     location: 'Lieu',
     newBooking: 'Prendre un autre rendez-vous',
     reminderNote: 'Vous recevrez un rappel par e-mail 2 jours, 1 jour et 1 heure avant.',
-    openWhatsApp: 'Envoyer les détails sur WhatsApp',
+    openWhatsApp: 'Rouvrir WhatsApp',
     waHint:
-      'Si WhatsApp ne s’est pas ouvert, touchez le bouton ci-dessus pour nous envoyer votre réservation.',
+      'Vous n’avez pas appuyé sur Envoyer dans WhatsApp ? Touchez le bouton ci-dessus : notre équipe reçoit votre réservation par ce message.',
     manageBefore: 'Un changement ? Vous pouvez l’annuler depuis ',
     manageLink: 'Mon compte',
     manageAfter: (email) => `, connecté avec ${email}.`,
@@ -275,6 +292,12 @@ const Chevron = ({ dir = 'left' }) => (
 const Plus = () => (
   <svg className="fr-ico" viewBox="0 0 24 24" aria-hidden="true">
     <path d="M12 5v14M5 12h14" />
+  </svg>
+);
+
+const WhatsAppGlyph = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M20.52 3.48A11.86 11.86 0 0 0 12.08 0C5.55 0 .22 5.32.22 11.86c0 2.09.55 4.13 1.58 5.93L.12 24l6.36-1.67a11.85 11.85 0 0 0 5.6 1.43h.01c6.54 0 11.86-5.32 11.86-11.86 0-3.17-1.23-6.14-3.43-8.42Zm-8.43 18.28h-.01a9.86 9.86 0 0 1-5.03-1.38l-.36-.22-3.77.99 1.01-3.67-.24-.38a9.83 9.83 0 0 1-1.51-5.24c0-5.43 4.42-9.85 9.86-9.85 2.63 0 5.11 1.03 6.97 2.89a9.78 9.78 0 0 1 2.89 6.97c0 5.43-4.42 9.85-9.81 9.85Zm5.4-7.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.64-2.05-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.21 3.08.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.75-.72 2-1.41.25-.69.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35Z" />
   </svg>
 );
 
@@ -445,6 +468,72 @@ function MiniCalendar({ month, onMonthChange, value, onChange, isEnabled, lang }
   );
 }
 
+/* -------------------------------------------------------------- WhatsApp */
+
+/** Phones & tablets: WhatsApp is an app there, so the page itself goes to it. */
+const isHandheld = () =>
+  /Android|iPhone|iPad|iPod|Mobile|Opera Mini|IEMobile|Silk/i.test(navigator.userAgent) ||
+  (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1); // iPadOS
+
+/**
+ * On a computer, opens the tab WhatsApp will load in, with a short "Opening
+ * WhatsApp…" while the booking is saved. It has to be opened inside the
+ * click: browsers block a tab opened later, once the booking has been saved
+ * (that is why WhatsApp used to stay closed). Null when blocked anyway.
+ */
+function openWhatsAppTab(t, lang) {
+  let tab = null;
+  try {
+    tab = window.open('', '_blank');
+  } catch {
+    return null;
+  }
+  if (!tab || tab.closed) return null;
+  try {
+    tab.opener = null;
+    tab.document.write(
+      `<!doctype html><html lang="${lang}" dir="${t.dir}"><head><meta charset="utf-8">` +
+        '<meta name="viewport" content="width=device-width,initial-scale=1"><title>WhatsApp</title>' +
+        '<style>html,body{height:100%;margin:0}body{display:grid;place-items:center;background:#fff;' +
+        'color:#100501;font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}' +
+        '.b{display:grid;justify-items:center;gap:14px}.s{width:22px;height:22px;border-radius:50%;' +
+        'border:2px solid #e6e2dd;border-top-color:#0b7d45;animation:r .8s linear infinite}' +
+        '@keyframes r{to{transform:rotate(360deg)}}</style></head>' +
+        `<body><div class="b"><div class="s"></div><div>${t.waOpening}</div></div></body></html>`
+    );
+    tab.document.close();
+  } catch {
+    /* the tab still works without the message */
+  }
+  return tab;
+}
+
+/**
+ * On phones the page itself goes to WhatsApp, so the confirmation is kept
+ * for the trip back (the browser may reload the page on Back).
+ */
+const DONE_KEY = 'rd-booking-done';
+const DONE_FOR_MS = 30 * 60 * 1000;
+
+const rememberBooking = (booking) => {
+  try {
+    sessionStorage.setItem(DONE_KEY, JSON.stringify({ ...booking, savedAt: Date.now() }));
+  } catch {
+    /* private mode: the email still confirms it */
+  }
+};
+
+/** The booking just sent to WhatsApp from this tab, once (or null). */
+const recallBooking = () => {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(DONE_KEY) || 'null');
+    sessionStorage.removeItem(DONE_KEY);
+    return saved && Date.now() - saved.savedAt < DONE_FOR_MS ? saved : null;
+  } catch {
+    return null;
+  }
+};
+
 /* ------------------------------------------------------------------- Page */
 
 export default function AppointmentPage() {
@@ -484,6 +573,19 @@ export default function AppointmentPage() {
   const [done, setDone] = useState(null);
 
   const topRef = useRef(null);
+
+  // Back from WhatsApp on a phone: the confirmation is shown again
+  useEffect(() => {
+    const booked = recallBooking();
+    if (booked) setDone(booked);
+  }, []);
+
+  // Sent back to step 2 because the time was just taken: show why
+  const timeTaken = step === 2 && errors.time === t.errTaken;
+  useEffect(() => {
+    if (timeTaken)
+      document.getElementById('fr-time-error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [timeTaken]);
 
   /* --------------------------------------------------------------- fetch */
 
@@ -686,8 +788,19 @@ export default function AppointmentPage() {
     return Object.keys(e).length === 0;
   };
 
+  /**
+   * "Confirm booking": saves the booking, then WhatsApp opens by itself with
+   * it written out for the salon. Pop-up blockers only stop windows a page
+   * opens on its own later, so WhatsApp is opened without one:
+   *  - computer: the WhatsApp tab is opened right here, inside the click, and
+   *    sent to WhatsApp once the booking is saved (closed again if it fails);
+   *  - phone, or when that tab was blocked anyway: this page itself goes to
+   *    WhatsApp, which the phone hands to the WhatsApp app. Moving the page
+   *    itself is never blocked.
+   */
   const handleConfirm = async () => {
-    if (!validateDetails() || submitting) return;
+    if (submitting || !validateDetails()) return;
+    const waTab = isHandheld() ? null : openWhatsAppTab(t, lang);
     setSubmitting(true);
 
     try {
@@ -708,10 +821,19 @@ export default function AppointmentPage() {
         }),
       });
 
-      const result = await res.json();
+      const result = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setErrors({ submit: result.error || 'Something went wrong' });
-        setSubmitting(false);
+        waTab?.close();
+        if (result.code === 'taken') {
+          // Someone else got this time a moment ago: back to the calendar,
+          // scrolled to the message saying so
+          setTaken((prev) => new Set(prev).add(slotKey(country, city, date, hour)));
+          setHour('');
+          setErrors({ time: t.errTaken });
+          setStep(2);
+        } else {
+          setErrors({ submit: result.error || t.errGeneric });
+        }
         return;
       }
 
@@ -732,36 +854,38 @@ export default function AppointmentPage() {
         deposit: result.deposit,
         cart: result.cart,
       };
+      const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+        buildBookingText(payload, lang)
+      )}`;
+      const booked = { ...payload, waUrl, emailed: Boolean(result.emailResults?.client) };
 
       // The time is now taken (for "Book another appointment")
       setTaken((prev) => new Set(prev).add(slotKey(country, payload.city, date, hour)));
-
-      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-        buildBookingText(payload, lang)
-      )}`;
-
-      // Show the confirmation screen first — it always carries a real
-      // WhatsApp link, so the handover works even if a pop-up is blocked.
-      setDone({ ...payload, waUrl: url });
+      setDone(booked);
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      // Best-effort auto-open (silently ignored when blocked).
-      setTimeout(() => {
-        try {
-          window.open(url, '_blank', 'noopener,noreferrer');
-        } catch {
-          /* the button on the confirmation screen is the fallback */
-        }
-      }, 300);
+      // WhatsApp opens with the booking written out
+      if (waTab) {
+        if (!waTab.closed) waTab.location.replace(waUrl);
+      } else {
+        rememberBooking(booked);
+        window.location.assign(waUrl);
+      }
     } catch (err) {
       console.error(err);
-      setErrors({ submit: 'Network error — please try again.' });
+      waTab?.close();
+      setErrors({ submit: t.errNetwork });
     } finally {
       setSubmitting(false);
     }
   };
 
   const resetAll = () => {
+    try {
+      sessionStorage.removeItem(DONE_KEY);
+    } catch {
+      /* nothing kept */
+    }
     setDone(null);
     setCart({});
     setStep(1);
@@ -793,7 +917,10 @@ export default function AppointmentPage() {
             <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
           </div>
           <h2>{t.doneTitle}</h2>
-          <p>{t.doneText}</p>
+          <p>
+            {t.doneText}
+            {done.emailed ? ` ${t.doneEmailed}` : ''}
+          </p>
           <p>{t.reminderNote}</p>
 
           <div className="fr-done-card">
@@ -850,9 +977,7 @@ export default function AppointmentPage() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M20.52 3.48A11.86 11.86 0 0 0 12.08 0C5.55 0 .22 5.32.22 11.86c0 2.09.55 4.13 1.58 5.93L.12 24l6.36-1.67a11.85 11.85 0 0 0 5.6 1.43h.01c6.54 0 11.86-5.32 11.86-11.86 0-3.17-1.23-6.14-3.43-8.42Zm-8.43 18.28h-.01a9.86 9.86 0 0 1-5.03-1.38l-.36-.22-3.77.99 1.01-3.67-.24-.38a9.83 9.83 0 0 1-1.51-5.24c0-5.43 4.42-9.85 9.86-9.85 2.63 0 5.11 1.03 6.97 2.89a9.78 9.78 0 0 1 2.89 6.97c0 5.43-4.42 9.85-9.81 9.85Zm5.4-7.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.64-2.05-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.21 3.08.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.75-.72 2-1.41.25-.69.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35Z" />
-            </svg>
+            <WhatsAppGlyph />
             {t.openWhatsApp}
           </a>
           <p className="fr-done-hint">{t.waHint}</p>
@@ -953,9 +1078,15 @@ export default function AppointmentPage() {
           </button>
         )}
         {step === 3 && (
-          <button type="button" className="rd-btn fr-cta" disabled={submitting} onClick={handleConfirm}>
-            {submitting ? t.sending : t.confirmBook}
-          </button>
+          <>
+            <button type="button" className="rd-btn fr-cta" disabled={submitting} onClick={handleConfirm}>
+              {submitting ? t.sending : t.confirmBook}
+            </button>
+            <div className="fr-summary-note fr-wa-hint">
+              <WhatsAppGlyph size={14} />
+              <span>{t.waNote}</span>
+            </div>
+          </>
         )}
       </div>
     </aside>
@@ -1174,7 +1305,11 @@ export default function AppointmentPage() {
                   )}
                 </>
               )}
-              {errors.time && <p className="fr-error">{errors.time}</p>}
+              {errors.time && (
+                <p id="fr-time-error" className="fr-error" role="alert">
+                  {errors.time}
+                </p>
+              )}
             </>
           )}
 

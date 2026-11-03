@@ -6,6 +6,9 @@
  *    the last one at 23:30. A time stays free until somebody books it.
  *  - The countries are Lebanon, KSA and Kuwait, and the city is picked from
  *    the country's list below (Beirut is tax free, see bookingPrice.js).
+ *  - A new appointment has to start more than 3 hours from now, on the clock
+ *    of its country (see bookingClock). The booking page sends anyone who
+ *    wants a sooner time to WhatsApp instead.
  *  - From the dashboard, each country can be locked (the page then asks the
  *    client to contact the salon) or limited to its own calendar of dates.
  *
@@ -270,13 +273,14 @@ export function hoursFor(settings, iso, country) {
 export const timeZoneOf = (country, countries = COUNTRIES) =>
   countries.find((c) => c.name === country)?.timeZone || 'Asia/Beirut';
 
-/** The moment (ms since epoch) of "YYYY-MM-DD" "HH:mm" in a time zone. */
-export function appointmentTime(date, hour, timeZone = 'Asia/Beirut') {
-  const [y, mo, d] = date.split('-').map(Number);
-  const [h, mi] = hour.split(':').map(Number);
-  const guess = Date.UTC(y, mo - 1, d, h, mi);
-  const offsetAt = (ms) => {
-    const p = Object.fromEntries(
+// One per time zone: they are slow to build and the booking page reads them on every render
+const zoneFormats = new Map();
+
+/** What the clocks of a time zone show at a moment: { year, month, day, hour, minute }. */
+const zoneParts = (ms, timeZone) => {
+  if (!zoneFormats.has(timeZone)) {
+    zoneFormats.set(
+      timeZone,
       new Intl.DateTimeFormat('en-US', {
         timeZone,
         hourCycle: 'h23',
@@ -286,14 +290,46 @@ export function appointmentTime(date, hour, timeZone = 'Asia/Beirut') {
         hour: '2-digit',
         minute: '2-digit',
       })
-        .formatToParts(new Date(ms))
-        .map((x) => [x.type, x.value])
     );
+  }
+  return Object.fromEntries(
+    zoneFormats.get(timeZone).formatToParts(new Date(ms)).map((x) => [x.type, x.value])
+  );
+};
+
+/** The moment (ms since epoch) of "YYYY-MM-DD" "HH:mm" in a time zone. */
+export function appointmentTime(date, hour, timeZone = 'Asia/Beirut') {
+  const [y, mo, d] = date.split('-').map(Number);
+  const [h, mi] = hour.split(':').map(Number);
+  const guess = Date.UTC(y, mo - 1, d, h, mi);
+  const offsetAt = (ms) => {
+    const p = zoneParts(ms, timeZone);
     return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute) - ms;
   };
   const first = guess - offsetAt(guess);
   return guess - offsetAt(first);
 }
+
+const MIN_NOTICE_MS = 3 * 60 * 60 * 1000;
+
+const clockAt = (ms, timeZone) => {
+  const p = zoneParts(ms, timeZone);
+  return { date: `${p.year}-${p.month}-${p.day}`, hour: `${p.hour}:${p.minute}` };
+};
+
+/**
+ * The clock of an appointment country, as { date: "YYYY-MM-DD", hour: "HH:mm" }:
+ *  - now:    what it shows right now;
+ *  - cutoff: what it will show in 3 hours. A new appointment has to start after this.
+ */
+export const bookingClock = (timeZone, now = Date.now()) => ({
+  now: clockAt(now, timeZone),
+  cutoff: clockAt(now + MIN_NOTICE_MS, timeZone),
+});
+
+/** Does "YYYY-MM-DD" "HH:mm" start at or before this reading of the clock? */
+export const startsBy = (date, hour, clock) =>
+  date < clock.date || (date === clock.date && hour <= clock.hour);
 
 /**
  * Key of a booked time. Each date + time can be booked once in total (any

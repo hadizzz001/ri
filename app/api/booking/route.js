@@ -4,7 +4,7 @@ import clientPromise from '../../lib/mongodb';
 import { getCurrentUser } from '../../lib/auth';
 import { sendClientConfirmation } from '../../lib/appointmentEmails';
 import { SERVICE_TYPES, bookingTotals, locationFactor } from '../../lib/bookingPrice';
-import { countryOf, hoursFor, isCity } from '../../lib/bookingOptions';
+import { bookingClock, countryOf, hoursFor, isCity, startsBy, timeZoneOf } from '../../lib/bookingOptions';
 import { getBookingSettings } from '../../lib/bookingSettings';
 import { scheduleHourReminder } from '../../lib/hourReminders';
 
@@ -17,13 +17,6 @@ const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || ''));
 
 const makeReference = () =>
   'RD-' + Math.random().toString(36).slice(2, 8).toUpperCase();
-
-/** "YYYY-MM-DD" of yesterday (UTC): the earliest date accepted, so every time zone's "today" passes. */
-const earliestDate = () => {
-  const d = new Date();
-  d.setUTCDate(d.getUTCDate() - 1);
-  return d.toISOString().slice(0, 10);
-};
 
 const isDate = (v) => /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(`${v}T00:00:00Z`));
 
@@ -69,8 +62,16 @@ export async function POST(request) {
         { status: 409 }
       );
     }
-    if (!isDate(date) || date < earliestDate() || !hoursFor(settings, date, country).includes(hour)) {
+    if (!isDate(date) || !hoursFor(settings, date, country).includes(hour)) {
       return NextResponse.json({ error: 'Please choose another date and time' }, { status: 400 });
+    }
+    // Past times and the next 3 hours can't be booked, on the clock of the
+    // appointment's country: the booking page offers WhatsApp for those
+    if (startsBy(date, hour, bookingClock(timeZoneOf(country, settings.countries)).cutoff)) {
+      return NextResponse.json(
+        { error: 'This time is less than 3 hours away. Please choose a later time or contact us on WhatsApp.', code: 'too-soon' },
+        { status: 409 }
+      );
     }
     if (!STAFF_OPTIONS.includes(staff)) {
       return NextResponse.json({ error: 'Please choose your preference (Hijab, Rafi or General)' }, { status: 400 });

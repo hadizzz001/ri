@@ -13,6 +13,8 @@
  * is free until somebody takes it (lib/bookingOptions.js). From the dashboard
  * a country can get its own calendar of dates, or be locked: the page then
  * says it isn't available right now and gives the salon's phone / WhatsApp.
+ * The next 3 hours can't be booked: a day with free times in them shows a
+ * "Call us on WhatsApp" button instead (SoonNotice), /api/booking refuses them.
  * The country and city fields have a search box (SearchSelect.jsx).
  *
  * On confirm: the booking is stored in MongoDB, a confirmation email is sent
@@ -28,7 +30,17 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { bookingText, buildBookingText, localeOf, priceLines } from '../lib/bookingMessage';
 import { SERVICE_TYPES, bookingTotals, homeFactor, locationFactor } from '../lib/bookingPrice';
-import { DEFAULT_SETTINGS, citiesOf, countryOf, hoursFor, normalizeSettings, slotKey } from '../lib/bookingOptions';
+import {
+  DEFAULT_SETTINGS,
+  bookingClock,
+  citiesOf,
+  countryOf,
+  hoursFor,
+  normalizeSettings,
+  slotKey,
+  startsBy,
+  timeZoneOf,
+} from '../lib/bookingOptions';
 import { worldCountryOptions } from '../lib/worldCountries';
 import SearchSelect from './SearchSelect';
 
@@ -79,6 +91,11 @@ const STRINGS = {
     callUs: 'Call',
     whatsapp: 'WhatsApp',
     waAsk: (c) => `Hello, I would like to book an appointment in ${c}.`,
+    soonTitle: 'Need an appointment in the next 3 hours?',
+    soonText: 'Times less than 3 hours away can’t be booked online. Message us on WhatsApp and we will see what we can do.',
+    soonCall: 'Call us on WhatsApp',
+    waAskSoon: (day, place) =>
+      `Hello, I would like an appointment in the next 3 hours (${day}) in ${place}. Is there a free time?`,
     errUnavailable: 'Online booking is not available in this country right now. Please contact us.',
     noSlots: 'No free times on this day — please choose another date.',
     serviceTypeTitle: 'Salon or home service?',
@@ -108,6 +125,7 @@ const STRINGS = {
     errServiceType: 'Please choose salon or home service',
     errTime: 'Please choose the place, date and time',
     errTaken: 'Sorry, this time has just been booked by someone else. Please choose another time.',
+    errTooSoon: 'This time is now less than 3 hours away, so it can’t be booked online. Please choose a later time or call us on WhatsApp.',
     errNetwork: 'Connection problem. Please try again.',
     errGeneric: 'Something went wrong. Please try again.',
     waNote: 'After you confirm, WhatsApp opens with your booking written out. Just press Send.',
@@ -171,6 +189,11 @@ const STRINGS = {
     callUs: 'اتصال',
     whatsapp: 'واتساب',
     waAsk: (c) => `مرحباً، أودّ حجز موعد في ${c}.`,
+    soonTitle: 'موعد خلال الساعات الثلاث القادمة؟',
+    soonText: 'لا يمكن الحجز عبر الموقع قبل الموعد بأقل من 3 ساعات. راسلنا على واتساب وسنرى ما يمكننا فعله.',
+    soonCall: 'تواصل معنا عبر واتساب',
+    waAskSoon: (day, place) =>
+      `مرحباً، أودّ حجز موعد خلال الساعات الثلاث القادمة (${day}) في ${place}. هل يوجد وقت متاح؟`,
     errUnavailable: 'الحجز عبر الموقع غير متاح في هذه الدولة حالياً. يرجى التواصل معنا.',
     noSlots: 'لا توجد أوقات متاحة في هذا اليوم — يرجى اختيار تاريخ آخر.',
     serviceTypeTitle: 'في الصالون أم في المنزل؟',
@@ -200,6 +223,7 @@ const STRINGS = {
     errServiceType: 'يرجى اختيار الخدمة في الصالون أو في المنزل',
     errTime: 'يرجى اختيار المكان والتاريخ والوقت',
     errTaken: 'عذراً، تمّ حجز هذا الوقت للتوّ. يرجى اختيار وقت آخر.',
+    errTooSoon: 'أصبح هذا الوقت بعد أقل من 3 ساعات، فلا يمكن حجزه عبر الموقع. يرجى اختيار وقت لاحق أو التواصل معنا عبر واتساب.',
     errNetwork: 'مشكلة في الاتصال. يرجى المحاولة مجدداً.',
     errGeneric: 'حدث خطأ ما. يرجى المحاولة مجدداً.',
     waNote: 'بعد التأكيد يُفتح واتساب وحجزك مكتوب مسبقاً، فقط اضغط «إرسال».',
@@ -264,6 +288,11 @@ const STRINGS = {
     callUs: 'Appeler',
     whatsapp: 'WhatsApp',
     waAsk: (c) => `Bonjour, je souhaite prendre rendez-vous (${c}).`,
+    soonTitle: 'Besoin d’un rendez-vous dans les 3 prochaines heures ?',
+    soonText: 'Les créneaux à moins de 3 heures ne peuvent pas être réservés en ligne. Écrivez-nous sur WhatsApp et nous verrons ce que nous pouvons faire.',
+    soonCall: 'Contactez-nous sur WhatsApp',
+    waAskSoon: (day, place) =>
+      `Bonjour, je souhaite un rendez-vous dans les 3 prochaines heures (${day}) à ${place}. Avez-vous un créneau libre ?`,
     errUnavailable: 'La réservation en ligne n’est pas disponible dans ce pays pour le moment. Veuillez nous contacter.',
     noSlots: 'Aucun créneau libre ce jour-là — veuillez choisir une autre date.',
     serviceTypeTitle: 'Au salon ou à domicile ?',
@@ -293,6 +322,7 @@ const STRINGS = {
     errServiceType: 'Veuillez choisir salon ou domicile',
     errTime: 'Veuillez choisir le lieu, la date et l’heure',
     errTaken: 'Désolé, ce créneau vient d’être réservé par quelqu’un d’autre. Veuillez en choisir un autre.',
+    errTooSoon: 'Ce créneau est maintenant à moins de 3 heures et ne peut plus être réservé en ligne. Veuillez choisir une heure plus tardive ou nous contacter sur WhatsApp.',
     errNetwork: 'Problème de connexion. Veuillez réessayer.',
     errGeneric: 'Une erreur est survenue. Veuillez réessayer.',
     waNote: 'Après confirmation, WhatsApp s’ouvre avec votre réservation déjà rédigée : appuyez simplement sur Envoyer.',
@@ -373,6 +403,13 @@ const CalendarOffIcon = () => (
   </svg>
 );
 
+const ClockIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="12" r="8.5" />
+    <path d="M12 7.5V12l3 2" />
+  </svg>
+);
+
 const PhoneIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="M6.6 3.5h2.6l1.4 4-2 1.3a11.5 11.5 0 0 0 6.6 6.6l1.3-2 4 1.4v2.6a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z" />
@@ -412,6 +449,35 @@ function UnavailableNotice({ t, kind, place }) {
           >
             <WhatsAppGlyph size={16} />
             {t.whatsapp}
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The picked day still has free times in the next 3 hours. They can't be
+ * booked online, so the client gets WhatsApp with a message ready to send.
+ */
+function SoonNotice({ t, message }) {
+  return (
+    <div className="fr-notice" role="status">
+      <span className="fr-notice-icon" aria-hidden="true">
+        <ClockIcon />
+      </span>
+      <div className="fr-notice-body">
+        <p className="fr-notice-title">{t.soonTitle}</p>
+        <p className="fr-notice-text">{t.soonText}</p>
+        <div className="fr-notice-actions">
+          <a
+            className="rd-btn rd-btn--ghost rd-btn--sm rd-btn--auto fr-notice-wa"
+            href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <WhatsAppGlyph size={16} />
+            {t.soonCall}
           </a>
         </div>
       </div>
@@ -501,17 +567,22 @@ const prettyDate = (iso, lang) => {
 };
 
 /**
- * Start times still free on a day ('YYYY-MM-DD') in an appointment country
- * (its own calendar or the weekly hours); today's past times are gone.
+ * Start times nobody has taken on a day ('YYYY-MM-DD') in an appointment
+ * country (its own calendar or the weekly hours), on that country's clock.
+ * Past times are gone, the rest are:
+ *  - free: more than 3 hours from now, these can be booked;
+ *  - soon: in the next 3 hours, these can't: the page offers WhatsApp instead.
  */
-const freeHoursIn = (settings, taken, country, city, iso) => {
-  const now = new Date();
-  const today = fmtLocalDate(now);
-  if (!country || iso < today) return [];
-  const nowTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-  return hoursFor(settings, iso, country).filter(
-    (h) => (iso > today || h > nowTime) && !taken.has(slotKey(country, city, iso, h))
-  );
+const timesIn = (settings, taken, country, city, iso) => {
+  const open = country
+    ? hoursFor(settings, iso, country).filter((h) => !taken.has(slotKey(country, city, iso, h)))
+    : [];
+  if (!open.length) return { free: [], soon: [] };
+  const { now, cutoff } = bookingClock(timeZoneOf(country, settings.countries));
+  return {
+    free: open.filter((h) => !startsBy(iso, h, cutoff)),
+    soon: open.filter((h) => startsBy(iso, h, cutoff) && !startsBy(iso, h, now)),
+  };
 };
 
 /** The first day with a free time in a country, from today ('' = none in the next 400 days). */
@@ -519,7 +590,7 @@ const firstOpenDay = (settings, taken, country) => {
   const d = new Date();
   for (let i = 0; i < 400; i += 1) {
     const iso = fmtLocalDate(d);
-    if (freeHoursIn(settings, taken, country, '', iso).length) return iso;
+    if (timesIn(settings, taken, country, '', iso).free.length) return iso;
     d.setDate(d.getDate() + 1);
   }
   return '';
@@ -723,12 +794,12 @@ export default function AppointmentPage() {
     if (booked) setDone(booked);
   }, []);
 
-  // Sent back to step 2 because the time was just taken: show why
-  const timeTaken = step === 2 && errors.time === t.errTaken;
+  // Sent back to step 2 because the time was just taken or is now too soon: show why
+  const timeGone = step === 2 && (errors.time === t.errTaken || errors.time === t.errTooSoon);
   useEffect(() => {
-    if (timeTaken)
+    if (timeGone)
       document.getElementById('fr-time-error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, [timeTaken]);
+  }, [timeGone]);
 
   /* --------------------------------------------------------------- fetch */
 
@@ -827,9 +898,12 @@ export default function AppointmentPage() {
         ? 'open'
         : 'none';
   const placeLabel = countryList.find((c) => c.value === country)?.label || country;
+  const placeName = [cityList.find((c) => c.value === city)?.label || city, placeLabel].join(lang === 'ar' ? '، ' : ', ');
 
-  /** Start times still free on a day ('YYYY-MM-DD') for the picked place; today's past times are gone. */
-  const freeHours = (iso) => (placeChosen ? freeHoursIn(settings, taken, country, city, iso) : []);
+  /** Start times on a day ('YYYY-MM-DD') at the picked place that can be booked (see timesIn). */
+  const freeHours = (iso) => (placeChosen ? timesIn(settings, taken, country, city, iso).free : []);
+  /** Start times on that day in the next 3 hours: WhatsApp instead of booking (see timesIn). */
+  const soonHours = (iso) => (placeChosen ? timesIn(settings, taken, country, city, iso).soon : []);
 
   // A country with its own calendar opens the calendar on its first free month
   useEffect(() => {
@@ -944,6 +1018,11 @@ export default function AppointmentPage() {
     if (!clientCountry) e.clientCountry = t.errRequired;
     if (country && placeState !== 'open') e.time = t.errUnavailable;
     else if (!placeChosen || !date || !hour) e.time = t.errTime;
+    // The client took a while: the time picked is now less than 3 hours away
+    else if (startsBy(date, hour, bookingClock(timeZoneOf(country, settings.countries)).cutoff)) {
+      e.time = t.errTooSoon;
+      setHour('');
+    }
     return e;
   };
 
@@ -1016,6 +1095,11 @@ export default function AppointmentPage() {
           setTaken((prev) => new Set(prev).add(slotKey(country, city, date, hour)));
           setHour('');
           setErrors({ time: t.errTaken });
+          setStep(2);
+        } else if (result.code === 'too-soon') {
+          // Now less than 3 hours away (the page's clock can be off): same way back
+          setHour('');
+          setErrors({ time: t.errTooSoon });
           setStep(2);
         } else if (result.code === 'locked') {
           // Locked from the dashboard meanwhile: back to the details, where
@@ -1487,14 +1571,17 @@ export default function AppointmentPage() {
                     onMonthChange={setMonth}
                     value={date}
                     onChange={chooseDate}
-                    isEnabled={(iso) => freeHours(iso).length > 0}
+                    isEnabled={(iso) => freeHours(iso).length > 0 || soonHours(iso).length > 0}
                   />
 
                   {date && (
                     <>
                       <h2 className="fr-h2">{prettyDate(date, lang)}</h2>
+                      {soonHours(date).length > 0 && (
+                        <SoonNotice t={t} message={t.waAskSoon(prettyDate(date, lang), placeName)} />
+                      )}
                       {freeHours(date).length === 0 ? (
-                        <p className="fr-error">{t.noSlots}</p>
+                        soonHours(date).length === 0 && <p className="fr-error">{t.noSlots}</p>
                       ) : (
                         <div className="fr-slots">
                           {freeHours(date).map((h) => (

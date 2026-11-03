@@ -910,6 +910,9 @@
   gap: 8px;
   max-width: 560px;
 }
+.fr-notice + .fr-slots {
+  margin-top: 14px; /* under the "next 3 hours" WhatsApp notice */
+}
 .fr-booking .fr-slot {
   height: 42px;
   border: 1px solid var(--fr-line) !important;

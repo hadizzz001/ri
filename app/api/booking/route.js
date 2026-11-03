@@ -4,7 +4,7 @@ import clientPromise from '../../lib/mongodb';
 import { getCurrentUser } from '../../lib/auth';
 import { sendClientConfirmation } from '../../lib/appointmentEmails';
 import { SERVICE_TYPES, bookingTotals, locationFactor } from '../../lib/bookingPrice';
-import { hoursFor, isCity } from '../../lib/bookingOptions';
+import { countryOf, hoursFor, isCity } from '../../lib/bookingOptions';
 import { getBookingSettings } from '../../lib/bookingSettings';
 import { scheduleHourReminder } from '../../lib/hourReminders';
 
@@ -62,7 +62,14 @@ export async function POST(request) {
     if (!isCity(country, city, settings.countries)) {
       return NextResponse.json({ error: 'Please choose your country and city' }, { status: 400 });
     }
-    if (!isDate(date) || date < earliestDate() || !hoursFor(settings, date).includes(hour)) {
+    // Locked from the dashboard: the booking page asks the client to call instead
+    if (countryOf(settings, country)?.locked) {
+      return NextResponse.json(
+        { error: 'Online booking in this country is not available right now. Please contact us.', code: 'locked' },
+        { status: 409 }
+      );
+    }
+    if (!isDate(date) || date < earliestDate() || !hoursFor(settings, date, country).includes(hour)) {
       return NextResponse.json({ error: 'Please choose another date and time' }, { status: 400 });
     }
     if (!STAFF_OPTIONS.includes(staff)) {

@@ -10,7 +10,10 @@
  * Tax is only added once a city outside Beirut is chosen (lib/bookingPrice.js).
  *
  * Lebanon, KSA and Kuwait can be booked every day, 08:00 to midnight; a time
- * is free until somebody takes it (lib/bookingOptions.js).
+ * is free until somebody takes it (lib/bookingOptions.js). From the dashboard
+ * a country can get its own calendar of dates, or be locked: the page then
+ * says it isn't available right now and gives the salon's phone / WhatsApp.
+ * The country and city fields have a search box (SearchSelect.jsx).
  *
  * On confirm: the booking is stored in MongoDB, a confirmation email is sent
  * with Resend (plus reminder emails 2 & 1 day before via /api/booking/reminders)
@@ -25,8 +28,9 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { bookingText, buildBookingText, localeOf, priceLines } from '../lib/bookingMessage';
 import { SERVICE_TYPES, bookingTotals, homeFactor, locationFactor } from '../lib/bookingPrice';
-import { DEFAULT_SETTINGS, citiesOf, hoursFor, normalizeSettings, slotKey } from '../lib/bookingOptions';
+import { DEFAULT_SETTINGS, citiesOf, countryOf, hoursFor, normalizeSettings, slotKey } from '../lib/bookingOptions';
 import { worldCountryOptions } from '../lib/worldCountries';
+import SearchSelect from './SearchSelect';
 
 /* --------------------------------------------------------------------- i18n */
 
@@ -60,6 +64,22 @@ const STRINGS = {
     clientCountry: 'Your country (where you are from)',
     chooseClientCountry: 'Choose your country',
     chooseCity: 'Choose a city',
+    searchCountry: 'Search countries',
+    searchCity: 'Search cities',
+    noMatches: 'No results',
+    close: 'Close',
+    unavailable: 'Not available',
+    lockedTitle: 'Not available right now',
+    lockedText: (c) =>
+      `Online booking in ${c} is paused for now. Please contact us and we will gladly help you book.`,
+    noDatesTitle: 'No dates open yet',
+    noDatesText: (c) =>
+      `There are no open dates in ${c} at the moment. Contact us and we will let you know the next dates.`,
+    contactUs: 'Contact us:',
+    callUs: 'Call',
+    whatsapp: 'WhatsApp',
+    waAsk: (c) => `Hello, I would like to book an appointment in ${c}.`,
+    errUnavailable: 'Online booking is not available in this country right now. Please contact us.',
     noSlots: 'No free times on this day — please choose another date.',
     serviceTypeTitle: 'Salon or home service?',
     serviceTypeHints: { salon: 'Visit us at the salon', home: 'We come to your place' },
@@ -137,6 +157,21 @@ const STRINGS = {
     clientCountry: 'بلدك (من أين أنت)',
     chooseClientCountry: 'اختر بلدك',
     chooseCity: 'اختر المدينة',
+    searchCountry: 'ابحث عن دولة',
+    searchCity: 'ابحث عن مدينة',
+    noMatches: 'لا توجد نتائج',
+    close: 'إغلاق',
+    unavailable: 'غير متاح',
+    lockedTitle: 'غير متاح حالياً',
+    lockedText: (c) =>
+      `الحجز عبر الموقع في ${c} متوقف حالياً. يرجى التواصل معنا وسنساعدك بكل سرور في حجز موعدك.`,
+    noDatesTitle: 'لا توجد مواعيد متاحة حالياً',
+    noDatesText: (c) => `لا توجد تواريخ متاحة في ${c} في الوقت الحالي. تواصل معنا وسنخبرك بالمواعيد القادمة.`,
+    contactUs: 'تواصل معنا:',
+    callUs: 'اتصال',
+    whatsapp: 'واتساب',
+    waAsk: (c) => `مرحباً، أودّ حجز موعد في ${c}.`,
+    errUnavailable: 'الحجز عبر الموقع غير متاح في هذه الدولة حالياً. يرجى التواصل معنا.',
     noSlots: 'لا توجد أوقات متاحة في هذا اليوم — يرجى اختيار تاريخ آخر.',
     serviceTypeTitle: 'في الصالون أم في المنزل؟',
     serviceTypeHints: { salon: 'زيارتنا في الصالون', home: 'نأتي إلى منزلك' },
@@ -214,6 +249,22 @@ const STRINGS = {
     clientCountry: 'Votre pays (d’où vous venez)',
     chooseClientCountry: 'Choisissez votre pays',
     chooseCity: 'Choisissez une ville',
+    searchCountry: 'Rechercher un pays',
+    searchCity: 'Rechercher une ville',
+    noMatches: 'Aucun résultat',
+    close: 'Fermer',
+    unavailable: 'Indisponible',
+    lockedTitle: 'Indisponible pour le moment',
+    lockedText: (c) =>
+      `La réservation en ligne pour ${c} est suspendue pour le moment. Contactez-nous : nous vous aiderons volontiers à réserver.`,
+    noDatesTitle: 'Aucune date ouverte pour le moment',
+    noDatesText: (c) =>
+      `Aucune date n’est ouverte pour ${c} actuellement. Contactez-nous et nous vous indiquerons les prochaines dates.`,
+    contactUs: 'Contactez-nous :',
+    callUs: 'Appeler',
+    whatsapp: 'WhatsApp',
+    waAsk: (c) => `Bonjour, je souhaite prendre rendez-vous (${c}).`,
+    errUnavailable: 'La réservation en ligne n’est pas disponible dans ce pays pour le moment. Veuillez nous contacter.',
     noSlots: 'Aucun créneau libre ce jour-là — veuillez choisir une autre date.',
     serviceTypeTitle: 'Au salon ou à domicile ?',
     serviceTypeHints: { salon: 'Venez nous voir au salon', home: 'Nous venons chez vous' },
@@ -264,21 +315,28 @@ const STRINGS = {
   },
 };
 
-/** The appointment countries managed from the dashboard, named in the page's language. */
+/**
+ * The appointment countries managed from the dashboard, named in the page's
+ * language (both names can be searched).
+ */
 const countryOptions = (lang, countries) =>
-  countries.map(({ name, ar }) => ({ value: name, label: lang === 'ar' && ar ? ar : name }));
+  countries.map(({ name, ar }) => ({ value: name, label: lang === 'ar' && ar ? ar : name, keywords: ar }));
 
 /** A country's cities: the capital first, then the rest in alphabetical order. */
 const cityOptions = (country, lang, countries) => {
   const [capital, ...rest] = citiesOf(country, countries).map(([en, ar]) => ({
     value: en,
     label: lang === 'ar' && ar ? ar : en,
+    keywords: ar,
   }));
   rest.sort((a, b) => a.label.localeCompare(b.label, lang));
   return capital ? [capital, ...rest] : [];
 };
 
 const WHATSAPP_NUMBER = '9613896074';
+/** The salon's phone, shown when a country can't be booked online */
+const SALON_PHONE = '+961 3 896 074';
+const SALON_TEL = '+9613896074';
 const LOGO = 'https://res.cloudinary.com/dtjcqfoxc/image/upload/v1751030325/black_bgez4v.webp';
 
 /* ------------------------------------------------------------------ icons */
@@ -300,6 +358,66 @@ const WhatsAppGlyph = ({ size = 20 }) => (
     <path d="M20.52 3.48A11.86 11.86 0 0 0 12.08 0C5.55 0 .22 5.32.22 11.86c0 2.09.55 4.13 1.58 5.93L.12 24l6.36-1.67a11.85 11.85 0 0 0 5.6 1.43h.01c6.54 0 11.86-5.32 11.86-11.86 0-3.17-1.23-6.14-3.43-8.42Zm-8.43 18.28h-.01a9.86 9.86 0 0 1-5.03-1.38l-.36-.22-3.77.99 1.01-3.67-.24-.38a9.83 9.83 0 0 1-1.51-5.24c0-5.43 4.42-9.85 9.86-9.85 2.63 0 5.11 1.03 6.97 2.89a9.78 9.78 0 0 1 2.89 6.97c0 5.43-4.42 9.85-9.81 9.85Zm5.4-7.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.64-2.05-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.21 3.08.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.75-.72 2-1.41.25-.69.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35Z" />
   </svg>
 );
+
+const LockIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="5" y="10.5" width="14" height="10" rx="2.2" />
+    <path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7" />
+  </svg>
+);
+
+const CalendarOffIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="4" y="5.5" width="16" height="15" rx="2.2" />
+    <path d="M8 3.5v4M16 3.5v4M4 10h16M10 13.8l4 4M14 13.8l-4 4" />
+  </svg>
+);
+
+const PhoneIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M6.6 3.5h2.6l1.4 4-2 1.3a11.5 11.5 0 0 0 6.6 6.6l1.3-2 4 1.4v2.6a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z" />
+  </svg>
+);
+
+/**
+ * The appointment country is locked from the dashboard ('locked') or has no
+ * free date ahead ('none'): the client is asked to call or WhatsApp the salon.
+ */
+function UnavailableNotice({ t, kind, place }) {
+  const wa = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(t.waAsk(place))}`;
+  return (
+    <div className="fr-notice" role="status">
+      <span className="fr-notice-icon" aria-hidden="true">
+        {kind === 'locked' ? <LockIcon /> : <CalendarOffIcon />}
+      </span>
+      <div className="fr-notice-body">
+        <p className="fr-notice-title">{kind === 'locked' ? t.lockedTitle : t.noDatesTitle}</p>
+        <p className="fr-notice-text">{(kind === 'locked' ? t.lockedText : t.noDatesText)(place)}</p>
+        <p className="fr-notice-text">
+          {t.contactUs}{' '}
+          <a className="fr-notice-phone" href={`tel:${SALON_TEL}`}>
+            <bdi dir="ltr">{SALON_PHONE}</bdi>
+          </a>
+        </p>
+        <div className="fr-notice-actions">
+          <a className="rd-btn rd-btn--sm rd-btn--auto" href={`tel:${SALON_TEL}`}>
+            <PhoneIcon />
+            {t.callUs}
+          </a>
+          <a
+            className="rd-btn rd-btn--ghost rd-btn--sm rd-btn--auto fr-notice-wa"
+            href={wa}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <WhatsAppGlyph size={16} />
+            {t.whatsapp}
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /* ------------------------------------------------------ language switch */
 
@@ -380,6 +498,31 @@ const prettyDate = (iso, lang) => {
     day: 'numeric',
     month: 'long',
   });
+};
+
+/**
+ * Start times still free on a day ('YYYY-MM-DD') in an appointment country
+ * (its own calendar or the weekly hours); today's past times are gone.
+ */
+const freeHoursIn = (settings, taken, country, city, iso) => {
+  const now = new Date();
+  const today = fmtLocalDate(now);
+  if (!country || iso < today) return [];
+  const nowTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  return hoursFor(settings, iso, country).filter(
+    (h) => (iso > today || h > nowTime) && !taken.has(slotKey(country, city, iso, h))
+  );
+};
+
+/** The first day with a free time in a country, from today ('' = none in the next 400 days). */
+const firstOpenDay = (settings, taken, country) => {
+  const d = new Date();
+  for (let i = 0; i < 400; i += 1) {
+    const iso = fmtLocalDate(d);
+    if (freeHoursIn(settings, taken, country, '', iso).length) return iso;
+    d.setDate(d.getDate() + 1);
+  }
+  return '';
 };
 
 /* ------------------------------------------------------------- Calendar UI */
@@ -654,21 +797,49 @@ export default function AppointmentPage() {
     [services, activeCat]
   );
 
-  const countryList = useMemo(() => countryOptions(lang, settings.countries), [lang, settings]);
+  // Each appointment country's first free day ('' when locked or nothing is open ahead)
+  const firstOpen = useMemo(() => {
+    const out = {};
+    settings.countries.forEach((c) => {
+      out[c.name] = c.locked ? '' : firstOpenDay(settings, taken, c.name);
+    });
+    return out;
+  }, [settings, taken]);
+
+  const countryList = useMemo(
+    () =>
+      countryOptions(lang, settings.countries).map((o) => ({
+        ...o,
+        tag: firstOpen[o.value] ? '' : t.unavailable,
+      })),
+    [lang, settings, firstOpen, t]
+  );
   const cityList = useMemo(() => cityOptions(country, lang, settings.countries), [country, lang, settings]);
   const worldList = useMemo(() => worldCountryOptions(lang), [lang]);
   const placeChosen = !!country && !!city;
 
+  /** '' (no country yet), 'open', 'locked' (from the dashboard) or 'none' (no free date ahead). */
+  const placeState = !country
+    ? ''
+    : countryOf(settings, country)?.locked
+      ? 'locked'
+      : firstOpen[country]
+        ? 'open'
+        : 'none';
+  const placeLabel = countryList.find((c) => c.value === country)?.label || country;
+
   /** Start times still free on a day ('YYYY-MM-DD') for the picked place; today's past times are gone. */
-  const freeHours = (iso) => {
-    const now = new Date();
-    const today = fmtLocalDate(now);
-    if (!placeChosen || iso < today) return [];
-    const nowTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    return hoursFor(settings, iso).filter(
-      (h) => (iso > today || h > nowTime) && !taken.has(slotKey(country, city, iso, h))
-    );
-  };
+  const freeHours = (iso) => (placeChosen ? freeHoursIn(settings, taken, country, city, iso) : []);
+
+  // A country with its own calendar opens the calendar on its first free month
+  useEffect(() => {
+    const first = firstOpen[country];
+    if (!first) return;
+    const [y, m] = first.split('-').map(Number);
+    setMonth(new Date(y, m - 1, 1));
+    // only when the country changes, not each time the free times refresh
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [country]);
 
   const cartItems = useMemo(() => Object.values(cart), [cart]);
   const priceFactor = locationFactor(country);
@@ -721,6 +892,20 @@ export default function AppointmentPage() {
       return { ...prev, [id]: { ...item, qty } };
     });
 
+  /**
+   * Another country, city, date or time was picked: the message about the
+   * previous choice (e.g. "not available in this country") goes away, and
+   * Continue checks the new choice again.
+   */
+  const pickPlace = (set) => (value) => {
+    set(value);
+    setErrors((e) => ({ ...e, time: undefined }));
+  };
+  const chooseCountry = pickPlace(setCountry);
+  const chooseCity = pickPlace(setCity);
+  const chooseDate = pickPlace(setDate);
+  const chooseHour = pickPlace(setHour);
+
   // Reset downstream selections when the location changes
   useEffect(() => {
     setCity('');
@@ -757,7 +942,8 @@ export default function AppointmentPage() {
     if (!form.email.trim()) e.email = t.errRequired;
     else if (!isEmail(form.email)) e.email = t.errEmail;
     if (!clientCountry) e.clientCountry = t.errRequired;
-    if (!placeChosen || !date || !hour) e.time = t.errTime;
+    if (country && placeState !== 'open') e.time = t.errUnavailable;
+    else if (!placeChosen || !date || !hour) e.time = t.errTime;
     return e;
   };
 
@@ -831,6 +1017,15 @@ export default function AppointmentPage() {
           setHour('');
           setErrors({ time: t.errTaken });
           setStep(2);
+        } else if (result.code === 'locked') {
+          // Locked from the dashboard meanwhile: back to the details, where
+          // the notice gives the salon's phone and WhatsApp
+          setSettings((s) => ({
+            ...s,
+            countries: s.countries.map((c) => (c.name === country ? { ...c, locked: true } : c)),
+          }));
+          setErrors({ time: t.errUnavailable });
+          goTo(2);
         } else {
           setErrors({ submit: result.error || t.errGeneric });
         }
@@ -1216,60 +1411,74 @@ export default function AppointmentPage() {
 
               <h2 className="fr-h2">{t.location}</h2>
               <div className="fr-field" style={{ marginBottom: 12 }}>
-                <label htmlFor="fr-client-country">{t.clientCountry}</label>
-                <select
+                <label htmlFor="fr-client-country" id="fr-client-country-label">
+                  {t.clientCountry}
+                </label>
+                <SearchSelect
                   id="fr-client-country"
-                  className={`fr-input ${errors.clientCountry ? 'has-error' : ''}`}
+                  labelId="fr-client-country-label"
+                  label={t.clientCountry}
                   value={clientCountry}
-                  onChange={(e) => setClientCountry(e.target.value)}
-                >
-                  <option value="">{t.chooseClientCountry}</option>
-                  {worldList.map((c) => (
-                    <option key={c.value} value={c.value}>
-                      {c.label}
-                    </option>
-                  ))}
-                </select>
+                  options={worldList}
+                  onChange={setClientCountry}
+                  placeholder={t.chooseClientCountry}
+                  searchPlaceholder={t.searchCountry}
+                  noResults={t.noMatches}
+                  closeLabel={t.close}
+                  hasError={!!errors.clientCountry}
+                  dir={t.dir}
+                  lang={lang}
+                />
                 {errors.clientCountry && <p className="fr-error">{errors.clientCountry}</p>}
               </div>
               <div className="fr-fields">
                 <div className="fr-field">
-                  <label htmlFor="fr-country">{t.country}</label>
-                  <select
+                  <label htmlFor="fr-country" id="fr-country-label">
+                    {t.country}
+                  </label>
+                  <SearchSelect
                     id="fr-country"
-                    className="fr-input"
+                    labelId="fr-country-label"
+                    label={t.country}
                     value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                  >
-                    <option value="">{t.chooseCountry}</option>
-                    {countryList.map((c) => (
-                      <option key={c.value} value={c.value}>
-                        {c.label}
-                      </option>
-                    ))}
-                  </select>
+                    options={countryList}
+                    onChange={chooseCountry}
+                    placeholder={t.chooseCountry}
+                    searchPlaceholder={t.searchCountry}
+                    noResults={t.noMatches}
+                    closeLabel={t.close}
+                    dir={t.dir}
+                    lang={lang}
+                  />
                 </div>
 
                 <div className="fr-field">
-                  <label htmlFor="fr-city">{t.city}</label>
-                  <select
+                  <label htmlFor="fr-city" id="fr-city-label">
+                    {t.city}
+                  </label>
+                  <SearchSelect
                     id="fr-city"
-                    className="fr-input"
+                    labelId="fr-city-label"
+                    label={t.city}
                     value={city}
-                    disabled={!country}
-                    onChange={(e) => setCity(e.target.value)}
-                  >
-                    <option value="">{t.chooseCity}</option>
-                    {cityList.map((c) => (
-                      <option key={c.value} value={c.value}>
-                        {c.label}
-                      </option>
-                    ))}
-                  </select>
+                    options={cityList}
+                    onChange={chooseCity}
+                    placeholder={t.chooseCity}
+                    searchPlaceholder={t.searchCity}
+                    noResults={t.noMatches}
+                    closeLabel={t.close}
+                    disabled={placeState !== 'open'}
+                    dir={t.dir}
+                    lang={lang}
+                  />
                 </div>
               </div>
 
-              {placeChosen && (
+              {(placeState === 'locked' || placeState === 'none') && (
+                <UnavailableNotice t={t} kind={placeState} place={placeLabel} />
+              )}
+
+              {placeChosen && placeState === 'open' && (
                 <>
                   <h2 className="fr-h2">{t.selectTime}</h2>
                   <MiniCalendar
@@ -1277,7 +1486,7 @@ export default function AppointmentPage() {
                     month={month}
                     onMonthChange={setMonth}
                     value={date}
-                    onChange={setDate}
+                    onChange={chooseDate}
                     isEnabled={(iso) => freeHours(iso).length > 0}
                   />
 
@@ -1294,7 +1503,7 @@ export default function AppointmentPage() {
                               key={h}
                               className={`fr-slot ${hour === h ? 'is-on' : ''}`}
                               aria-pressed={hour === h}
-                              onClick={() => setHour(h)}
+                              onClick={() => chooseHour(h)}
                             >
                               {h}
                             </button>

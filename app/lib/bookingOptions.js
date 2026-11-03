@@ -6,6 +6,8 @@
  *    the last one at 23:30. A time stays free until somebody books it.
  *  - The countries are Lebanon, KSA and Kuwait, and the city is picked from
  *    the country's list below (Beirut is tax free, see bookingPrice.js).
+ *  - From the dashboard, each country can be locked (the page then asks the
+ *    client to contact the salon) or limited to its own calendar of dates.
  *
  * Places are stored by their English names (bookings, emails, pricing rules);
  * the Arabic page shows their Arabic names.
@@ -167,9 +169,28 @@ export const DEFAULT_WEEKLY = Array.from({ length: 7 }, () => ({ open: true, fro
 const isTime = (v) => typeof v === 'string' && /^(([01]\d|2[0-3]):[0-5]\d|24:00)$/.test(v);
 const isIso = (v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v);
 
+/** A country's own calendar: [{ date, from, until }], one entry per date, oldest first. */
+const normalizeDates = (list) => {
+  const byDate = new Map();
+  (Array.isArray(list) ? list : [])
+    .filter((d) => isIso(d?.date))
+    .forEach((d) =>
+      byDate.set(d.date, {
+        date: d.date,
+        from: isTime(d.from) ? d.from : '08:00',
+        until: isTime(d.until) ? d.until : '24:00',
+      })
+    );
+  return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+};
+
 /**
  * The schedule saved from the dashboard (BookingSettings document), with the
  * defaults for anything missing: { countries, weekly, overrides }.
+ * Each country also has:
+ *  - locked: online booking is paused there (the page shows the salon's contact)
+ *  - mode:   'weekly' = the weekly hours and specific dates below,
+ *            'dates'  = only the dates of its own calendar (`dates`)
  * Same rules as dash/app/utils/bookingSchedule.ts.
  */
 export function normalizeSettings(raw) {
@@ -181,6 +202,9 @@ export function normalizeSettings(raw) {
       cities: (Array.isArray(c?.cities) ? c.cities : [])
         .map((x) => (Array.isArray(x) ? [String(x[0] || '').trim(), String(x[1] || '').trim()] : [String(x || '').trim(), '']))
         .filter((x) => x[0]),
+      locked: c?.locked === true,
+      mode: c?.mode === 'dates' ? 'dates' : 'weekly',
+      dates: normalizeDates(c?.dates),
     }))
     .filter((c) => c.name && c.cities.length);
   const weekly = DEFAULT_WEEKLY.map((def, i) => {
@@ -196,7 +220,13 @@ export function normalizeSettings(raw) {
       from: isTime(o.from) ? o.from : '08:00',
       until: isTime(o.until) ? o.until : '24:00',
     }));
-  return { countries: countries.length ? countries : COUNTRIES, weekly, overrides };
+  return {
+    countries: countries.length
+      ? countries
+      : COUNTRIES.map((c) => ({ ...c, locked: false, mode: 'weekly', dates: [] })),
+    weekly,
+    overrides,
+  };
 }
 
 export const DEFAULT_SETTINGS = normalizeSettings(null);
@@ -211,9 +241,24 @@ export function slotsBetween(from, until) {
   return out;
 }
 
-/** The open start times of a date ("YYYY-MM-DD"): a specific date first, else its weekday. */
-export function hoursFor(settings, iso) {
+/** The appointment country called `name` in the settings (null when unknown). */
+export const countryOf = (settings, name) =>
+  (settings || DEFAULT_SETTINGS).countries.find((c) => c.name === name) || null;
+
+/**
+ * The open start times of a date ("YYYY-MM-DD") in an appointment country:
+ *  - a locked country: none;
+ *  - a country with its own calendar: that date's hours, nothing on other days;
+ *  - otherwise a specific date first, else its weekday.
+ */
+export function hoursFor(settings, iso, country) {
   const s = settings || DEFAULT_SETTINGS;
+  const c = country ? countryOf(s, country) : null;
+  if (c?.locked) return [];
+  if (c?.mode === 'dates') {
+    const own = c.dates.find((x) => x.date === iso);
+    return own ? slotsBetween(own.from, own.until) : [];
+  }
   const o = s.overrides.find((x) => x.date === iso);
   if (o) return o.closed ? [] : slotsBetween(o.from, o.until);
   const [y, m, d] = iso.split('-').map(Number);

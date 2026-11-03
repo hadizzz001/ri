@@ -464,6 +464,352 @@
   font-size: 12.5px;
 }
 
+/* ---------------- Searchable select (SearchSelect.jsx) ----------------
+   The closed field looks like select.fr-input. The open list drops below it
+   on a computer; on phones it is a full-screen sheet rendered in <body>, so
+   every rule for the list carries its own colours (it can sit outside
+   .fr-booking) and re-declares border colours with !important. */
+.fr-ss {
+  position: relative;
+}
+.fr-booking .fr-ss-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px 38px 13px 14px;
+  border: 1px solid var(--fr-line-strong) !important;
+  border-radius: 12px;
+  background: #fff
+    url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237c7974' stroke-width='1.6'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")
+    no-repeat right 12px center / 18px;
+  color: var(--fr-ink);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: start;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.fr-booking[dir='rtl'] .fr-ss-trigger {
+  padding: 13px 14px 13px 38px;
+  background-position: left 12px center;
+}
+.fr-booking .fr-ss-trigger:hover:not(:disabled) {
+  border-color: #a8a29c !important;
+}
+.fr-booking .fr-ss.is-open .fr-ss-trigger,
+.fr-booking .fr-ss-trigger:focus-visible {
+  outline: none !important;
+  border-color: var(--fr-ink) !important;
+  box-shadow: 0 0 0 3px rgba(16, 5, 1, 0.06);
+}
+.fr-booking .fr-ss-trigger.has-error {
+  border-color: var(--fr-error) !important;
+}
+.fr-booking .fr-ss-trigger:disabled {
+  background-color: var(--fr-soft);
+  color: #a8a29c;
+  cursor: not-allowed;
+}
+.fr-ss-value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.fr-ss-trigger.is-empty .fr-ss-value {
+  color: #a8a29c;
+}
+
+.fr-ss-panel {
+  --fr-ink: #100501;
+  --fr-muted: #7c7974;
+  --fr-line: #e6e2dd;
+  --fr-line-strong: #cfc8c0;
+  --fr-soft: #f6f4f1;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 40;
+  padding: 8px;
+  border: 1px solid var(--fr-line) !important;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 22px 50px -22px rgba(16, 5, 1, 0.32);
+  color: var(--fr-ink);
+  text-align: start;
+  animation: fr-ss-in 0.14s ease-out;
+}
+@keyframes fr-ss-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.fr-ss-searchbox {
+  position: relative;
+}
+.fr-ss-searchbox svg {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 12px;
+  width: 17px;
+  height: 17px;
+  transform: translateY(-50%);
+  fill: none;
+  stroke: var(--fr-muted);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+.fr-ss-panel .fr-ss-search {
+  width: 100%;
+  height: 42px;
+  margin: 0;
+  padding-block: 0;
+  padding-inline: 38px 12px; /* room for the magnifier, on the right in Arabic */
+  border: 1px solid var(--fr-line-strong) !important;
+  border-radius: 10px;
+  background: var(--fr-soft);
+  color: var(--fr-ink);
+  font-size: 15px;
+  outline: none;
+  box-shadow: none;
+  appearance: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.fr-ss-panel .fr-ss-search:focus {
+  border-color: var(--fr-ink) !important;
+  background: #fff;
+}
+.fr-ss-panel .fr-ss-search::placeholder {
+  color: #a8a29c;
+}
+
+.fr-ss-list {
+  position: relative; /* options measure their offsetTop from here */
+  max-height: 272px;
+  margin-top: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.fr-ss-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 14.5px;
+  line-height: 1.4;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.fr-ss-opt.is-active {
+  background: var(--fr-soft);
+}
+.fr-ss-opt.is-selected {
+  font-weight: 600;
+}
+.fr-ss-opt-label {
+  flex: 1;
+  min-width: 0;
+}
+.fr-ss-check {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.fr-ss-tag {
+  flex: none;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #f4ece8;
+  color: #8a5248;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.fr-ss-empty {
+  padding: 18px 12px;
+  color: var(--fr-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Phones: the list fills the screen, search box on top */
+.fr-ss-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  font-family: var(--font-body);
+  animation: fr-ss-up 0.2s ease-out;
+}
+@keyframes fr-ss-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+.fr-ss-sheet .fr-ss-panel {
+  position: static;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0 16px calc(12px + env(safe-area-inset-bottom));
+  border: 0 !important;
+  border-radius: 0;
+  box-shadow: none;
+  animation: none;
+}
+.fr-ss-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 64px;
+  margin: 0 -16px 14px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--fr-line) !important;
+}
+.fr-ss-title {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.fr-ss-sheet[dir='rtl'] .fr-ss-title {
+  letter-spacing: 0;
+}
+.fr-ss-close {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--fr-line) !important;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--fr-ink);
+  cursor: pointer;
+}
+.fr-ss-close svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.fr-ss-sheet .fr-ss-search {
+  height: 48px;
+  font-size: 16px; /* 16px+ keeps iOS from zooming in */
+}
+.fr-ss-sheet .fr-ss-list {
+  flex: 1;
+  max-height: none;
+  margin-top: 8px;
+}
+.fr-ss-sheet .fr-ss-opt {
+  padding: 14px 6px;
+  border-bottom: 1px solid var(--fr-line) !important;
+  border-radius: 0;
+  font-size: 16px;
+}
+.fr-ss-sheet .fr-ss-opt.is-active {
+  background: transparent;
+}
+.fr-ss-sheet .fr-ss-opt:active {
+  background: var(--fr-soft);
+}
+
+/* ---------------- Country locked / no dates: contact the salon ---------------- */
+.fr-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 18px;
+  border: 1px solid var(--fr-line) !important;
+  border-radius: var(--fr-radius);
+  background: #faf8f6;
+}
+.fr-notice-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #f4efe9;
+  color: #ab695d;
+}
+.fr-notice-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.fr-notice-body {
+  flex: 1;
+  min-width: 0;
+}
+.fr-booking .fr-notice-title {
+  margin: 2px 0 4px;
+  color: var(--fr-ink);
+  font-size: 15px;
+  font-weight: 600 !important;
+  line-height: 1.4;
+}
+.fr-notice-text {
+  margin: 0 0 4px;
+  color: var(--fr-muted);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.fr-booking .fr-notice-phone {
+  color: var(--fr-ink) !important;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.fr-booking .fr-notice-phone:hover {
+  text-decoration: underline;
+}
+.fr-notice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.fr-notice-actions svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+/* WhatsApp green outline, fills green on hover */
+.fr-booking .fr-notice-wa {
+  --btn-fill: #0b7d45;
+}
+
 /* ---------------- Calendar ---------------- */
 .fr-cal {
   max-width: 420px;

@@ -6,6 +6,7 @@ import './bootstrap.min.css'
 import './bs-select.css'
 import './slick.css'
 import './shop.css'
+import './notifications.css'
 import { SITE_NAME, SITE_URL } from './lib/site'
 
 const DESCRIPTION =

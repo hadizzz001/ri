@@ -329,15 +329,14 @@
   color: var(--fr-muted);
   font-size: 12.5px;
 }
+/* Written on the dashboard: show all of it, keeping its line breaks */
 .fr-service-desc {
-  display: -webkit-box;
   margin: 0;
-  overflow: hidden;
   color: var(--fr-muted);
   font-size: 13px;
   line-height: 1.55;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
 }
 .fr-booking .fr-service-price {
   margin-top: 8px;
@@ -911,7 +910,7 @@
   max-width: 560px;
 }
 .fr-notice + .fr-slots {
-  margin-top: 14px; /* under the "next 3 hours" WhatsApp notice */
+  margin-top: 14px; /* under the "less than 3 hours away" notice */
 }
 .fr-booking .fr-slot {
   height: 42px;
@@ -932,8 +931,26 @@
   background: var(--fr-ink);
   color: #fff;
 }
+/* less than 3 hours away: the dot the notice above the times talks about */
+.fr-booking .fr-slot.is-soon {
+  position: relative;
+}
+.fr-booking .fr-slot.is-soon::after {
+  content: "";
+  position: absolute;
+  top: 7px;
+  inset-inline-end: 12px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #0b7d45;
+}
+.fr-booking .fr-slot.is-soon.is-on::after {
+  background: #4ade80;
+}
 
-/* ---------------- Salon / home service choice ---------------- */
+/* ---------------- Salon / home service choice ----------------
+   Brand colours only: black box with white text, beige once picked */
 .fr-options {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -946,30 +963,28 @@
   align-items: flex-start;
   gap: 4px;
   padding: 16px 18px;
-  border: 1px solid;
+  border: 1px solid var(--fr-ink) !important;
   border-radius: var(--fr-radius);
-  background: #fff;
-  color: var(--fr-ink);
+  background: var(--fr-ink);
+  color: #fff;
   text-align: start;
   cursor: pointer;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
-.fr-booking .fr-option:hover {
-  border-color: var(--fr-line-strong) !important;
+.fr-booking .fr-option:hover,
+.fr-booking .fr-options.has-error .fr-option {
+  border-color: var(--rd-beige) !important;
 }
 .fr-booking .fr-option.is-on {
-  border-color: var(--fr-ink) !important;
-  box-shadow: inset 0 0 0 1px var(--fr-ink);
-}
-.fr-booking .fr-options.has-error .fr-option {
-  border-color: var(--fr-error) !important;
+  border-color: var(--rd-beige) !important;
+  background: var(--rd-beige);
+  color: var(--fr-ink);
 }
 .fr-booking .fr-option-title {
   font-size: 15px;
   font-weight: 600;
 }
 .fr-option-hint {
-  color: var(--fr-muted);
   font-size: 13px;
   line-height: 1.45;
 }
@@ -1178,6 +1193,24 @@
 .fr-done-hint {
   margin: 10px 0 0;
   font-size: 12.5px;
+}
+/* Short notice: what the client still has to do */
+.fr-booking .fr-done-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 14px 16px;
+  border: 1px solid #b9dfcb !important;
+  border-radius: var(--fr-radius);
+  background: #eef8f2;
+  color: #0a5c34;
+  font-weight: 600;
+  text-align: start;
+}
+.fr-done-alert svg {
+  flex: none;
+  margin-top: 2px;
 }
 
 /* ---------------- Skeleton ---------------- */

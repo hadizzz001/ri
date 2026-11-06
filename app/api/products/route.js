@@ -1,7 +1,8 @@
 import clientPromise from '../../lib/mongodb'; // Adjust path as needed
 import { NextResponse } from 'next/server';
 
-export const revalidate = 10;
+// Prices and descriptions are edited on the dashboard: always read them fresh
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {

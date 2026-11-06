@@ -7,6 +7,7 @@ import { SERVICE_TYPES, bookingTotals, locationFactor } from '../../lib/bookingP
 import { bookingClock, countryOf, hoursFor, isCity, startsBy, timeZoneOf } from '../../lib/bookingOptions';
 import { getBookingSettings } from '../../lib/bookingSettings';
 import { scheduleHourReminder } from '../../lib/hourReminders';
+import { GUEST_COOKIE, guestCookieOptions, guestSession, notifyBooking } from '../../lib/notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -65,14 +66,17 @@ export async function POST(request) {
     if (!isDate(date) || !hoursFor(settings, date, country).includes(hour)) {
       return NextResponse.json({ error: 'Please choose another date and time' }, { status: 400 });
     }
-    // Past times and the next 3 hours can't be booked, on the clock of the
-    // appointment's country: the booking page offers WhatsApp for those
-    if (startsBy(date, hour, bookingClock(timeZoneOf(country, settings.countries)).cutoff)) {
+    // Past times and the next 30 minutes can't be booked, on the clock of the
+    // appointment's country. Up to 3 hours away the reservation is saved, but
+    // isn't confirmed until the client has continued it on WhatsApp.
+    const clock = bookingClock(timeZoneOf(country, settings.countries));
+    if (startsBy(date, hour, clock.cutoff)) {
       return NextResponse.json(
-        { error: 'This time is less than 3 hours away. Please choose a later time or contact us on WhatsApp.', code: 'too-soon' },
+        { error: 'This time is less than 30 minutes away. Please choose a later time or contact us on WhatsApp.', code: 'too-soon' },
         { status: 409 }
       );
     }
+    const shortNotice = startsBy(date, hour, clock.shortNotice);
     if (!STAFF_OPTIONS.includes(staff)) {
       return NextResponse.json({ error: 'Please choose your preference (Hijab, Rafi or General)' }, { status: 400 });
     }
@@ -139,8 +143,10 @@ export async function POST(request) {
       );
     }
 
-    // A signed-in client sees the booking (and can cancel it) under My account
+    // A signed-in client sees the booking (and can cancel it) under My account;
+    // a guest's browser is remembered, so their bell can show its notifications
     const user = await getCurrentUser().catch(() => null);
+    const guest = user ? null : guestSession();
 
     const booking = {
       reference,
@@ -163,9 +169,11 @@ export async function POST(request) {
       tax,
       total,
       deposit,
-      status: 'confirmed', // booked = confirmed, the time is taken right away
+      // The time is taken right away, and booked = confirmed unless it's short notice
+      status: shortNotice ? 'pending' : 'confirmed',
+      shortNotice,
       remindersSent: [], // e.g. [2, 1]
-      ...(user ? { userId: user._id } : {}),
+      ...(user ? { userId: user._id } : { guestKey: guest.hash }),
       createdAt: new Date(),
     };
 
@@ -178,7 +186,7 @@ export async function POST(request) {
 
     // Keep the legacy `Order` collection in sync (amounts as strings, as the
     // dashboard's Prisma `Order` model reads them)
-    await db.collection('Order').insertOne({
+    const order = await db.collection('Order').insertOne({
       ...booking,
       subtotal: String(subtotal),
       homeFee: String(homeFee),
@@ -186,6 +194,10 @@ export async function POST(request) {
       tax: String(tax),
       total: String(total),
       bookingId: result.insertedId,
+    });
+
+    await notifyBooking(db, shortNotice ? 'booking.short_notice' : 'booking.created', booking, {
+      orderId: order.insertedId,
     });
 
     // ---- Email (never block the booking if the provider fails).
@@ -200,9 +212,10 @@ export async function POST(request) {
       console.error('Client confirmation email failed:', e?.message || e);
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       reference,
+      shortNotice,
       insertedId: result.insertedId,
       city,
       serviceType,
@@ -215,6 +228,8 @@ export async function POST(request) {
       cart: lineItems,
       emailResults,
     });
+    if (guest) response.cookies.set(GUEST_COOKIE, guest.key, guestCookieOptions());
+    return response;
   } catch (error) {
     console.error('Booking error:', error);
     return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 });

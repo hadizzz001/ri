@@ -7,9 +7,15 @@
  */
 import { DEPOSIT_RATE, isLebanon } from './bookingPrice.js';
 
+/** The salon's WhatsApp number, as wa.me wants it. */
+export const SALON_WHATSAPP = '9613896074';
+
 export const BOOKING_MESSAGE = {
   en: {
     received: 'Your booking has been successfully received by Rafi Daham Hair Beauty Salon.',
+    shortNotice: 'This appointment is less than 3 hours away. I am contacting you to continue my reservation.',
+    continueAsk: (when, ref) =>
+      `Hello, I booked an appointment on ${when} (reference ${ref}). I would like to continue my reservation.`,
     details: 'Booking Details:',
     reference: 'Booking reference',
     name: 'Name',
@@ -41,6 +47,8 @@ export const BOOKING_MESSAGE = {
   },
   ar: {
     received: 'تم استلام حجزك بنجاح لدى صالون رافي دهام للشعر والتجميل.',
+    shortNotice: 'هذا الموعد بعد أقل من 3 ساعات. أتواصل معكم لمتابعة حجزي.',
+    continueAsk: (when, ref) => `مرحباً، حجزت موعداً يوم ${when} (رقم الحجز ${ref}). أودّ متابعة حجزي.`,
     details: 'تفاصيل الحجز:',
     reference: 'رقم الحجز',
     name: 'الاسم',
@@ -73,6 +81,9 @@ export const BOOKING_MESSAGE = {
 
 BOOKING_MESSAGE.fr = {
   received: 'Votre réservation a bien été reçue par le salon Rafi Daham Hair Beauty.',
+  shortNotice: 'Ce rendez-vous a lieu dans moins de 3 heures. Je vous contacte pour poursuivre ma réservation.',
+  continueAsk: (when, ref) =>
+    `Bonjour, j’ai réservé un rendez-vous le ${when} (référence ${ref}). Je souhaite poursuivre ma réservation.`,
   details: 'Détails de la réservation :',
   reference: 'Référence',
   name: 'Nom',
@@ -128,6 +139,16 @@ export const longDate = (isoDate, lang = 'en') => {
   }
 };
 
+/**
+ * wa.me link a client follows to continue a short-notice reservation, with a
+ * short message naming the booking.
+ */
+export const continueLink = (booking, lang = 'en', number = SALON_WHATSAPP) => {
+  const when = `${longDate(booking.date, lang)}, ${booking.hour}`;
+  const text = bookingText(lang).continueAsk(when, booking.reference || '');
+  return `https://wa.me/${String(number).replace(/\D/g, '')}?text=${encodeURIComponent(text)}`;
+};
+
 /** Total minutes for a cart of { duration, qty } items. */
 export const cartDuration = (cart = []) =>
   cart.reduce((a, i) => a + (Number(i.duration) || 0) * (Number(i.qty) || 1), 0);
@@ -175,6 +196,7 @@ export function buildBookingText(booking, lang = 'en') {
   });
 
   return [
+    ...(booking.shortNotice ? [`*${t.shortNotice}*`, ''] : []),
     t.received,
     '',
     `*${t.details}*`,

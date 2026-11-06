@@ -1,0 +1,83 @@
+/* =====================================================================
+   The website's bell (components/NotificationBell.jsx).
+   Same drawer as the site's menu, on the other side of the page. Colours come
+   from shop.css. globals.css forces `border-color: transparent !important` on
+   everything and bootstrap styles bare elements, hence the !important below.
+   ===================================================================== */
+
+/* With a third icon on the right the logo gets a little less room */
+.rd-header:has(.rd-bell) .rd-header__logo { max-width: calc(100vw - 236px); }
+@media (max-width: 359px) {
+  .rd-header__right:has(.rd-bell) { gap: .7rem; }
+}
+
+.rd-notif { position: fixed; inset: 0; z-index: 10000; display: flex; justify-content: flex-end; font-family: var(--font-body, "Nunito", system-ui, sans-serif); }
+.rd-notif__backdrop { position: absolute; inset: 0; background: rgba(16, 5, 1, .45); animation: rdFade .3s ease both; }
+.rd-notif__panel {
+  position: relative; display: flex; flex-direction: column; width: min(420px, 92vw); height: 100%; height: 100dvh;
+  background: #fff; color: var(--rd-ink); overflow-y: auto; -webkit-overflow-scrolling: touch;
+  box-shadow: -20px 0 60px -30px rgba(0, 0, 0, .4);
+  animation: rdNotifIn .32s cubic-bezier(.22, .8, .3, 1) both;
+}
+[dir="rtl"] .rd-notif__panel { box-shadow: 20px 0 60px -30px rgba(0, 0, 0, .4); animation-name: rdNotifInRtl; }
+@keyframes rdNotifIn { from { transform: translateX(100%); } to { transform: none; } }
+@keyframes rdNotifInRtl { from { transform: translateX(-100%); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .rd-notif__panel, .rd-notif__backdrop, .rd-ntoast { animation: none !important; }
+}
+
+.rd-notif__head {
+  position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 1.1rem 1.25rem; background: #fff; border-bottom: 1px solid var(--rd-line) !important;
+}
+.rd-notif__head h2 { margin: 0; font-size: 13px !important; font-weight: 500 !important; line-height: 1.4; letter-spacing: .18em !important; text-transform: uppercase; color: var(--rd-ink); }
+.rd-notif__close {
+  display: grid; flex: none; place-items: center; width: 32px; height: 32px; padding: 0;
+  background: none !important; border: 0 !important; color: var(--rd-ink); cursor: pointer;
+}
+.rd-notif__close:hover { color: var(--rd-gray); }
+.rd-notif__close svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.2; stroke-linecap: round; }
+
+.rd-notif__list { margin: 0 !important; padding: 0 !important; list-style: none !important; }
+.rd-notif__row {
+  display: flex; gap: .85rem; padding: 1rem 1.25rem; list-style: none !important;
+  border-bottom: 1px solid var(--rd-line) !important; transition: background-color .2s;
+}
+.rd-notif__row.is-unread { background: #faf7f3; }
+.rd-notif__row.is-urgent.is-unread { background: #eef8f2; }
+
+.rd-notif__icon { display: grid; flex: none; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: #f4efe9; color: #ab695d; }
+.rd-notif__row.is-urgent .rd-notif__icon { background: #dcf1e5; color: #0b7d45; }
+.rd-notif__icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+
+.rd-notif__body { flex: 1; min-width: 0; }
+.rd-notif .rd-notif__title { margin: 0 0 2px; font-size: 14px !important; font-weight: 600 !important; line-height: 1.4; color: var(--rd-ink); }
+.rd-notif .rd-notif__text { margin: 0; font-size: 13px !important; line-height: 1.55; color: var(--rd-gray); overflow-wrap: anywhere; }
+.rd-notif__meta { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .75rem; margin-top: 6px; font-size: 12px; color: var(--rd-gray); }
+.rd-notif__meta a { color: var(--rd-ink) !important; text-decoration: underline !important; text-underline-offset: 3px; }
+.rd-notif__meta a:hover { color: var(--rd-gray) !important; }
+
+.rd-notif .rd-notif__wa { --btn-fill: #0b7d45; --btn-on-fill: #fff; margin-top: .75rem; }
+.rd-notif__more { margin: 1rem 1.25rem; width: auto !important; }
+
+.rd-notif__empty { padding: 3rem 1.5rem; text-align: center; }
+
+/* New while the client is on the page */
+.rd-ntoasts {
+  position: fixed; top: calc(var(--header-offset, 0px) + 12px); inset-inline-end: 12px; z-index: 9990;
+  display: grid; gap: 8px; width: min(360px, calc(100vw - 24px));
+  font-family: var(--font-body, "Nunito", system-ui, sans-serif);
+}
+.rd-ntoast {
+  display: flex; align-items: flex-start; gap: 4px; padding: 12px 8px 12px 12px; background: #fff; color: var(--rd-ink);
+  border: 1px solid var(--rd-line) !important; box-shadow: 0 14px 34px -12px rgba(16, 5, 1, .35);
+  animation: rdFade .25s ease both;
+}
+[dir="rtl"] .rd-ntoast { padding: 12px 12px 12px 8px; }
+.rd-ntoast__main {
+  display: flex; flex: 1; align-items: flex-start; gap: .7rem; min-width: 0; padding: 0;
+  background: none !important; border: 0 !important; color: inherit; text-align: start; cursor: pointer;
+}
+.rd-ntoast__main > span:last-child { min-width: 0; }
+.rd-ntoast strong { display: block; font-size: 13.5px; font-weight: 600; line-height: 1.4; }
+.rd-ntoast small { display: block; margin-top: 2px; font-size: 12.5px; line-height: 1.5; color: var(--rd-gray); overflow-wrap: anywhere; }

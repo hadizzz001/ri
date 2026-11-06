@@ -5,6 +5,7 @@ import { getCurrentUser } from '../../../lib/auth';
 import { sendCancellationEmails } from '../../../lib/appointmentEmails';
 import { cancelHourReminder } from '../../../lib/hourReminders';
 import { cancellableFrom, ownBookingsFilter, shapeBooking } from '../../../lib/clientBookings';
+import { notifyBooking } from '../../../lib/notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,8 +53,11 @@ export async function POST(request) {
       console.error('Cancelling the 1-hour reminder failed:', e?.message || e)
     );
 
-    // Emails never undo the cancellation; the response says which went out
     const cancelled = { ...booking, ...change };
+    const order = await db.collection('Order').findOne({ bookingId: _id }, { projection: { _id: 1 } }).catch(() => null);
+    await notifyBooking(db, 'booking.cancelled', cancelled, { orderId: order?._id });
+
+    // Emails never undo the cancellation; the response says which went out
     let emails = { client: false, salon: false };
     try {
       emails = await sendCancellationEmails(cancelled);

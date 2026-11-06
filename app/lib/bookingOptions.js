@@ -6,9 +6,11 @@
  *    the last one at 23:30. A time stays free until somebody books it.
  *  - The countries are Lebanon, KSA and Kuwait, and the city is picked from
  *    the country's list below (Beirut is tax free, see bookingPrice.js).
- *  - A new appointment has to start more than 3 hours from now, on the clock
- *    of its country (see bookingClock). The booking page sends anyone who
- *    wants a sooner time to WhatsApp instead.
+ *  - A new appointment has to start more than 30 minutes from now, on the
+ *    clock of its country (see bookingClock).
+ *  - A time less than 3 hours away ("short notice") can still be booked: the
+ *    reservation is saved and the client is asked to contact the salon on
+ *    WhatsApp to continue it.
  *  - From the dashboard, each country can be locked (the page then asks the
  *    client to contact the salon) or limited to its own calendar of dates.
  *
@@ -310,7 +312,8 @@ export function appointmentTime(date, hour, timeZone = 'Asia/Beirut') {
   return guess - offsetAt(first);
 }
 
-const MIN_NOTICE_MS = 3 * 60 * 60 * 1000;
+const BLOCKED_MS = 30 * 60 * 1000;
+const SHORT_NOTICE_MS = 3 * 60 * 60 * 1000;
 
 const clockAt = (ms, timeZone) => {
   const p = zoneParts(ms, timeZone);
@@ -319,12 +322,14 @@ const clockAt = (ms, timeZone) => {
 
 /**
  * The clock of an appointment country, as { date: "YYYY-MM-DD", hour: "HH:mm" }:
- *  - now:    what it shows right now;
- *  - cutoff: what it will show in 3 hours. A new appointment has to start after this.
+ *  - now:         what it shows right now;
+ *  - cutoff:      what it will show in 30 minutes. A new appointment has to start after this;
+ *  - shortNotice: what it will show in 3 hours. One starting by then continues on WhatsApp.
  */
 export const bookingClock = (timeZone, now = Date.now()) => ({
   now: clockAt(now, timeZone),
-  cutoff: clockAt(now + MIN_NOTICE_MS, timeZone),
+  cutoff: clockAt(now + BLOCKED_MS, timeZone),
+  shortNotice: clockAt(now + SHORT_NOTICE_MS, timeZone),
 });
 
 /** Does "YYYY-MM-DD" "HH:mm" start at or before this reading of the clock? */

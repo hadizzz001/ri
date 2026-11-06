@@ -6,6 +6,7 @@ import Cart from "../components1/Cart"
 import { useBooleanValue } from '../app/context/CartBoolContext';
 import { useCart } from '../app/context/CartContext';
 import { useAuth } from '../app/context/AuthContext';
+import NotificationBell from './NotificationBell';
 
 /* One icon family: 24×24 viewBox, 1px stroke, no fill — identical weight to the bag icon. */
 const Ico = {
@@ -188,6 +189,7 @@ export default function NavBar() {
               <Ico.Heart />
               {favCount > 0 && <span className="nav-badge">{favCount}</span>}
             </a>
+            <NotificationBell />
             <a href={user ? '/account' : '/login'} aria-label={user ? 'My account' : 'Sign in'} className="nav-btn">
               <Ico.User />
             </a>

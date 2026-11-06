@@ -31,6 +31,7 @@ export const shapeBooking = (b) => ({
   deposit: b.deposit,
   notes: b.notes,
   status: b.status || 'pending',
+  shortNotice: !!b.shortNotice,
   createdAt: b.createdAt,
   cancelledAt: b.cancelledAt || null,
 });

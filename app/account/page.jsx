@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import ProductCard from "../../components1/shop/ProductCard";
-import { bookingDeposit, bookingText, longDate, money } from "../lib/bookingMessage";
+import { bookingDeposit, bookingText, continueLink, longDate, money } from "../lib/bookingMessage";
 
 const TABS = [["profile", "Profile"], ["appointments", "Appointments"], ["wishlist", "Wishlist"], ["orders", "Orders"]];
 
@@ -86,6 +86,7 @@ export default function AccountPage() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Could not cancel this appointment. Please try again.");
       setBookings((list) => sortBookings(list.map((b) => (b._id === id ? data.booking : b))));
+      window.dispatchEvent(new Event("rd:notifications")); // the bell picks it up right away
       setNotice({
         ok: true,
         text: data.emails?.client
@@ -177,6 +178,17 @@ export default function AccountPage() {
                       <div><small>Total {money(b.total)}{deposit ? ` · Deposit to confirm ${money(deposit)}` : ""}</small></div>
                       {b.status === "cancelled" && b.cancelledAt && (
                         <div><small>Cancelled on {new Date(b.cancelledAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</small></div>
+                      )}
+
+                      {upcoming && b.shortNotice && b.status === "pending" && (
+                        <div className="ac__confirm">
+                          <span>This appointment is less than 3 hours away. Please contact us on WhatsApp to continue your reservation.</span>
+                          <div>
+                            <a className="rd-btn rd-btn--sm rd-btn--auto" href={continueLink(b)} target="_blank" rel="noopener noreferrer">
+                              Continue on WhatsApp
+                            </a>
+                          </div>
+                        </div>
                       )}
 
                       {upcoming && (confirming === b._id ? (

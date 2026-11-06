@@ -17,7 +17,8 @@ const isoDay = (ms) => new Date(ms).toISOString().slice(0, 10);
  * scheduled sending: the emails are handed to Resend right away with
  * `scheduled_at` = appointment − 1 hour, and Resend delivers them then.
  *
- *  - Less than 1 hour left: sent immediately.
+ *  - Less than 1 hour left: sent immediately, unless it was booked that late
+ *    (a client who has only just booked needs no reminder).
  *  - More than 29 days ahead: left for later (the daily cron schedules it
  *    once it is inside Resend's window).
  *
@@ -36,6 +37,7 @@ export async function scheduleHourReminder(db, booking, settings) {
   const now = Date.now();
   if (start <= now) return 'past';
   if (sendAt - now > MAX_AHEAD) return 'later';
+  if (booking.createdAt && new Date(booking.createdAt).getTime() > sendAt) return 'skipped';
 
   // Claim it first so two calls never schedule it twice
   const claim = await col.updateOne(

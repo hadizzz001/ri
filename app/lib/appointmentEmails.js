@@ -9,6 +9,7 @@ import {
   bookingDeposit,
   bookingText,
   cartDuration,
+  continueLink,
   longDate,
   money,
   priceLines,
@@ -28,6 +29,11 @@ const T = {
   en: {
     dir: 'ltr',
     confirmSubject: 'Your booking has been received — Rafi Daham Hair Beauty Salon',
+    shortNoticeSubject: 'Please contact us on WhatsApp to continue your reservation — Rafi Daham Hair Repair Studio',
+    shortNoticeTitle: 'Your reservation is saved',
+    shortNoticeIntro:
+      'Your appointment is less than 3 hours away, so please contact us on WhatsApp to continue your reservation.',
+    shortNoticeButton: 'Continue on WhatsApp',
     reminderSubject: 'Reminder: your appointment at Rafi Daham Hair Repair Studio',
     hourSubject: 'Your appointment is in 1 hour — Rafi Daham Hair Repair Studio',
     hourIntro: (hour) => `See you soon! Your appointment starts in about 1 hour, at ${hour}.`,
@@ -45,6 +51,10 @@ const T = {
   ar: {
     dir: 'rtl',
     confirmSubject: 'تم استلام حجزك — صالون رافي دهام للشعر والتجميل',
+    shortNoticeSubject: 'يرجى التواصل معنا عبر واتساب لمتابعة حجزك — صالون رافي دهام',
+    shortNoticeTitle: 'تم حفظ حجزك',
+    shortNoticeIntro: 'موعدك بعد أقل من 3 ساعات، لذا يرجى التواصل معنا عبر واتساب لمتابعة الحجز.',
+    shortNoticeButton: 'متابعة عبر واتساب',
     reminderSubject: 'تذكير: موعدك في صالون رافي دهام',
     hourSubject: 'موعدك بعد ساعة — صالون رافي دهام',
     hourIntro: (hour) => `نراك قريباً! يبدأ موعدك بعد ساعة تقريباً، الساعة ${hour}.`,
@@ -61,6 +71,11 @@ const T = {
   fr: {
     dir: 'ltr',
     confirmSubject: 'Votre réservation a été reçue — Rafi Daham Hair Beauty Salon',
+    shortNoticeSubject: 'Merci de nous contacter sur WhatsApp pour poursuivre votre réservation — Rafi Daham Hair Repair Studio',
+    shortNoticeTitle: 'Votre réservation est enregistrée',
+    shortNoticeIntro:
+      'Votre rendez-vous a lieu dans moins de 3 heures : merci de nous contacter sur WhatsApp pour poursuivre votre réservation.',
+    shortNoticeButton: 'Continuer sur WhatsApp',
     reminderSubject: 'Rappel : votre rendez-vous chez Rafi Daham Hair Repair Studio',
     hourSubject: 'Votre rendez-vous est dans 1 heure — Rafi Daham Hair Repair Studio',
     hourIntro: (hour) => `À très vite ! Votre rendez-vous commence dans environ 1 heure, à ${hour}.`,
@@ -192,17 +207,26 @@ function buildBody(booking, lang, { title, intro, footer, cancelled = false }) {
   });
 }
 
-/** Confirmation email sent to the client right after booking. */
+/**
+ * Confirmation email sent to the client right after booking. A short-notice
+ * booking asks them to continue the reservation on WhatsApp instead.
+ */
 export async function sendClientConfirmation(booking) {
   const lang = T[booking.lang] ? booking.lang : 'en';
   const t = T[lang];
-  const html = buildBody(booking, lang, {
-    title: bookingText(lang).received,
-  });
+  const whatsappButton = () =>
+    `<a href="${esc(continueLink(booking, lang, SALON_PHONE))}" style="display:inline-block;margin-top:12px;padding:10px 18px;border-radius:999px;background:#0b7d45;color:#fff;font-weight:600;text-decoration:none">${t.shortNoticeButton}</a>`;
+  const html = buildBody(
+    booking,
+    lang,
+    booking.shortNotice
+      ? { title: t.shortNoticeTitle, intro: `${t.shortNoticeIntro}<br>${whatsappButton()}` }
+      : { title: bookingText(lang).received }
+  );
 
   return sendMail({
     to: booking.email,
-    subject: t.confirmSubject,
+    subject: booking.shortNotice ? t.shortNoticeSubject : t.confirmSubject,
     html,
   });
 }

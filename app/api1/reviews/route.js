@@ -3,6 +3,7 @@ import { ObjectId } from "mongodb";
 import clientPromise from "../../lib/mongodb";
 import { getCurrentUser } from "../../lib/auth";
 import { ratingSummary } from "../../lib/ratings";
+import { notifyReview } from "../../lib/notifications";
 
 export const dynamic = "force-dynamic";
 
@@ -72,7 +73,7 @@ export async function POST(req) {
     cartItems: { $elemMatch: { _id: productId } },
   });
 
-  await db.collection("Review").updateOne(
+  const saved = await db.collection("Review").updateOne(
     { productId: pid, userId: uid },
     {
       $set: {
@@ -87,6 +88,11 @@ export async function POST(req) {
     },
     { upsert: true }
   );
+
+  if (saved.upsertedCount) {
+    const product = await db.collection("Product1").findOne({ _id: pid }, { projection: { title: 1 } }).catch(() => null);
+    await notifyReview(db, { name: user.name, product: product?.title, rating: r });
+  }
 
   const summary = await ratingSummary(db, pid);
   return NextResponse.json({ ok: true, summary });

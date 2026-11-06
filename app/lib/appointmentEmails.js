@@ -16,7 +16,7 @@ import {
   showsPriceNote,
 } from './bookingMessage.js';
 
-export const SALON_EMAIL = process.env.SALON_EMAIL || 'rafidahamhair@gmail.com';
+export const SALON_EMAIL = process.env.SALON_EMAIL || 'info@rafidaham.com';
 export const SALON_PHONE = process.env.SALON_PHONE || '9613896074';
 
 const BRAND = {

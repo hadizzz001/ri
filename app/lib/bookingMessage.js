@@ -5,7 +5,7 @@
  *
  * Plain data + pure helpers only — safe to import from client and server.
  */
-import { DEPOSIT_RATE, isLebanon } from './bookingPrice.js';
+import { DEFAULT_OUTSIDE_FACTOR, DEPOSIT_RATE, isLebanon, outsideIncreasePercent } from './bookingPrice.js';
 
 /** The salon's WhatsApp number, as wa.me wants it. */
 export const SALON_WHATSAPP = '9613896074';
@@ -42,8 +42,8 @@ export const BOOKING_MESSAGE = {
     noteLines: [
       'ALL PRICES LISTED ABOVE ARE APPLICABLE FOR SERVICES PROVIDED WITHIN OUR LUXURY SALON.',
       'SERVICES PROVIDED OUTSIDE THE SALON WITHIN LEBANON WILL INCUR A 100% INCREASE.',
-      'SERVICES PROVIDED OUTSIDE LEBANON WILL INCUR A 300% INCREASE.',
     ],
+    noteOutside: (pct) => `SERVICES PROVIDED OUTSIDE LEBANON WILL INCUR A ${pct}% INCREASE.`,
   },
   ar: {
     received: 'تم استلام حجزك بنجاح لدى صالون رافي دهام للشعر والتجميل.',
@@ -74,8 +74,8 @@ export const BOOKING_MESSAGE = {
     noteLines: [
       'جميع الأسعار المذكورة أعلاه تنطبق على الخدمات المقدّمة داخل صالوننا الفاخر.',
       'الخدمات المقدّمة خارج الصالون داخل لبنان تخضع لزيادة بنسبة 100%.',
-      'الخدمات المقدّمة خارج لبنان تخضع لزيادة بنسبة 300%.',
     ],
+    noteOutside: (pct) => `الخدمات المقدّمة خارج لبنان تخضع لزيادة بنسبة ${pct}%.`,
   },
 };
 
@@ -111,8 +111,8 @@ BOOKING_MESSAGE.fr = {
   noteLines: [
     'TOUS LES PRIX CI-DESSUS S’APPLIQUENT AUX SERVICES RÉALISÉS DANS NOTRE SALON DE LUXE.',
     'LES SERVICES RÉALISÉS HORS DU SALON AU LIBAN SONT MAJORÉS DE 100 %.',
-    'LES SERVICES RÉALISÉS HORS DU LIBAN SONT MAJORÉS DE 300 %.',
   ],
+  noteOutside: (pct) => `LES SERVICES RÉALISÉS HORS DU LIBAN SONT MAJORÉS DE ${pct} %.`,
 };
 BOOKING_MESSAGE.en.staff = 'Preference';
 BOOKING_MESSAGE.en.staffs = { hijab: 'Hijab', rafi: 'Rafi', regular: 'General' };
@@ -181,6 +181,17 @@ export const bookingDeposit = (booking) =>
 /** The note on prices goes with bookings outside Lebanon only. */
 export const showsPriceNote = (booking) => !isLebanon(booking.country);
 
+/**
+ * The lines of that note. The outside-Lebanon increase follows the multiplier
+ * the booking was priced with (`outsideFactor`, set from the dashboard; older
+ * bookings were all ×4), and is left out when there is none (×1).
+ */
+export function priceNoteLines(booking, lang = 'en') {
+  const t = bookingText(lang);
+  const pct = outsideIncreasePercent(booking.outsideFactor ?? DEFAULT_OUTSIDE_FACTOR);
+  return pct > 0 ? [...t.noteLines, t.noteOutside(pct)] : [...t.noteLines];
+}
+
 /** The full plain-text message, as sent on WhatsApp. */
 export function buildBookingText(booking, lang = 'en') {
   const t = bookingText(lang);
@@ -222,7 +233,7 @@ export function buildBookingText(booking, lang = 'en') {
     t.welcome,
     '',
     t.thanks,
-    ...(showsPriceNote(booking) ? ['', `*${t.noteTitle}*`, ...t.noteLines] : []),
+    ...(showsPriceNote(booking) ? ['', `*${t.noteTitle}*`, ...priceNoteLines(booking, lang)] : []),
   ]
     .filter((line) => line !== null)
     .join('\n');

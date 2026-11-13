@@ -3,11 +3,14 @@
 /**
  * Fresha-style booking flow for Rafi Daham Hair Repair Studio.
  *
- *  Step 1 — Team       (Hijab or no preference — saved as the booking's staff)
+ *  Step 1 — Team       (Hijab, Rafi or no preference — saved as the booking's
+ *                       staff). Hijab isn't booked online: picking it shows
+ *                       HijabNotice and the client continues on WhatsApp.
  *  Step 2 — Details    (contact form, country / city, calendar, time slots)
  *  Step 3 — Services   (categories + service list, salon or home, confirm)
  *
  * Tax is only added once a city outside Beirut is chosen (lib/bookingPrice.js).
+ * Outside Lebanon prices are × the multiplier set in the dashboard (/api/tax).
  *
  * Lebanon, KSA and Kuwait can be booked every day, 08:00 to midnight; a time
  * is free until somebody takes it (lib/bookingOptions.js). From the dashboard
@@ -30,7 +33,14 @@ import './appointment-steps.css';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { bookingText, buildBookingText, localeOf, priceLines } from '../lib/bookingMessage';
-import { SERVICE_TYPES, bookingTotals, homeFactor, locationFactor } from '../lib/bookingPrice';
+import {
+  DEFAULT_OUTSIDE_FACTOR,
+  SERVICE_TYPES,
+  bookingTotals,
+  homeFactor,
+  locationFactor,
+  priceAt,
+} from '../lib/bookingPrice';
 import {
   DEFAULT_SETTINGS,
   bookingClock,
@@ -61,6 +71,11 @@ const STRINGS = {
       regular: ['General', 'Any available team member'],
     },
     errStaff: 'Please choose an option',
+    viaWhatsApp: 'Book on WhatsApp',
+    hijabTitle: 'Hijab bookings continue on WhatsApp',
+    hijabText:
+      'To book with a hijab-wearing team member, please contact us on WhatsApp and we will continue your booking with you.',
+    hijabWaAsk: 'Hello, I would like to book an appointment with a hijab-wearing team member.',
     selectDetails: 'Your details',
     selectServices: 'Select services',
     selectTime: 'Select time',
@@ -161,6 +176,10 @@ const STRINGS = {
       regular: ['عام', 'أي عضو متاح من الفريق'],
     },
     errStaff: 'يرجى اختيار أحد الخيارات',
+    viaWhatsApp: 'الحجز عبر واتساب',
+    hijabTitle: 'الحجز مع موظفة محجبة يتمّ عبر واتساب',
+    hijabText: 'لحجز موعد مع موظفة محجبة، يرجى التواصل معنا عبر واتساب لنتابع حجزك معك.',
+    hijabWaAsk: 'مرحباً، أودّ حجز موعد مع موظفة محجبة.',
     selectDetails: 'معلوماتك',
     selectServices: 'اختر الخدمات',
     stepOf: (s, n, l) => `الخطوة ${s} من ${n} — ${l}`,
@@ -260,6 +279,11 @@ const STRINGS = {
       regular: ['Général', 'Tout membre disponible de l’équipe'],
     },
     errStaff: 'Veuillez choisir une option',
+    viaWhatsApp: 'Réserver sur WhatsApp',
+    hijabTitle: 'Réservation hijab sur WhatsApp',
+    hijabText:
+      'Pour réserver avec une membre de l’équipe portant le hijab, contactez-nous sur WhatsApp et nous poursuivrons votre réservation avec vous.',
+    hijabWaAsk: 'Bonjour, je souhaite prendre rendez-vous avec une membre de l’équipe portant le hijab.',
     selectDetails: 'Vos coordonnées',
     selectServices: 'Choisissez vos services',
     selectTime: 'Choisissez l’heure',
@@ -473,6 +497,45 @@ function SoonNotice({ t }) {
       <div className="fr-notice-body">
         <p className="fr-notice-title">{t.soonTitle}</p>
         <p className="fr-notice-text">{t.soonText}</p>
+      </div>
+    </div>
+  );
+}
+
+/** Team preferences booked with the salon on WhatsApp instead of online. */
+const WHATSAPP_ONLY_STAFF = ['hijab'];
+
+/** wa.me link that opens the salon's chat with the client's request written out. */
+const whatsappAsk = (text) => `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+
+/**
+ * Hijab was picked on step 1: that booking isn't made online, so instead of
+ * moving on the client is asked to contact the salon on WhatsApp (or call).
+ */
+function HijabNotice({ t }) {
+  return (
+    <div className="fr-notice" id="fr-hijab-notice" role="status">
+      <span className="fr-notice-icon fr-notice-icon--wa" aria-hidden="true">
+        <WhatsAppGlyph size={20} />
+      </span>
+      <div className="fr-notice-body">
+        <p className="fr-notice-title">{t.hijabTitle}</p>
+        <p className="fr-notice-text">{t.hijabText}</p>
+        <div className="fr-notice-actions">
+          <a
+            className="rd-btn rd-btn--sm rd-btn--auto fr-cta--wa"
+            href={whatsappAsk(t.hijabWaAsk)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <WhatsAppGlyph size={16} />
+            {t.continueWhatsApp}
+          </a>
+          <a className="rd-btn rd-btn--ghost rd-btn--sm rd-btn--auto" href={`tel:${SALON_TEL}`}>
+            <PhoneIcon />
+            {t.callUs}
+          </a>
+        </div>
       </div>
     </div>
   );
@@ -751,7 +814,8 @@ export default function AppointmentPage() {
   const { user } = useAuth();
 
   const [step, setStep] = useState(1);
-  const [staff, setStaff] = useState(''); // 'hijab' | 'regular'
+  const [staff, setStaff] = useState(''); // 'hijab' | 'rafi' | 'regular'
+  const whatsappOnly = WHATSAPP_ONLY_STAFF.includes(staff); // Hijab: continues on WhatsApp
   const [services, setServices] = useState([]);
   const [loadingServices, setLoadingServices] = useState(true);
   const [taken, setTaken] = useState(() => new Set()); // slotKey()s of booked times
@@ -771,6 +835,7 @@ export default function AppointmentPage() {
   const [hour, setHour] = useState('');
   const [serviceType, setServiceType] = useState(''); // 'salon' | 'home'
   const [taxPercent, setTaxPercent] = useState(0);
+  const [outsideFactor, setOutsideFactor] = useState(DEFAULT_OUTSIDE_FACTOR); // set in the dashboard
 
   const [form, setForm] = useState({ name: '', phone: '', email: '', notes: '' });
   const [errors, setErrors] = useState({});
@@ -815,7 +880,10 @@ export default function AppointmentPage() {
 
     fetch('/api/tax')
       .then((r) => r.json())
-      .then((json) => setTaxPercent(Number(json?.percent) || 0))
+      .then((json) => {
+        setTaxPercent(Number(json?.percent) || 0);
+        if (json?.outsideFactor) setOutsideFactor(json.outsideFactor);
+      })
       .catch(() => setTaxPercent(0));
   }, []);
 
@@ -906,9 +974,9 @@ export default function AppointmentPage() {
   }, [country]);
 
   const cartItems = useMemo(() => Object.values(cart), [cart]);
-  const priceFactor = locationFactor(country);
+  const priceFactor = locationFactor(country, outsideFactor);
   const totals = bookingTotals(
-    cartItems.map((i) => ({ price: Number(i.price) * priceFactor, qty: i.qty })),
+    cartItems.map((i) => ({ price: priceAt(i.price, priceFactor), qty: i.qty })),
     { country, city, serviceType, taxPercent }
   );
   const totalLines = priceLines(totals, lang);
@@ -924,6 +992,21 @@ export default function AppointmentPage() {
     setStep(n);
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  /**
+   * On a phone the cards are stacked, so the Hijab notice can start below the
+   * screen or behind the sticky bottom bar: it is then scrolled into view.
+   */
+  const showHijabNotice = () =>
+    window.requestAnimationFrame(() => {
+      const notice = document.getElementById('fr-hijab-notice');
+      if (!notice) return;
+      const bar = document.querySelector('.fr-bottombar');
+      const visibleUntil =
+        bar && getComputedStyle(bar).display !== 'none' ? bar.getBoundingClientRect().top : window.innerHeight;
+      if (notice.getBoundingClientRect().bottom > visibleUntil)
+        notice.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
 
   const toggleService = (s) => {
     setCart((prev) => {
@@ -1022,6 +1105,7 @@ export default function AppointmentPage() {
   const next = () => {
     if (step === 1) {
       if (!staff) return setErrors({ staff: t.errStaff });
+      if (whatsappOnly) return; // Hijab continues on WhatsApp (HijabNotice)
       setErrors({});
       return goTo(2);
     }
@@ -1054,6 +1138,7 @@ export default function AppointmentPage() {
    *    itself is never blocked.
    */
   const handleConfirm = async () => {
+    if (whatsappOnly) return goTo(1); // Hijab isn't booked online
     if (submitting || !validateDetails()) return;
     const waTab = isHandheld() ? null : openWhatsAppTab(t, lang);
     setSubmitting(true);
@@ -1091,6 +1176,11 @@ export default function AppointmentPage() {
           setHour('');
           setErrors({ time: t.errTooSoon });
           setStep(2);
+        } else if (result.code === 'whatsapp-only') {
+          // Hijab is booked on WhatsApp: back to step 1, where HijabNotice says so
+          setStaff('hijab');
+          setErrors({});
+          goTo(1);
         } else if (result.code === 'locked') {
           // Locked from the dashboard meanwhile: back to the details, where
           // the notice gives the salon's phone and WhatsApp
@@ -1122,6 +1212,7 @@ export default function AppointmentPage() {
         tax: result.tax,
         total: result.total,
         deposit: result.deposit,
+        outsideFactor: result.outsideFactor, // named in the note on prices
         cart: result.cart,
       };
       const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
@@ -1316,7 +1407,7 @@ export default function AppointmentPage() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontWeight: 600 }}>
-                  {money(Number(i.price) * priceFactor * i.qty)}
+                  {money(priceAt(i.price, priceFactor) * i.qty)}
                 </span>
                 <button
                   type="button"
@@ -1351,7 +1442,18 @@ export default function AppointmentPage() {
         )}
         {priceFactor > 1 && <div className="fr-summary-note">{t.outside}</div>}
 
-        {step < 3 && (
+        {step === 1 && whatsappOnly && (
+          <a
+            className="rd-btn fr-cta fr-cta--wa"
+            href={whatsappAsk(t.hijabWaAsk)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <WhatsAppGlyph />
+            {t.continueWhatsApp}
+          </a>
+        )}
+        {step < 3 && !(step === 1 && whatsappOnly) && (
           <button
             type="button"
             className="rd-btn fr-cta"
@@ -1422,7 +1524,9 @@ export default function AppointmentPage() {
                     onClick={() => {
                       setStaff(type);
                       setErrors({});
-                      goTo(2);
+                      // Hijab stays here: the notice below sends the client to WhatsApp
+                      if (WHATSAPP_ONLY_STAFF.includes(type)) showHijabNotice();
+                      else goTo(2);
                     }}
                   >
                     <span className="fr-staff-avatar">
@@ -1430,10 +1534,17 @@ export default function AppointmentPage() {
                     </span>
                     <span className="fr-staff-title">{t.staffs[type][0]}</span>
                     <span className="fr-staff-hint">{t.staffs[type][1]}</span>
+                    {WHATSAPP_ONLY_STAFF.includes(type) && (
+                      <span className="fr-staff-tag">
+                        <WhatsAppGlyph size={13} />
+                        {t.viaWhatsApp}
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
               {errors.staff && <p className="fr-error">{errors.staff}</p>}
+              {whatsappOnly && <HijabNotice t={t} />}
             </>
           )}
 
@@ -1688,7 +1799,7 @@ export default function AppointmentPage() {
                         <p className="fr-service-desc">{s.description}</p>
                       ) : null}
                       <div className="fr-service-price">
-                        {money(Number(s.price) * priceFactor)}
+                        {money(priceAt(s.price, priceFactor))}
                       </div>
                     </div>
 
@@ -1739,7 +1850,17 @@ export default function AppointmentPage() {
           </div>
         </div>
 
-        {step < 3 ? (
+        {step === 1 && whatsappOnly ? (
+          <a
+            className="rd-btn fr-cta fr-cta--wa"
+            href={whatsappAsk(t.hijabWaAsk)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <WhatsAppGlyph />
+            {t.continueWhatsApp}
+          </a>
+        ) : step < 3 ? (
           <button
             type="button"
             className="rd-btn fr-cta"

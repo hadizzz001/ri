@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import clientPromise from '../../lib/mongodb';
 import { getCurrentUser } from '../../lib/auth';
 import { sendClientConfirmation } from '../../lib/appointmentEmails';
-import { SERVICE_TYPES, bookingTotals, locationFactor } from '../../lib/bookingPrice';
+import { SERVICE_TYPES, bookingTotals, locationFactor, outsideFactorOf, priceAt } from '../../lib/bookingPrice';
 import { bookingClock, countryOf, hoursFor, isCity, startsBy, timeZoneOf } from '../../lib/bookingOptions';
 import { getBookingSettings } from '../../lib/bookingSettings';
 import { scheduleHourReminder } from '../../lib/hourReminders';
@@ -13,6 +13,8 @@ export const dynamic = 'force-dynamic';
 
 /** First booking step: does the client want a hijab-wearing team member? */
 const STAFF_OPTIONS = ['hijab', 'rafi', 'regular'];
+/** Booked with the salon on WhatsApp only: the booking page sends these clients there. */
+const WHATSAPP_ONLY_STAFF = ['hijab'];
 
 const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || ''));
 
@@ -42,6 +44,15 @@ export async function POST(request) {
 
     if (!name || !phone || !isEmail(email) || !country || !city || !date || !hour) {
       return NextResponse.json({ error: 'Missing or invalid fields' }, { status: 400 });
+    }
+    if (WHATSAPP_ONLY_STAFF.includes(staff)) {
+      return NextResponse.json(
+        {
+          error: 'Bookings with a hijab-wearing team member are made on WhatsApp. Please contact us to continue.',
+          code: 'whatsapp-only',
+        },
+        { status: 409 }
+      );
     }
     // Country names come from the browser's own list, so only the shape is checked
     if (!clientCountry || clientCountry.length > 80) {
@@ -98,7 +109,11 @@ export async function POST(request) {
       })
       .toArray();
 
-    const priceFactor = locationFactor(country);
+    // Prices (tax percentage and the outside-Lebanon multiplier) are set from
+    // the dashboard: one Tax document, absent = no tax and ×4
+    const taxDoc = await db.collection('Tax').findOne({});
+    const outsideFactor = outsideFactorOf(taxDoc?.outsideFactor);
+    const priceFactor = locationFactor(country, outsideFactor);
 
     const lineItems = cart
       .map((c) => {
@@ -110,7 +125,7 @@ export async function POST(request) {
           title: svc.title,
           cat: svc.cat,
           duration: svc.duration || null,
-          price: Number(svc.price) * priceFactor,
+          price: priceAt(svc.price, priceFactor),
           qty,
         };
       })
@@ -120,9 +135,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Selected services not found' }, { status: 400 });
     }
 
-    // Tax percentage is set from the dashboard (one document, absent = no
-    // tax); Beirut is tax free and only bookings abroad take a deposit
-    const taxDoc = await db.collection('Tax').findOne({});
+    // Beirut is tax free and only bookings abroad take a deposit
     const { subtotal, homeFee, taxPercent, tax, total, deposit } = bookingTotals(lineItems, {
       country,
       city,
@@ -160,9 +173,10 @@ export async function POST(request) {
       date, // YYYY-MM-DD
       hour, // HH:mm
       lang: ['ar', 'fr'].includes(lang) ? lang : 'en',
-      staff, // 'hijab' | 'regular' — shown as the team column on the dashboard
+      staff, // 'rafi' | 'regular' ('hijab' is booked on WhatsApp) — the team column on the dashboard
       serviceType, // 'salon' | 'home'
       cart: lineItems,
+      outsideFactor, // the outside-Lebanon multiplier in force (named in the price note)
       subtotal,
       homeFee,
       taxPercent,
@@ -225,6 +239,7 @@ export async function POST(request) {
       tax,
       total,
       deposit,
+      outsideFactor,
       cart: lineItems,
       emailResults,
     });

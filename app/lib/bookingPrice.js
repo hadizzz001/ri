@@ -3,7 +3,9 @@
  * /api/booking (which re-prices server side) so the client always sees the
  * amount that gets stored.
  *
- *  - Outside Lebanon every service is priced at the travelling rate (×4).
+ *  - Outside Lebanon every service is priced at the travelling rate: its
+ *    price × a multiplier set in the dashboard ("Prices & Tax" page, saved
+ *    as `outsideFactor` in the Tax document; 4 until one is saved).
  *  - Home service costs double inside Lebanon; abroad the travelling rate
  *    already covers coming to the client.
  *  - Tax — a percentage set in the dashboard — is added on top for home
@@ -25,8 +27,28 @@ const round2 = (n) => Math.round(n * 100) / 100;
 
 export const isLebanon = (country) => country === LEBANON;
 
+/** The travelling rate before one is saved in the dashboard (and for older bookings). */
+export const DEFAULT_OUTSIDE_FACTOR = 4;
+export const MAX_OUTSIDE_FACTOR = 20;
+
+/** The dashboard's outside-Lebanon multiplier, or the default when it is missing or invalid. */
+export const outsideFactorOf = (value) => {
+  const n = Number(value);
+  return value !== null && value !== '' && Number.isFinite(n) && n >= 1 && n <= MAX_OUTSIDE_FACTOR
+    ? n
+    : DEFAULT_OUTSIDE_FACTOR;
+};
+
 /** Multiplier applied to each service price for the booking country. */
-export const locationFactor = (country) => (country && !isLebanon(country) ? 4 : 1);
+export const locationFactor = (country, outsideFactor) =>
+  country && !isLebanon(country) ? outsideFactorOf(outsideFactor) : 1;
+
+/** A service's price at a location multiplier, to the cent (×2.5 can leave fractions). */
+export const priceAt = (price, factor) => round2(Number(price) * (Number(factor) || 1));
+
+/** How much more a service costs outside Lebanon, in % (×4 → 300). */
+export const outsideIncreasePercent = (outsideFactor) =>
+  Math.round((outsideFactorOf(outsideFactor) - 1) * 10000) / 100;
 
 /** Multiplier applied to the services subtotal for the chosen service type. */
 export const homeFactor = (serviceType, country) =>

@@ -1,3 +1,5 @@
+import OutsideIncrease from './OutsideIncrease';
+
 export default function CustomTable() {
   return (
     <div className="container">
@@ -191,7 +193,7 @@ export default function CustomTable() {
         </p>
         <ul className="list-disc ml-5 py-3 px-2 myparhal">
           <li>Services provided outside the salon within Lebanon will incur a 100% increase.</li>
-          <li>Services provided outside Lebanon will incur a 300% increase.</li>
+          <OutsideIncrease />
         </ul>
         <p className="py-3 px-2 myparhal">
           We guarantee you an exclusive and premium experience with the highest standards of quality, whether inside the salon or wherever you choose.

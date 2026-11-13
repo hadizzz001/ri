@@ -13,6 +13,7 @@ import {
   longDate,
   money,
   priceLines,
+  priceNoteLines,
   showsPriceNote,
 } from './bookingMessage.js';
 
@@ -193,7 +194,7 @@ function buildBody(booking, lang, { title, intro, footer, cancelled = false }) {
       : `
     <div style="background:#faf7f0;border:1px solid #e9dfc7;border-radius:12px;padding:16px;margin-top:24px">
       <div style="font-size:13px;font-weight:700;margin-bottom:8px">${m.noteTitle}</div>
-      ${m.noteLines
+      ${priceNoteLines(booking, lang)
         .map((l) => `<p style="margin:0 0 6px;font-size:12px;line-height:1.6;color:#3f3f46">${l}</p>`)
         .join('')}
     </div>`;

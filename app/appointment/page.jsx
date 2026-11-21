@@ -14,8 +14,9 @@
  *
  * Lebanon, KSA and Kuwait can be booked every day, 08:00 to midnight; a time
  * is free until somebody takes it (lib/bookingOptions.js). From the dashboard
- * a country can get its own calendar of dates, or be locked: the page then
- * says it isn't available right now and gives the salon's phone / WhatsApp.
+ * a country can get its own calendar of dates, locked dates & hours (never
+ * offered here), or be locked: the page then says it isn't available right
+ * now and gives the salon's phone / WhatsApp.
  * The next 30 minutes can't be booked (/api/booking refuses them). A time less
  * than 3 hours away can: the reservation is saved, those times are marked
  * (SoonNotice) and the client is asked to continue on WhatsApp.
@@ -907,10 +908,12 @@ export default function AppointmentPage() {
     };
   }, []);
 
-  // A time picked earlier that has just been taken is cleared
+  // A time picked earlier that has just been taken, or locked or closed from
+  // the dashboard meanwhile, is cleared
   useEffect(() => {
-    if (hour && date && taken.has(slotKey(country, city, date, hour))) setHour('');
-  }, [taken, hour, date, country, city]);
+    if (!hour || !date) return;
+    if (taken.has(slotKey(country, city, date, hour)) || !hoursFor(settings, date, country).includes(hour)) setHour('');
+  }, [taken, settings, hour, date, country, city]);
 
   /* ------------------------------------------------------------ derived */
 

@@ -12,7 +12,9 @@
  *    reservation is saved and the client is asked to contact the salon on
  *    WhatsApp to continue it.
  *  - From the dashboard, each country can be locked (the page then asks the
- *    client to contact the salon) or limited to its own calendar of dates.
+ *    client to contact the salon) or limited to its own calendar of dates,
+ *    and given locked dates & hours: times the team isn't available there,
+ *    which the page doesn't offer.
  *
  * Places are stored by their English names (bookings, emails, pricing rules);
  * the Arabic page shows their Arabic names.
@@ -189,13 +191,31 @@ const normalizeDates = (list) => {
   return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
 };
 
+/** A country's locked dates & hours: [{ date, from, until }], a missing time = the whole day. */
+const normalizeUnavailable = (list) => {
+  const byKey = new Map();
+  (Array.isArray(list) ? list : [])
+    .filter((t) => isIso(t?.date))
+    .forEach((t) => {
+      const lock = {
+        date: t.date,
+        from: isTime(t.from) ? t.from : '00:00',
+        until: isTime(t.until) ? t.until : '24:00',
+      };
+      byKey.set(`${lock.date} ${lock.from} ${lock.until}`, lock);
+    });
+  return [...byKey.values()].sort((a, b) => a.date.localeCompare(b.date) || a.from.localeCompare(b.from));
+};
+
 /**
  * The schedule saved from the dashboard (BookingSettings document), with the
  * defaults for anything missing: { countries, weekly, overrides }.
  * Each country also has:
- *  - locked: online booking is paused there (the page shows the salon's contact)
- *  - mode:   'weekly' = the weekly hours and specific dates below,
- *            'dates'  = only the dates of its own calendar (`dates`)
+ *  - locked:      online booking is paused there (the page shows the salon's contact)
+ *  - mode:        'weekly' = the weekly hours and specific dates below,
+ *                 'dates'  = only the dates of its own calendar (`dates`)
+ *  - unavailable: its locked dates & hours, [{ date, from, until }] (all day =
+ *                 00:00 to 24:00): never offered, in either mode
  * Same rules as dash/app/utils/bookingSchedule.ts.
  */
 export function normalizeSettings(raw) {
@@ -210,6 +230,7 @@ export function normalizeSettings(raw) {
       locked: c?.locked === true,
       mode: c?.mode === 'dates' ? 'dates' : 'weekly',
       dates: normalizeDates(c?.dates),
+      unavailable: normalizeUnavailable(c?.unavailable),
     }))
     .filter((c) => c.name && c.cities.length);
   const weekly = DEFAULT_WEEKLY.map((def, i) => {
@@ -228,7 +249,7 @@ export function normalizeSettings(raw) {
   return {
     countries: countries.length
       ? countries
-      : COUNTRIES.map((c) => ({ ...c, locked: false, mode: 'weekly', dates: [] })),
+      : COUNTRIES.map((c) => ({ ...c, locked: false, mode: 'weekly', dates: [], unavailable: [] })),
     weekly,
     overrides,
   };
@@ -250,16 +271,12 @@ export function slotsBetween(from, until) {
 export const countryOf = (settings, name) =>
   (settings || DEFAULT_SETTINGS).countries.find((c) => c.name === name) || null;
 
-/**
- * The open start times of a date ("YYYY-MM-DD") in an appointment country:
- *  - a locked country: none;
- *  - a country with its own calendar: that date's hours, nothing on other days;
- *  - otherwise a specific date first, else its weekday.
- */
-export function hoursFor(settings, iso, country) {
-  const s = settings || DEFAULT_SETTINGS;
-  const c = country ? countryOf(s, country) : null;
-  if (c?.locked) return [];
+/** Does the 30-minute start time `hour` fall in one of these locked hours? */
+const isLockedAt = (locks, hour) =>
+  locks.some((t) => toMin(hour) < toMin(t.until) && toMin(hour) + SLOT_MINUTES > toMin(t.from));
+
+/** Start times of a date before the country's locked hours: its own calendar, else the specific date or weekday. */
+const openHours = (s, iso, c) => {
   if (c?.mode === 'dates') {
     const own = c.dates.find((x) => x.date === iso);
     return own ? slotsBetween(own.from, own.until) : [];
@@ -269,6 +286,22 @@ export function hoursFor(settings, iso, country) {
   const [y, m, d] = iso.split('-').map(Number);
   const day = s.weekly[new Date(y, m - 1, d).getDay()];
   return day?.open ? slotsBetween(day.from, day.until) : [];
+};
+
+/**
+ * The open start times of a date ("YYYY-MM-DD") in an appointment country:
+ *  - a locked country: none;
+ *  - a country with its own calendar: that date's hours, nothing on other days;
+ *  - otherwise a specific date first, else its weekday;
+ * minus the country's locked dates & hours (a day locked all day has none).
+ */
+export function hoursFor(settings, iso, country) {
+  const s = settings || DEFAULT_SETTINGS;
+  const c = country ? countryOf(s, country) : null;
+  if (c?.locked) return [];
+  const open = openHours(s, iso, c);
+  const locks = (c?.unavailable || []).filter((t) => t.date === iso);
+  return locks.length ? open.filter((h) => !isLockedAt(locks, h)) : open;
 }
 
 /** The time zone of an appointment country (Beirut when unknown). */

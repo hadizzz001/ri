@@ -18,7 +18,7 @@ import {
 } from './bookingMessage.js';
 
 export const SALON_EMAIL = process.env.SALON_EMAIL || 'info@rafidaham.com';
-export const SALON_PHONE = process.env.SALON_PHONE || '9613896074';
+export const SALON_PHONE = process.env.SALON_PHONE || '96178808100';
 
 const BRAND = {
   name: 'Rafi Daham Hair Repair Studio',

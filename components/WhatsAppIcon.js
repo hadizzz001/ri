@@ -5,7 +5,7 @@ import { faCommentDots } from '@fortawesome/free-regular-svg-icons'; // Thinner 
 const WhatsAppIcon = () => {
   return (
     <a
-      href="https://wa.me/9613896074"
+      href="https://wa.me/96178808100"
       target="_blank"
       rel="noopener noreferrer"
       style={{

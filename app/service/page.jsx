@@ -31,7 +31,7 @@ const Page = () => {
 
   if (!allTemp1) return <p>Loading...</p>;
 
-  const whatsappLink = `https://wa.me/9613896074?text=Hello, I am interested in this service: ${encodeURIComponent(allTemp1.title)}`;
+  const whatsappLink = `https://wa.me/96178808100?text=Hello, I am interested in this service: ${encodeURIComponent(allTemp1.title)}`;
 
   return (
     <div className="w-full mt-4 mb-4 text-center">

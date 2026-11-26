@@ -19,7 +19,7 @@ const QUICK_LINKS = [
 const SOCIAL = [
     { href: 'https://www.instagram.com/rafidaham_hairdressing', label: 'Instagram', Icon: FaInstagram },
     { href: 'https://www.facebook.com/1raffidahamhairdressing/', label: 'Facebook', Icon: FaFacebookF },
-    { href: 'https://wa.me/9613896074', label: 'WhatsApp', Icon: FaWhatsapp },
+    { href: 'https://wa.me/96178808100', label: 'WhatsApp', Icon: FaWhatsapp },
     { href: 'https://lb.linkedin.com/in/rafi-daham-aa74a492', label: 'Linkedin', Icon: FaLinkedinIn },
     { href: 'https://www.tiktok.com/@rafidaham_hairdressing', label: 'TikTok', Icon: FaTiktok },
     { href: 'https://pin.it/7p9wCp9ex', label: 'Pinterest Hair Colorist', Icon: FaPinterestP },

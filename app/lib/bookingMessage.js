@@ -8,7 +8,7 @@
 import { DEFAULT_OUTSIDE_FACTOR, DEPOSIT_RATE, isLebanon, outsideIncreasePercent } from './bookingPrice.js';
 
 /** The salon's WhatsApp number, as wa.me wants it. */
-export const SALON_WHATSAPP = '9613896074';
+export const SALON_WHATSAPP = '96178808100';
 
 export const BOOKING_MESSAGE = {
   en: {

@@ -392,10 +392,10 @@ const cityOptions = (country, lang, countries) => {
   return capital ? [capital, ...rest] : [];
 };
 
-const WHATSAPP_NUMBER = '9613896074';
+const WHATSAPP_NUMBER = '96178808100';
 /** The salon's phone, shown when a country can't be booked online */
-const SALON_PHONE = '+961 3 896 074';
-const SALON_TEL = '+9613896074';
+const SALON_PHONE = '+961 78 808 100';
+const SALON_TEL = '+96178808100';
 const LOGO = 'https://res.cloudinary.com/dtjcqfoxc/image/upload/v1751030325/black_bgez4v.webp';
 
 /* ------------------------------------------------------------------ icons */

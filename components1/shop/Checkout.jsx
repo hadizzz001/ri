@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useCart } from "../../app/context/CartContext";
 import { useAuth } from "../../app/context/AuthContext";
 
-const WHATSAPP = "9613896074";
+const WHATSAPP = "96178808100";
 const FREE_DELIVERY_FROM = 50;
 
 const COUNTRY_CODES = {
